@@ -10,14 +10,14 @@ Generate a visual, interactive HTML plan in one pass. The user reviews it in a b
 ## Invocation
 
 ```text
-/visual-plan <task description or ticket reference> [workspace=<path>] [profile=<path>] [out=<dir>] [notes]
+/visual-plan <task description or ticket reference> [workspace=<path>] [instructions=<path>] [out=<dir>] [notes]
 ```
 
 Examples:
 
 - `/visual-plan "Pre-warm the connection pool at deploy time"` — plan a free-form task.
 - `/visual-plan PROJ-1234` — plan against an existing tracker ticket, if the project uses one.
-- `/visual-plan "Add CSV export to the reports page" profile=./.plan-profile.md out=./plans`
+- `/visual-plan "Add CSV export to the reports page" instructions=./custom-instructions.md out=./plans`
 
 If the workspace is ambiguous, ask which repo or worktree before any tool call.
 
@@ -30,7 +30,7 @@ If the workspace is ambiguous, ask which repo or worktree before any tool call.
 - **Plain language is mandatory.** Every question, option, diagram label, and explanation follows the plain-language rules below.
 - **Animation encouraged, never compulsory.** Start by considering an animated scenario, scene player, or moving data flow, because progressive storytelling often makes a change easier to understand. Use animation when it adds explanatory value; never force motion that is decorative, fragile, or contrary to the user's request.
 - **Intelligent pruning.** Skip decisions the codebase, the task, or repo docs already answer. For low-risk work, infer safe defaults, pre-select them, and only surface decisions that materially change scope, risk, verification, or rollout.
-- **Completeness is defined by a plan profile, not baked in.** What sections and decisions a finished plan *must* contain depends on the team's downstream workflow. That contract lives in an optional **plan profile** (see below), never hardcoded into this skill. With no profile, use the generic default profile.
+- **Completeness is defined by custom instructions, not baked in.** What sections and decisions a finished plan *must* contain depends on the team's downstream workflow. That contract lives in an optional **custom-instructions file** (see below), never hardcoded into this skill. With no custom instructions, use the generic default.
 - **Record only after approval.** Once approved, write the compact plan where the project tracks work (see *Recording the plan*) and exit.
 - **No code, no branches, no deploys.** This skill plans. It never edits the repo (except the plan artifacts), opens PRs, or runs anything downstream.
 
@@ -39,16 +39,16 @@ If the workspace is ambiguous, ask which repo or worktree before any tool call.
 - Trivial changes (single-file fixes, doc-only edits, dependency bumps, typo fixes) — they do not need a plan.
 - The user wants you to think out loud about a design without producing a recorded plan — answer in chat; do not invoke this skill.
 
-## Plan Profiles — how completeness is defined
+## Custom instructions — how completeness is defined
 
-A **plan profile** is a short markdown file that lists the extra sections and decisions a plan must contain to be "done" for a given team or workflow. This is the seam that keeps team- or pipeline-specific requirements *out* of the skill.
+A **custom-instructions file** is a short markdown file that lists the extra sections and decisions a plan must contain to be "done" for a given team or workflow. This is the seam that keeps team- or pipeline-specific requirements *out* of the skill.
 
-- If the user passes `profile=<path>`, or a file named `.plan-profile.md` exists at the workspace root, read it and treat its required sections and decisions as mandatory. Every one becomes content in the plan and, where it is a choice, a decision card.
-- If no profile is found, use the **generic default profile** below.
+- If the user passes `instructions=<path>`, or a file named `custom-instructions.md` exists at the workspace root, read it and treat its required sections and decisions as mandatory. Every one becomes content in the plan and, where it is a choice, a decision card.
+- If no custom instructions are found, use the **generic default** below.
 
-The profile controls three things only: **(1)** extra required sections (e.g. a test plan, a rollout plan, a security review), **(2)** extra required decisions (rendered as decision cards), and **(3)** where the approved plan is recorded (see *Recording the plan*). It does not change how the visual explanation or decision cards are built.
+Custom instructions control three things only: **(1)** extra required sections (e.g. a test plan, a rollout plan, a security review), **(2)** extra required decisions (rendered as decision cards), and **(3)** where the approved plan is recorded (see *Recording the plan*). They do not change how the visual explanation or decision cards are built.
 
-### Generic default profile (used when no profile is supplied)
+### Generic default (used when no custom instructions are supplied)
 
 A finished plan must contain:
 
@@ -58,13 +58,13 @@ A finished plan must contain:
 4. **How we'll know it worked** — the concrete way to verify the change does what the goal says: the check to run, the observable result, and what "failed" looks like. Depth scales with risk; a one-line manual check is a valid answer for a small change.
 5. **Decisions** — every choice the change actually raises, as decision cards. There is no fixed list; surface what this change needs (a data-shape change, a flag, an ordering, a rollout choice) and prune what it doesn't.
 
-> A team with a heavier process (staged environments, mandatory monitoring windows, sign-offs) encodes that as a profile file instead of asking this skill to assume it. An example profile lives in the repo README.
+> A team with a heavier process (staged environments, mandatory monitoring windows, sign-offs) encodes that as a custom-instructions file instead of asking this skill to assume it. An example lives in the repo README.
 
 ## Inputs
 
 - A task description **or** a tracker ticket reference.
 - Optional: workspace path. If omitted and the current directory is unambiguous, use it; otherwise ask.
-- Optional: a plan profile path.
+- Optional: a custom-instructions path.
 - Optional: an output directory for the artifact (default `./plans/`).
 - Optional: notes from the user (focus areas, constraints, deadlines).
 
@@ -97,7 +97,7 @@ Generate the full plan as a single self-contained HTML file. This replaces the q
 
 - **What the result does from the outside** — who is affected, the happy path step by step, what state the user/caller observes, the failure modes they see, and the goals and explicit non-goals.
 - **How it is built** — affected repos/modules, data ownership and typed boundaries, any new or changed contracts (API, schema, event, config), cross-repo ordering, and the ordered implementation steps.
-- **How it is verified** — whatever the active profile requires. For the generic default, that is the "How we'll know it worked" section.
+- **How it is verified** — whatever the active custom instructions require. For the generic default, that is the "How we'll know it worked" section.
 
 **Keep architecture honest (lightweight provenance).** Every built thing should trace to something the result must do; every behavior should trace to the task text, a verified code fact, or a stated assumption. A built thing with no behavior behind it is invented — cut it or turn it into an intent card. A behavior with no source is an intent gap — surface it as an intent card. You do not need heavy audit tables for this; you need the discipline. (If you later run the optional `challenge-plan` skill, it asks for a fuller inventory — build that then, not now.)
 
@@ -136,7 +136,7 @@ What to visualize, by change type:
 
 **3. Implementation pipeline.** A compact visual of the ordered steps. For cross-repo work, show the dependency chain with an arrow between step cards. Each step card lists the module/repo name and bullet-point scope.
 
-**4. Verification (compact, expandable).** Render the verification the active profile requires as compact `<details>` cards — a `<dl>` of the required fields, brief. For the generic default, that is one "How we'll know it worked" card. If the profile requires more (a dev plan, a prod plan, a security section), render one compact card each. Keep them 3–5 lines each; expand into full prose only when recording the plan (step 6).
+**4. Verification (compact, expandable).** Render the verification the active custom instructions require as compact `<details>` cards — a `<dl>` of the required fields, brief. For the generic default, that is one "How we'll know it worked" card. If they require more (a dev plan, a prod plan, a security section), render one compact card each. Keep them 3–5 lines each; expand into full prose only when recording the plan (step 6).
 
 **5. Multiple-choice decision cards.** Each decision card has:
 - A question title.
@@ -147,7 +147,7 @@ What to visualize, by change type:
 
 **Intent-gap cards come first.** Render every material intent gap as its own card, before the implementation decisions. Ask the behavioral question — "while the workflow is temporarily broken, should new requests queue and run on recovery, or be rejected?" — never the mechanism question ("should we add an admission gate?"). Pre-select the reading that needs the least machinery and draw the v1 for that reading. The human corrects upward cheaply; a silent rich-reading guess becomes machinery nobody reviewed.
 
-**Required decisions** = whatever the active profile lists, plus any change-specific decisions you identify (flag, response-shape change, cross-repo ordering, rollout strategy). The generic default profile requires no fixed decision list — surface what the change raises.
+**Required decisions** = whatever the active custom instructions list, plus any change-specific decisions you identify (flag, response-shape change, cross-repo ordering, rollout strategy). The generic default requires no fixed decision list — surface what the change raises.
 
 **Selection-capture controls — required at BOTH the top and bottom of the decisions section.** Render an **"Accept all defaults"** button and a **"Copy decisions"** button in two places: above the first card and after the last card. The plan is a static file with no server; a selection only leaves the browser when the user copies it. "Copy decisions" serializes the current radio state (flagging anything changed from its default) to the clipboard so the user can paste it back into chat — or they can just say "looks good" / "change Q3 to …". Wire both copies of the buttons to the same handlers (bind by class, not `id`) and flash a confirmation on every `.copy-note`. Add an inline hint by the bottom controls reminding the user they can paste the summary back or reply in chat.
 
@@ -164,7 +164,7 @@ What to visualize, by change type:
 
 Verify **all** of these before opening the HTML:
 
-- Every section and decision the active profile requires is present and passes its rules.
+- Every section and decision the active custom instructions require is present and passes its rules.
 - The header states a clear goal.
 - The visual explanation is grounded in actual code (real function names and file paths, not generic descriptions).
 - Any animation present adds explanatory value; any standalone static flowchart was explicitly requested or is a supporting overview slide.
@@ -195,7 +195,7 @@ The user reviews the HTML and responds in chat:
 
 #### Recording the plan
 
-Where the approved plan goes is set by the active profile (or the user); this skill does not assume any one tracker. Pick the destination the project actually uses:
+Where the approved plan goes is set by the active custom instructions (or the user); this skill does not assume any one tracker. Pick the destination the project actually uses:
 
 - **A tracker ticket (Linear, Jira, GitHub Issues, etc.)** — put the compact plan in the ticket description/body via whatever the project uses to write tickets (a CLI, an API, or by handing the text to the user to paste). Move the ticket to the project's "ready to start" state if it has one. For a free-form task with no ticket yet, create the ticket now, after approval.
 - **A file in the repo** — write the compact plan to a markdown file next to the HTML (e.g. `<out>/<YYYY-MM-DD>_<slug>.md`) and reference the HTML from it.
@@ -203,7 +203,7 @@ Where the approved plan goes is set by the active profile (or the user); this sk
 
 The **compact plan** (markdown) contains:
 - Summary: goal, risk level, step count — a few lines.
-- Every section the active profile requires, expanded from the compact HTML cards into full prose.
+- Every section the active custom instructions require, expanded from the compact HTML cards into full prose.
 - The implementation outline (ordered steps with module names).
 - Decision values (every answer, noting which changed from the default).
 - `Assumptions` — the simple-reading gap fills the user's approval confirmed.
@@ -241,7 +241,7 @@ Never apply these to code, identifiers, quoted material, or exact strings.
 - [ ] Visual explanation grounded in actual code — real functions, files, endpoints.
 - [ ] Animation treated as encouraged, not compulsory; any motion improves comprehension.
 - [ ] Any flowchart is fully visible in normal flow with unbounded content-driven height, no overlap/clipping, no internal scroll.
-- [ ] Every section and decision the active profile requires is present (generic default if no profile).
+- [ ] Every section and decision the active custom instructions require is present (generic default if none).
 - [ ] Material intent gaps surfaced as behavioral intent cards with the simplest reading pre-selected.
 - [ ] Compact plan drafted at generation time with `Assumptions` and `Deliberately not built`.
 - [ ] "Copy decisions" + "Accept all defaults" at both top and bottom, wired by class; "Copy decisions" has the Clipboard-API → `execCommand` → manual-`<textarea>` fallback chain.
@@ -264,7 +264,7 @@ Never apply these to code, identifiers, quoted material, or exact strings.
 - **Standalone static flowchart as the default.** Use it as an overview slide within an animated deck, or when the user explicitly asks — not because it is easier than animation.
 - **Constrained flowchart canvas.** No fixed-height, viewport-height, aspect-ratio, clipped, scaled, or internally scrolling container. The document grows to show the whole chart.
 - **Skipping the code read.** If the visual doesn't name real functions and file paths, you skipped step 2.
-- **Baking team process into the skill.** Mandatory environments, monitoring windows, and sign-offs belong in a plan profile, not in this skill.
+- **Baking team process into the skill.** Mandatory environments, monitoring windows, and sign-offs belong in custom instructions, not in this skill.
 - **A "Copy decisions" button that only calls `navigator.clipboard.writeText`.** It fails silently in a sandboxed iframe. Always include the `execCommand` → manual-`<textarea>` fallback.
 - **Serving the preview IPv4-only.** Leaves the panel stuck on "Awaiting server…". Serve dual-stack.
 - **Silently filling an intent gap with the rich reading.** Under-specified intent is a question for the human, not a license to build defensively.
@@ -276,4 +276,4 @@ Never apply these to code, identifiers, quoted material, or exact strings.
 - No sequential question loop — the visual plan and decision cards replace the back-and-forth.
 - No automatic challenge round — `challenge-plan` is a separate, user-triggered skill.
 - No code changes, branches, PRs, or deploys.
-- No assumption about which tracker (if any) the team uses — that is set by the profile or the user.
+- No assumption about which tracker (if any) the team uses — that is set by the custom instructions or the user.

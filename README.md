@@ -42,20 +42,20 @@ cp -R visual-planning-skills/skills/* ~/.claude/skills/
 
 Each `skills/<name>/SKILL.md` is self-contained. The `visual-explainer` skill also ships a reference example at `skills/visual-explainer/examples/pipeline-explainer.html` — open it in a browser to see every pattern working.
 
-## Plan profiles — keep your process out of the skill
+## Custom instructions
 
-A plan is only "done" relative to a workflow. One team merges straight to trunk; another has a dev environment, a prod monitoring window, and a sign-off. Hardcoding either into the skill makes it useless to the other team, so `visual-plan` keeps that contract in an **optional plan profile** instead.
+A plan is only "done" relative to a workflow. One team merges straight to trunk; another has a dev environment, a prod monitoring window, and a sign-off. Hardcoding either into the skill makes it useless to the other team, so `visual-plan` keeps that contract in an **optional custom-instructions file** instead.
 
-- Pass one with `profile=<path>`, or drop a `.plan-profile.md` at your workspace root.
-- With no profile, the skill uses a generic default: goal, the change shown visually, an implementation outline, "how we'll know it worked," and whatever decisions the change actually raises.
-- A profile adds three things only: extra **required sections**, extra **required decisions** (rendered as decision cards), and where the approved plan is **recorded**.
+- Pass one with `instructions=<path>`, or drop a `custom-instructions.md` file at your workspace root.
+- With no custom instructions, the skill uses a generic default: goal, the change shown visually, an implementation outline, "how we'll know it worked," and whatever decisions the change actually raises.
+- Custom instructions add three things only: extra **required sections**, extra **required decisions** (rendered as decision cards), and where the approved plan is **recorded**.
 
-### Example profile — a dev → prod pipeline
+### Example — a dev → prod pipeline
 
-Save as `.plan-profile.md`. This turns the generic default into a plan with a dev test plan, a prod monitoring plan, and four fixed decisions — the kind of contract a team with staged environments needs. Adapt or delete freely.
+Save as `custom-instructions.md`. This turns the generic default into a plan with a dev test plan, a prod monitoring plan, and four fixed decisions — the kind of contract a team with staged environments needs. Adapt or delete freely.
 
 ```markdown
-# Plan profile — staged dev/prod delivery
+# Custom instructions — staged dev/prod delivery
 
 ## Required sections
 - **Dev integration test plan** — environment, concrete steps, observable expected results,
