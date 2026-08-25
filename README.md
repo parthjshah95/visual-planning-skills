@@ -41,6 +41,11 @@ Each `SKILL.md` is self-contained. `visual-explainer` ships an example, [`pipeli
 
 ## Custom instructions
 
+<details>
+<summary>Optional — set what a finished plan must contain for your team.</summary>
+
+<br>
+
 A finished plan means different things to different teams. One team merges straight to trunk. Another team needs a dev environment, a monitoring window, and a sign-off. So `visual-plan` keeps that contract in an optional file, not in the skill.
 
 - Pass a file with `instructions=<path>`, or drop a `custom-instructions.md` file at your workspace root.
@@ -68,6 +73,8 @@ Save this as `custom-instructions.md`. It adds a dev test plan, a prod monitorin
 ## Record the approved plan in
 - The tracker ticket. Move the ticket to "ready to start" on approval.
 ```
+
+</details>
 
 ## Why
 
