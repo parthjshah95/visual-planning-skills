@@ -1,4 +1,4 @@
-# Visual Thinking Skills
+# Visual Planning Skills
 
 Three small, tool-agnostic [agent skills](https://docs.claude.com/en/docs/claude-code/skills) for
 turning ideas into things you can *look at* before you build them:
@@ -21,8 +21,8 @@ Written as plain `SKILL.md` files, so any agent that can read a skill can use th
 ### As a Claude Code plugin (recommended)
 
 ```bash
-claude plugin marketplace add parthjshah95/visual-thinking-skills
-claude plugin install visual-thinking-skills@visual-thinking-skills
+claude plugin marketplace add parthjshah95/visual-planning-skills
+claude plugin install visual-planning-skills@visual-planning-skills
 ```
 
 Then invoke a skill by name in a session: `/visual-explainer`, `/visual-plan`, `/challenge-plan` — or just describe the task and let the agent pick.
@@ -32,8 +32,8 @@ Then invoke a skill by name in a session: `/visual-explainer`, `/visual-plan`, `
 Copy the skill directories into wherever your agent loads skills from. For Claude Code that's `~/.claude/skills/`:
 
 ```bash
-git clone https://github.com/parthjshah95/visual-thinking-skills
-cp -R visual-thinking-skills/skills/* ~/.claude/skills/
+git clone https://github.com/parthjshah95/visual-planning-skills
+cp -R visual-planning-skills/skills/* ~/.claude/skills/
 ```
 
 Each `skills/<name>/SKILL.md` is self-contained. The `visual-explainer` skill also ships a reference example at `skills/visual-explainer/examples/pipeline-explainer.html` — open it in a browser to see every pattern working.

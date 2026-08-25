@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
-  "name": "visual-thinking-skills",
+  "name": "visual-planning-skills",
   "version": "0.1.0",
   "description": "Visual, tool-agnostic planning and illustration skills for Claude Code.",
   "owner": {
@@ -8,7 +8,7 @@
   },
   "plugins": [
     {
-      "name": "visual-thinking-skills",
+      "name": "visual-planning-skills",
       "description": "visual-explainer, visual-plan, and challenge-plan. Build single-file interactive HTML explainers and browser-reviewed plans; challenge any AI-authored plan for over-engineering.",
       "source": ".",
       "category": "productivity"
