@@ -124,13 +124,13 @@ run([MAGICK, "-loop", "0",
      "-delay", "150", str(WORK / "h2.png"),
      "-delay", "150", str(WORK / "h3.png"),
      "-delay", "300", str(WORK / "h4.png"),
-     "-resize", "960x", "-layers", "Optimize", str(ASSETS / "plan-visual.gif")])
+     "-resize", "1920x", "-layers", "Optimize", str(ASSETS / "plan-visual.gif")])
 
 # ---------- 2. markdown plan: slow scroll ----------
-shot(f"file://{md_render}", str(WORK / "md-tall.png"), 1000, 7000, budget=1500)
+shot(f"file://{md_render}", str(WORK / "md-tall.png"), 1000, 5000, budget=1500, scale=3)
 run([MAGICK, str(WORK / "md-tall.png"), "-trim", "+repage", str(WORK / "md-trim.png")])
 W, H = png_size(str(WORK / "md-trim.png"))
-win_h, n = 1400, 26
+win_h, n = 2100, 18
 max_off = max(0, H - win_h)
 frames = []
 for k in range(n):
@@ -141,7 +141,7 @@ for k in range(n):
 args = [MAGICK, "-loop", "0"]
 for k, fp in enumerate(frames):
     args += ["-delay", "170" if k in (0, len(frames) - 1) else "13", str(fp)]
-args += ["-resize", "860x", "-colors", "96", "-layers", "Optimize", str(ASSETS / "plan-markdown.gif")]
+args += ["-resize", "1720x", "-colors", "48", "-layers", "Optimize", str(ASSETS / "plan-markdown.gif")]
 run(args)
 
 shutil.rmtree(WORK, ignore_errors=True)

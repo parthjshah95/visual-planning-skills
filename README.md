@@ -20,18 +20,15 @@ Written as plain `SKILL.md` files, so any agent that can read a skill can use th
 
 Here is one small feature — *"Add CSV export to the Reports page"* — planned both ways. Same goal, same five steps, same single real trade-off. The only difference is whether you **read** the plan or **watch** it.
 
-<table>
-<tr>
-<td width="50%" valign="top"><b>📄 A traditional Markdown plan</b><br>Complete — and a wall of text you scroll through.</td>
-<td width="50%" valign="top"><b>✨ What <code>visual-plan</code> produces</b><br>The same plan, shown instead of told.</td>
-</tr>
-<tr>
-<td valign="top"><img src="assets/plan-markdown.gif" alt="A traditional Markdown plan, scrolling" width="100%"></td>
-<td valign="top"><img src="assets/plan-visual.gif" alt="The animated visual plan for the same feature" width="100%"></td>
-</tr>
-</table>
+**📄 A traditional Markdown plan** — complete, and a wall of text you scroll through:
 
-Both hold the identical plan — goal, five ordered steps, and the one real decision (*"what about reports too large to stream in time?"*). On the left you read it top to bottom. On the right the request flow animates step by step, and that decision becomes a card you answer in the browser with the recommended option pre-selected.
+![A traditional Markdown plan, scrolling](assets/plan-markdown.gif)
+
+**✨ What `visual-plan` produces for the same feature** — shown instead of told:
+
+![The animated visual plan for the same feature](assets/plan-visual.gif)
+
+Both hold the identical plan — goal, five ordered steps, and the one real decision (*"what about reports too large to stream in time?"*). The first you read top to bottom. The second animates the request flow step by step and turns that decision into a card you answer in the browser, with the recommended option pre-selected.
 
 Source for both: [`plan.md`](skills/visual-plan/examples/csv-export/plan.md) and [`plan.html`](skills/visual-plan/examples/csv-export/plan.html). GitHub shows the `.html` as source, so the GIF above is a recording of it running — to see the real thing, download `plan.html` and open it, or [**view it live**](https://htmlpreview.github.io/?https://github.com/parthjshah95/visual-planning-skills/blob/main/skills/visual-plan/examples/csv-export/plan.html) (it is one self-contained file).
 
