@@ -189,7 +189,7 @@
   <header>
     <div class="kicker">A visual explainer · built by the visual-explainer skill</div>
     <h1>How the <span class="blue">visual-plan</span> skill works</h1>
-    <p class="tagline">It turns a task into a plan you can look at — and answer — before any code is written.</p>
+    <p class="tagline">The visual-plan skill turns a task into a plan you can see. You answer it before you write any code.</p>
     <div class="ribbon"><span class="dot"></span><span>Follow one ticket: “Add CSV export to the Reports page”</span></div>
   </header>
 
@@ -228,7 +228,7 @@
         </g>
       </svg>
     </div>
-    <p class="m-cap" id="morph-cap">Question loop: one prompt at a time, and you cannot see the shape until the end.</p>
+    <p class="m-cap" id="morph-cap">Question loop: one prompt at a time. You cannot see the shape until the end.</p>
   </section>
 
   <!-- ===== SCENE PLAYER ===== -->
@@ -343,11 +343,11 @@
           </div>
           <div class="opt" data-v="Background job + emailed link">
             <span class="radio"></span>
-            <span><span class="ot">Background job + emailed link</span><span class="ds">Robust for any size, but adds a queue, a worker, storage, and email — none of which exist yet.</span></span>
+            <span><span class="ot">Background job + emailed link</span><span class="ds">Robust for any size. It adds a queue, a worker, storage, and email. None of those exist yet.</span></span>
           </div>
           <div class="opt" data-v="Other" data-other="1">
             <span class="radio"></span>
-            <span><span class="ot">Other</span><span class="ds">None of these fit — type what to do instead.</span>
+            <span><span class="ot">Other</span><span class="ds">None of these fit. Type what to do instead.</span>
               <input class="other-field" id="other-field" type="text" placeholder="e.g. cap at 10,000 rows for now">
             </span>
           </div>
@@ -355,7 +355,7 @@
         <p class="picked" id="picked">Selected: Stream now, cap at 50,000 rows <span style="color:var(--ink-faint)">(the default)</span></p>
       </div>
       <ul class="anno">
-        <li><b>Recommended default.</b> The AI's answer is pre-selected. Agree by doing nothing.</li>
+        <li><b>Recommended default.</b> The AI pre-selects its answer. To agree, do nothing.</li>
         <li><b>Plain question.</b> It asks the practical choice, not the mechanism.</li>
         <li><b>Grounded.</b> It names the real function, <code>rows_to_csv()</code>, from your code.</li>
         <li><b>Other.</b> Every card ends with a free-text escape hatch.</li>
@@ -385,11 +385,11 @@
 
   <!-- ===== GLOSSARY ===== -->
   <section>
-    <h2><span class="n">06</span>Words worth knowing</h2>
+    <h2><span class="n">06</span>Words to know</h2>
     <dl class="glossary">
       <div class="term"><dt>decision card</dt><dd>A multiple-choice question in the plan. It has a recommended default and an "Other" field. You answer it in the browser.</dd></div>
-      <div class="term"><dt>intent gap</dt><dd>A point where the task does not say what the result should do. The AI asks about it instead of guessing the defensive reading.</dd></div>
-      <div class="term"><dt>custom instructions</dt><dd>An optional file that sets what a finished plan must contain for your team, plus where to record it.</dd></div>
+      <div class="term"><dt>intent gap</dt><dd>A point where the task does not say what the result must do. The AI asks about it. It does not guess.</dd></div>
+      <div class="term"><dt>custom instructions</dt><dd>An optional file. It sets what a finished plan must contain, and where to record it.</dd></div>
       <div class="term"><dt>compact plan</dt><dd>The short markdown the agent records on approval. The HTML file stays the human-readable reference.</dd></div>
       <div class="term"><dt>deliberately not built</dt><dd>A note in the plan: what was cut, the seam that keeps it pluggable, and the signal that would revive it.</dd></div>
       <div class="term"><dt>challenge-plan</dt><dd>A separate skill. A different model attacks the plan for over-building. It may only cut, reuse, simplify, or ask.</dd></div>
@@ -398,7 +398,7 @@
 
   <!-- ===== EXTRAS ===== -->
   <section>
-    <h2><span class="n">07</span>Worth knowing</h2>
+    <h2><span class="n">07</span>Also useful</h2>
     <div class="extras">
       <div class="extra"><h4>One self-contained file</h4><p>No CDN, no build step. The plan opens straight from disk, offline.</p></div>
       <div class="extra"><h4>Grounded in real code</h4><p>The diagram names real functions and files. The AI reads the code first, not just the ticket.</p></div>
@@ -426,10 +426,10 @@
 
   const SCENES=[
     {title:"1 · A task arrives",body:["A developer runs ",{tag:"code",text:"/visual-plan"}," on one task: ",{tag:"strong",text:"Add CSV export to the Reports page"},". No question loop starts."]},
-    {title:"2 · Read the code, pin the baseline",body:["The AI reads the ",{tag:"strong",text:"real code"}," the change will touch. It records the exact commit, so every claim is checked against that baseline."]},
-    {title:"3 · Draft the plan in one pass",body:["The AI draws the whole plan at once — the change, the steps, the checks. Where intent is unclear, it ",{tag:"strong",text:"asks"},", instead of a guess."]},
-    {title:"4 · You review it in the browser",body:["The plan opens as one HTML file. You read it and answer ",{tag:"strong",text:"decision cards"},". Each card has a recommended default. You step in only to disagree."]},
-    {title:"5 · Approve, and it is recorded",body:["You say “looks good.” The agent writes a compact plan where your team tracks work — a ticket, a file, or nothing."]},
+    {title:"2 · Read the code, pin the baseline",body:["The AI reads the ",{tag:"strong",text:"real code"}," the change will touch. It records the exact commit as the baseline."]},
+    {title:"3 · Draft the plan in one pass",body:["The AI draws the whole plan at once: the change, the steps, and the checks. Where the intent is unclear, the AI ",{tag:"strong",text:"asks"},". It does not guess."]},
+    {title:"4 · You review it in the browser",body:["The plan opens as one HTML file. You answer the ",{tag:"strong",text:"decision cards"},". Each card has a recommended default. You change a card only to disagree."]},
+    {title:"5 · You approve; the agent records it",body:["You say “looks good.” The agent writes a compact plan. It goes where your team tracks work: a ticket, a file, or nothing."]},
     {title:"6 · Optional: challenge it",body:["You may run ",{tag:"code",text:"/challenge-plan"},". A ",{tag:"strong",text:"different model"}," attacks the plan for over-building. It may only cut, never add."]},
   ];
 
@@ -470,8 +470,8 @@
   setScene(0);
 
   /* morph toggle */
-  const MCAP={old:"Question loop: one prompt at a time, and you cannot see the shape until the end.",
-              new:"visual-plan: the whole plan at once, and you answer only the decisions that matter."};
+  const MCAP={old:"Question loop: one prompt at a time. You cannot see the shape until the end.",
+              new:"visual-plan: the whole plan at once. You answer only the decisions that matter."};
   const mcap=document.getElementById("morph-cap");
   document.querySelectorAll(".tbtn").forEach(btn=>{
     btn.addEventListener("click",()=>{

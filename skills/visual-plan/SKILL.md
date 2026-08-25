@@ -27,7 +27,7 @@ If the workspace is ambiguous, ask which repo or worktree before any tool call.
 - **One-pass generation.** No question loop. Generate the entire plan — visual explanation, implementation steps, verification, and decisions — in a single pass, then present it as one interactive HTML file.
 - **Decisions as multiple-choice cards, not a question loop.** Every decision the user needs to make is a radio-button card with the AI's recommendation pre-selected. The user only intervenes on disagreements.
 - **Ask, don't guess, on intent.** Where the task under-specifies *what the result should do*, do not silently fill the gap with the rich, defensive reading. Surface each material gap as an intent card asking the behavioral question, with the reading that needs the least machinery pre-selected. Only ask when different answers change what gets built; otherwise take the simple reading and record it as a one-line assumption the user can veto.
-- **Plain language is mandatory.** Every question, option, diagram label, and explanation follows the plain-language rules below.
+- **Simplified Technical English is mandatory.** Every question, option, diagram label, and explanation MUST follow the [`asd-ste100`](../asd-ste100/SKILL.md) skill, strictly. The language rules below say what to say.
 - **Animation encouraged, never compulsory.** Start by considering an animated scenario, scene player, or moving data flow, because progressive storytelling often makes a change easier to understand. Use animation when it adds explanatory value; never force motion that is decorative, fragile, or contrary to the user's request.
 - **Intelligent pruning.** Skip decisions the codebase, the task, or repo docs already answer. For low-risk work, infer safe defaults, pre-select them, and only surface decisions that materially change scope, risk, verification, or rollout.
 - **Completeness is defined by custom instructions, not baked in.** What sections and decisions a finished plan *must* contain depends on the team's downstream workflow. That contract lives in an optional **custom-instructions file** (see below), never hardcoded into this skill. With no custom instructions, use the generic default.
@@ -223,15 +223,15 @@ Tell the user:
 
 After the plan is presented or approved, the user may run the separate [`challenge-plan`](../challenge-plan/SKILL.md) skill: a *different* model attacks the plan for invented requirements, invented trust boundaries, and speculative structure, and either confirms it or proposes cuts. This skill does **not** run it for you — it is a deliberate, user-triggered step, so you never pay for a challenge round the user didn't want. Offer it; don't force it.
 
-## Plain-language rules (apply to every human-readable string in the plan)
+## Language rules (apply to every human-readable string in the plan)
 
-- **Behavior before mechanism.** Say what the change does and what the user observes before naming internal machinery.
-- **Define every non-obvious term before first use.** No undefined shorthand carried forward.
-- **Prefer the plain word;** spell out abbreviations once.
-- **Short, active sentences;** one idea each.
-- **One term per concept;** don't rotate synonyms.
+**Sentence form is set by the [`asd-ste100`](../asd-ste100/SKILL.md) skill — follow it strictly.** At most 20 words for an instruction and 25 for a description, active voice, simple tenses, no `-ing` verbs, noun clusters of at most 3 words, one term per concept, and no ellipsis. This covers every question, option, diagram label, and explanation. It does not cover code, identifiers, or quoted strings.
 
-Never apply these to code, identifiers, quoted material, or exact strings.
+The `asd-ste100` skill governs how to build the sentence. These points govern what to say:
+
+- **Behavior before mechanism.** Say what the change does, and what the user sees, before you name the machinery.
+- **Define every non-obvious term before first use.** Carry no undefined shorthand forward.
+- **Ask the practical choice, not the mechanism.** A decision card asks what will happen, not which implementation to pick.
 
 ## Completion checklist
 
@@ -247,7 +247,7 @@ Never apply these to code, identifiers, quoted material, or exact strings.
 - [ ] "Copy decisions" + "Accept all defaults" at both top and bottom, wired by class; "Copy decisions" has the Clipboard-API → `execCommand` → manual-`<textarea>` fallback chain.
 - [ ] Every decision card ends with an "Other" option whose free-text field is captured by "Copy decisions".
 - [ ] Every decision-card explanation is change-specific, not generic.
-- [ ] Every question, option, label, and explanation follows the plain-language rules.
+- [ ] Every question, option, label, and explanation follows the `asd-ste100` skill strictly (20/25-word limits, active voice, simple tenses, no `-ing` verbs).
 - [ ] User approved (or overrode specific decisions).
 - [ ] Approved plan recorded where the project tracks work (or intentionally left as the HTML only).
 - [ ] No code changes, branches, PRs, or deploys triggered.

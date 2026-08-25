@@ -35,23 +35,22 @@ The fastest way to ship a *wrong* explainer is to infer the subject. Before draw
 
 ### 2. Write in plain language before drawing
 
-The words carry as much of the explanation as the pictures. Follow these rules for every
-human-readable sentence in the output — narration, labels, captions, diagram nodes, glossary
-entries:
+The words carry as much of the explanation as the pictures.
 
-- **Behavior before mechanism.** Say what the thing does and what the reader observes before you
-  name the internal machinery that makes it happen.
-- **Define every term before its first use.** If a word is not common English, give a one-line
-  definition the first time it appears. Do not carry undefined shorthand forward.
-- **Prefer the plain word.** Short common words over formal or rare ones. Spell out an
-  abbreviation the first time.
-- **Short, active sentences.** One idea per sentence. Prefer the active voice. A good ceiling is
-  ~20 words for an instruction and ~25 for a description; split anything longer.
-- **One term per concept.** Pick a name and repeat it; do not rotate synonyms for the same thing.
+**Every human-readable string in the output MUST follow the [`asd-ste100`](../asd-ste100/SKILL.md)
+skill, strictly.** This covers narration, scene text, captions, diagram labels, decision text, and
+glossary entries. It does not cover code, identifiers, or quoted strings. That skill sets the
+sentence form: at most 20 words for an instruction and 25 for a description, active voice, simple
+tenses, no `-ing` verbs, noun clusters of at most 3 words, one term per concept, and no ellipsis.
 
-Never apply these rules to code, identifiers, quoted material, or an exact string. Dense
-technical shorthand can be accurate and still fail to explain — translate it, don't just drop it
-in a glossary and make the reader decode it.
+The `asd-ste100` skill governs how to build the sentence. These points govern what to say:
+
+- **Behavior before mechanism.** Say what the thing does, and what the reader sees, before you name
+  the machinery.
+- **Define every term before its first use.** Give a one-line definition the first time a
+  non-common word appears. Do not carry undefined shorthand forward.
+- **Translate shorthand.** Dense technical shorthand can be accurate and still fail to explain.
+  Translate it. Do not drop it into a glossary and make the reader decode it.
 
 ### 3. Pick one concrete example to walk through
 Abstract explainers don't land. Choose a single realistic task/ticket/request and follow it
@@ -81,6 +80,8 @@ cohesive palette reads better than default centered Inter on white cards.
 - Read every heading, label, caption, and narration as a newcomer: the real-world meaning comes
   before code names, jargon is removed, and every necessary term or abbreviation is defined
   before use.
+- Check every human-readable string against the [`asd-ste100`](../asd-ste100/SKILL.md) skill: 20-word
+  instructions, 25-word descriptions, active voice, simple tenses, and no `-ing` verbs.
 
 ## Non-negotiable technical patterns
 
