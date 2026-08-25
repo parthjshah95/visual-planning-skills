@@ -11,7 +11,7 @@
     --paper:#14203a; --line:#26406a; --line-2:#37568a;
     --blue:#46b8d8; --blue-glow:#82dcef; --blue-deep:#1b7d97;
     --amber:#f0a83c; --amber-glow:#ffca6b;
-    --ok:#54cf8d; --warn:#f0b429; --bad:#ef6a5f; --violet:#a88bff;
+    --ok:#54cf8d; --warn:#f0b429; --violet:#a88bff;
     --ink:#e9eefb; --ink-dim:#95a7c9; --ink-faint:#69799d;
     --shadow:0 10px 30px rgba(0,0,0,.45);
     --disp:"Georgia","Times New Roman",serif;
@@ -29,7 +29,7 @@
   .wrap{max-width:1000px;margin:0 auto;}
   a{color:var(--blue-glow);}
 
-  /* blueprint grid texture on some panels */
+  /* blueprint grid texture */
   .grid-bg{
     background-image:
       linear-gradient(var(--line) 1px, transparent 1px),
@@ -39,33 +39,37 @@
 
   header{text-align:center;padding:52px 0 12px;}
   .kicker{font-family:var(--mono);font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--blue);}
-  h1{font-family:var(--disp);font-size:clamp(30px,6vw,52px);margin:8px 0 8px;letter-spacing:.4px;}
-  h1 .blue{color:var(--blue-glow);}
+  h1{font-family:var(--disp);font-size:clamp(26px,4.8vw,46px);margin:10px auto 10px;letter-spacing:.4px;max-width:820px;text-wrap:balance;}
   .tagline{color:var(--ink-dim);font-size:18px;max-width:640px;margin:0 auto;}
+  .tagline code{font-family:var(--mono);color:var(--blue-glow);}
   .ribbon{
     display:inline-flex;gap:10px;align-items:center;margin:22px auto 0;
     background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--amber);
     border-radius:8px;padding:10px 16px;font-family:var(--mono);font-size:14px;box-shadow:var(--shadow);
   }
-  .ribbon .dot{width:9px;height:9px;border-radius:50%;background:var(--amber);animation:pulse 1.8s ease-in-out infinite;}
+  .ribbon .pulse{width:9px;height:9px;border-radius:50%;background:var(--amber);animation:pulse 1.8s ease-in-out infinite;}
 
   section{margin-top:60px;}
   h2{font-family:var(--disp);font-size:clamp(22px,3.6vw,30px);border-bottom:1px solid var(--line);padding-bottom:10px;}
   h2 .n{color:var(--blue);font-family:var(--mono);font-size:.62em;margin-right:10px;}
   .lead{color:var(--ink-dim);max-width:740px;}
 
-  /* ===== morph toggle ===== */
-  .morph-ctl{display:flex;gap:10px;justify-content:center;margin:18px 0;}
-  .tbtn,.btn{font-family:var(--mono);font-size:14px;cursor:pointer;background:var(--bg-2);color:var(--ink);
+  .btn{font-family:var(--mono);font-size:14px;cursor:pointer;background:var(--bg-2);color:var(--ink);
     border:1px solid var(--line-2);border-radius:8px;padding:9px 16px;transition:border-color .2s ease,background .2s ease,transform .1s ease;}
-  .tbtn:hover,.btn:hover{border-color:var(--blue);}
-  .tbtn[aria-pressed="true"]{background:var(--blue);color:#04222b;border-color:var(--blue-glow);font-weight:700;}
+  .btn:hover{border-color:var(--blue);}
   .btn:active{transform:translateY(1px);}
-  .morph-stage{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:var(--shadow);}
-  .morph-stage svg{display:block;width:100%;height:auto;}
-  .m-old{opacity:1;transition:opacity .6s ease;} .m-new{opacity:0;transition:opacity .6s ease;}
-  body[data-mode="new"] .m-old{opacity:0;} body[data-mode="new"] .m-new{opacity:1;}
-  .m-cap{text-align:center;color:var(--ink-dim);font-size:15px;margin-top:10px;min-height:22px;}
+
+  /* ===== architecture diagram ===== */
+  .diagram{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px;box-shadow:var(--shadow);}
+  .diagram svg{display:block;width:100%;height:auto;}
+  .node rect{fill:var(--bg-2);stroke:var(--line-2);stroke-width:2;transition:stroke .2s ease,fill .2s ease;}
+  .node:hover rect{stroke:var(--blue);fill:#0f2740;}
+  .node text{fill:var(--ink);font-family:var(--mono);font-size:12px;}
+  .node .sub{fill:var(--ink-dim);font-size:10px;}
+  .node .tip{opacity:0;transition:opacity .2s ease;}
+  .node:hover .tip{opacity:1;}
+  .edge{stroke:var(--blue);stroke-width:2;fill:none;marker-end:url(#arr);stroke-dasharray:6 5;animation:dash 22s linear infinite;}
+  .edge.opt{stroke:var(--violet);}
 
   /* ===== scene player ===== */
   .player{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);}
@@ -99,7 +103,7 @@
   .stage[data-scene="5"] .chal .box{stroke:var(--violet);fill:#221a3a;}
   .stage[data-scene="5"] .parcel{opacity:0;}
 
-  /* parcel recolors after the plan is drafted */
+  /* the parcel recolors after the draft stage */
   .parcel .doc{fill:var(--amber-glow);transition:fill .4s ease;}
   .stage[data-scene="2"] .parcel .doc,.stage[data-scene="3"] .parcel .doc{fill:var(--blue-glow);}
 
@@ -109,21 +113,10 @@
   .narr code{font-family:var(--mono);background:var(--bg-0);padding:1px 6px;border-radius:4px;font-size:.9em;color:var(--amber-glow);}
 
   .controls{display:flex;align-items:center;gap:9px;padding:12px 20px;border-top:1px solid var(--line);flex-wrap:wrap;}
+  .ns{color:var(--warn);font-family:var(--mono);font-size:12px;}
   .dots{display:flex;gap:7px;margin-left:auto;}
   .dot{width:11px;height:11px;border-radius:50%;border:1px solid var(--line-2);background:transparent;cursor:pointer;padding:0;}
   .dot[aria-current="true"]{background:var(--blue);border-color:var(--blue-glow);}
-
-  /* ===== architecture diagram ===== */
-  .diagram{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px;box-shadow:var(--shadow);}
-  .diagram svg{display:block;width:100%;height:auto;}
-  .node rect{fill:var(--bg-2);stroke:var(--line-2);stroke-width:2;transition:stroke .2s ease,fill .2s ease;}
-  .node:hover rect{stroke:var(--blue);fill:#0f2740;}
-  .node text{fill:var(--ink);font-family:var(--mono);font-size:12px;}
-  .node .sub{fill:var(--ink-dim);font-size:10px;}
-  .node .tip{opacity:0;transition:opacity .2s ease;}
-  .node:hover .tip{opacity:1;}
-  .edge{stroke:var(--blue);stroke-width:2;fill:none;marker-end:url(#arr);stroke-dasharray:6 5;animation:dash 22s linear infinite;}
-  .edge.opt{stroke:var(--violet);}
 
   /* ===== live decision card ===== */
   .demo-grid{display:grid;grid-template-columns:1.4fr .9fr;gap:18px;align-items:start;}
@@ -150,27 +143,13 @@
   .anno li{border-left:3px solid var(--blue-deep);padding:2px 0 2px 12px;color:var(--ink-dim);font-size:13px;}
   .anno b{color:var(--ink);}
 
-  /* ===== who-does-what steps ===== */
-  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0;}
-  .chip{font-family:var(--mono);font-size:13px;cursor:pointer;background:var(--bg-2);color:var(--ink-dim);border:1px solid var(--line-2);border-radius:20px;padding:6px 14px;}
-  .chip[aria-pressed="true"]{background:var(--blue-deep);color:var(--ink);border-color:var(--blue);}
-  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
-  .step{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:13px;border-left:4px solid var(--line-2);transition:opacity .25s ease,filter .25s ease;}
-  .step[data-who="ai"]{border-left-color:var(--blue);}
-  .step[data-who="you"]{border-left-color:var(--amber);}
-  .step[data-dim="true"]{opacity:.26;filter:grayscale(.6);}
-  .step .who{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
-  .step[data-who="ai"] .who{color:var(--blue);} .step[data-who="you"] .who{color:var(--amber-glow);}
-  .step h4{margin:4px 0 4px;font-size:15px;} .step p{margin:0;color:var(--ink-dim);font-size:13px;}
-
-  /* ===== glossary + extras ===== */
-  .glossary{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:20px;}
-  .term{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
-  .term dt{font-family:var(--mono);color:var(--blue-glow);font-size:15px;margin-bottom:4px;}
-  .term dd{margin:0;color:var(--ink-dim);font-size:14px;}
-  .extras{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:18px;}
-  .extra{background:var(--paper);border:1px solid var(--line);border-top:3px solid var(--amber);border-radius:10px;padding:13px 15px;}
-  .extra h4{margin:0 0 5px;font-size:14px;} .extra p{margin:0;color:var(--ink-dim);font-size:13px;}
+  /* ===== install ===== */
+  .inst{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:18px;}
+  .inst .item{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:13px 15px;}
+  .inst h4{margin:0 0 7px;font-size:14px;}
+  .inst h4 small{color:var(--ink-faint);font-weight:400;font-family:var(--mono);font-size:11px;margin-left:6px;}
+  .cmd{font-family:var(--mono);font-size:12px;color:var(--blue-glow);background:var(--bg-0);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:0;overflow-x:auto;white-space:pre;}
+  .clone{margin-top:16px;}
 
   footer{text-align:center;color:var(--ink-faint);font-family:var(--mono);font-size:13px;margin-top:64px;}
   footer a{color:var(--ink-dim);}
@@ -178,57 +157,45 @@
   @keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.5);opacity:.5;}}
   @keyframes dash{to{stroke-dashoffset:-220;}}
   @media(prefers-reduced-motion:reduce){
-    .edge,.ribbon .dot{animation:none;}
+    .edge,.ribbon .pulse{animation:none;}
     .act,.flow,.lab,.gap,.human,.stamp,.chal,.verdict,.parcel{transition:opacity .01s;}
   }
 </style>
 </head>
-<body data-mode="old">
+<body>
 <div class="wrap">
 
   <header>
-    <div class="kicker">A visual explainer · built by the visual-explainer skill</div>
-    <h1>How the <span class="blue">visual-plan</span> skill works</h1>
-    <p class="tagline">The visual-plan skill turns a task into a plan you can see. You answer it before you write any code.</p>
-    <div class="ribbon"><span class="dot"></span><span>Follow one ticket: “Add CSV export to the Reports page”</span></div>
+    <div class="kicker">The visual-plan skill · a visual explainer</div>
+    <h1>Stop staring at walls of text full of jargon and gobbledygook.</h1>
+    <p class="tagline">The <code>visual-plan</code> skill turns a task into a plan you can see. You answer it before you write any code.</p>
+    <div class="ribbon"><span class="pulse"></span><span>Follow one ticket: “Add CSV export to the Reports page”</span></div>
   </header>
 
-  <!-- ===== MORPH TOGGLE ===== -->
+  <!-- ===== ARCHITECTURE DIAGRAM ===== -->
   <section>
-    <h2><span class="n">01</span>The old way vs one visual pass</h2>
-    <p class="lead">Most planning is a back-and-forth question loop. visual-plan replaces it with one pass and a set of decision cards.</p>
-    <div class="morph-ctl">
-      <button class="tbtn" data-mode-set="old" aria-pressed="true">Question loop</button>
-      <button class="tbtn" data-mode-set="new" aria-pressed="false">visual-plan</button>
-    </div>
-    <div class="morph-stage">
-      <svg viewBox="0 0 660 210" preserveAspectRatio="xMidYMid meet" aria-label="A sequential question loop versus one visual pass">
-        <!-- old: a stack of Q/A bubbles -->
-        <g class="m-old">
-          <circle cx="70" cy="60" r="18" fill="var(--amber)"/>
-          <g font-family="var(--mono)" font-size="12">
-            <rect x="120" y="34" width="150" height="24" rx="12" fill="var(--bg-2)" stroke="var(--line-2)"/><text x="132" y="50" fill="var(--ink-dim)">“Feature flag? y/n”</text>
-            <rect x="300" y="66" width="150" height="24" rx="12" fill="var(--bg-2)" stroke="var(--line-2)"/><text x="312" y="82" fill="var(--ink-dim)">“Sync or async?”</text>
-            <rect x="120" y="98" width="170" height="24" rx="12" fill="var(--bg-2)" stroke="var(--line-2)"/><text x="132" y="114" fill="var(--ink-dim)">“Which environment?”</text>
-            <rect x="320" y="130" width="150" height="24" rx="12" fill="var(--bg-2)" stroke="var(--line-2)"/><text x="332" y="146" fill="var(--ink-dim)">“…and 6 more”</text>
-          </g>
-          <text x="330" y="190" fill="var(--ink-faint)" font-family="var(--mono)" font-size="12" text-anchor="middle">One question at a time. You answer before you can see the shape.</text>
-        </g>
-        <!-- new: one blueprint + a row of decision cards -->
-        <g class="m-new">
-          <rect x="60" y="34" width="150" height="120" rx="6" fill="#0f2740" stroke="var(--blue)" stroke-width="2"/>
-          <g stroke="var(--blue-deep)" stroke-width="1"><line x1="60" y1="66" x2="210" y2="66"/><line x1="60" y1="98" x2="210" y2="98"/><line x1="60" y1="130" x2="210" y2="130"/><line x1="110" y1="34" x2="110" y2="154"/><line x1="160" y1="34" x2="160" y2="154"/></g>
-          <rect x="86" y="74" width="44" height="24" rx="2" fill="var(--blue)" opacity=".45"/>
-          <g>
-            <rect x="250" y="40" width="360" height="30" rx="6" fill="var(--bg-2)" stroke="var(--ok)"/><circle cx="268" cy="55" r="6" fill="none" stroke="var(--ok)" stroke-width="2"/><circle cx="268" cy="55" r="2.6" fill="var(--ok)"/><text x="284" y="59" fill="var(--ink)" font-family="var(--mono)" font-size="12">decision 1 · recommended pre-picked</text>
-            <rect x="250" y="80" width="360" height="30" rx="6" fill="var(--bg-2)" stroke="var(--line-2)"/><circle cx="268" cy="95" r="6" fill="none" stroke="var(--line-2)" stroke-width="2"/><text x="284" y="99" fill="var(--ink-dim)" font-family="var(--mono)" font-size="12">decision 2</text>
-            <rect x="250" y="120" width="360" height="30" rx="6" fill="var(--bg-2)" stroke="var(--line-2)"/><circle cx="268" cy="135" r="6" fill="none" stroke="var(--line-2)" stroke-width="2"/><text x="284" y="139" fill="var(--ink-dim)" font-family="var(--mono)" font-size="12">decision 3</text>
-          </g>
-          <text x="330" y="190" fill="var(--ink-faint)" font-family="var(--mono)" font-size="12" text-anchor="middle">See the whole plan at once. Answer only the decisions that matter.</text>
-        </g>
+    <h2><span class="n">01</span>The whole flow at once</h2>
+    <p class="lead">The process as a wiring diagram. Hover a box to see what it does. Custom instructions feed the completeness gate. The challenge is a side loop.</p>
+    <div class="diagram grid-bg">
+      <svg viewBox="0 0 920 240" preserveAspectRatio="xMidYMid meet" aria-label="visual-plan architecture: task to planner to plan to review to record">
+        <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--blue)"/></marker></defs>
+        <path class="edge" d="M150,70 H196"/>
+        <path class="edge" d="M340,70 H386"/>
+        <path class="edge" d="M540,70 H586"/>
+        <path class="edge" d="M740,70 H786"/>
+        <path class="edge" d="M270,120 V70"/>
+        <path class="edge opt" d="M636,96 C 636,150 470,150 470,150"/>
+
+        <g class="node"><rect x="20" y="46" width="130" height="48" rx="8"/><text x="85" y="68" text-anchor="middle">task</text><text class="sub" x="85" y="84" text-anchor="middle">ticket or one line</text><text class="tip" x="85" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">no question loop starts</text></g>
+        <g class="node"><rect x="196" y="46" width="144" height="48" rx="8"/><text x="268" y="68" text-anchor="middle">AI planner</text><text class="sub" x="268" y="84" text-anchor="middle">reads real code</text><text class="tip" x="268" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">pins the baseline commit</text></g>
+        <g class="node"><rect x="386" y="46" width="154" height="48" rx="8"/><text x="463" y="68" text-anchor="middle">visual HTML plan</text><text class="sub" x="463" y="84" text-anchor="middle">drawn in one pass</text><text class="tip" x="463" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">intent gaps become cards</text></g>
+        <g class="node"><rect x="586" y="46" width="154" height="48" rx="8"/><text x="663" y="68" text-anchor="middle">you review</text><text class="sub" x="663" y="84" text-anchor="middle">answer in the browser</text><text class="tip" x="663" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">override only to disagree</text></g>
+        <g class="node"><rect x="786" y="46" width="120" height="48" rx="8"/><text x="846" y="68" text-anchor="middle">record</text><text class="sub" x="846" y="84" text-anchor="middle">where you track work</text><text class="tip" x="846" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">ticket, file, or nothing</text></g>
+
+        <g class="node"><rect x="196" y="128" width="144" height="44" rx="8" style="stroke:var(--amber)"/><text x="268" y="149" text-anchor="middle">custom instructions</text><text class="sub" x="268" y="164" text-anchor="middle">optional · sets "done"</text></g>
+        <g class="node"><rect x="386" y="132" width="168" height="44" rx="8" style="stroke:var(--violet)"/><text x="470" y="153" text-anchor="middle">challenge-plan</text><text class="sub" x="470" y="168" text-anchor="middle">optional · only cuts</text></g>
       </svg>
     </div>
-    <p class="m-cap" id="morph-cap">Question loop: one prompt at a time. You cannot see the shape until the end.</p>
   </section>
 
   <!-- ===== SCENE PLAYER ===== -->
@@ -265,25 +232,25 @@
           <line class="flow fC" x1="384" y1="156" x2="416" y2="156" stroke="var(--blue)" stroke-width="2.5" marker-end="url(#af)"/>
           <line class="flow fD" x1="516" y1="156" x2="548" y2="156" stroke="var(--ok)" stroke-width="2.5" marker-end="url(#af)"/>
 
-          <!-- intent-gap question marks at draft stage -->
+          <!-- intent-gap question marks at the draft stage -->
           <g class="gap" font-family="var(--disp)" font-weight="bold">
             <circle cx="318" cy="112" r="10" fill="none" stroke="var(--warn)" stroke-width="2"/><text x="318" y="117" fill="var(--warn)" font-size="14" text-anchor="middle">?</text>
             <circle cx="350" cy="112" r="10" fill="none" stroke="var(--warn)" stroke-width="2"/><text x="350" y="117" fill="var(--warn)" font-size="14" text-anchor="middle">?</text>
             <text x="334" y="200" fill="var(--warn)" font-family="var(--mono)" font-size="10" text-anchor="middle">ask, don't guess</text>
           </g>
 
-          <!-- human near review -->
+          <!-- the human at review -->
           <g class="human"><circle cx="466" cy="212" r="10" fill="var(--amber)"/><path d="M450 236 a16 14 0 0 1 32 0 z" fill="var(--amber-glow)"/></g>
 
-          <!-- approval stamp near record -->
+          <!-- the approval stamp at record -->
           <g class="stamp"><circle cx="606" cy="206" r="14" fill="none" stroke="var(--ok)" stroke-width="2.5"/><path d="M599 206 l5 5 l9 -10" fill="none" stroke="var(--ok)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
 
-          <!-- optional challenge node + dashed branch -->
+          <!-- the optional challenge branch -->
           <path class="chal" d="M466 186 C 466 214, 430 214, 402 226" fill="none" stroke="var(--violet)" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#afo)"/>
           <g class="chal st"><rect class="box" x="300" y="226" width="132" height="44" rx="8"/><text x="366" y="246" fill="var(--ink)" font-family="var(--mono)" font-size="11" text-anchor="middle">challenge-plan</text><text x="366" y="261" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10" text-anchor="middle">different model · optional</text></g>
           <text class="verdict" x="366" y="212" fill="var(--violet)" font-family="var(--mono)" font-size="11" text-anchor="middle">only cuts — never adds</text>
 
-          <!-- the traveling parcel (ticket → blueprint) -->
+          <!-- the parcel: the ticket that becomes a blueprint -->
           <g class="parcel" transform="translate(124,0)">
             <rect class="doc" x="0" y="144" width="26" height="24" rx="4"/>
             <line x1="5" y1="152" x2="21" y2="152" stroke="#06202b" stroke-width="2"/>
@@ -291,53 +258,38 @@
           </g>
         </svg>
       </div>
-      <div class="narr"><p class="st" id="sc-title"></p><p id="sc-body"></p></div>
+      <div class="narr">
+        <p class="st" id="sc-title">1 · A task arrives</p>
+        <p id="sc-body">A developer runs <code>/visual-plan</code> on one task: <strong>Add CSV export to the Reports page</strong>. No question loop starts.</p>
+      </div>
       <div class="controls">
         <button class="btn" id="prev">‹ Prev</button>
         <button class="btn" id="replay">↻ Replay</button>
         <button class="btn" id="auto">▶ Auto-play</button>
         <button class="btn" id="next">Next ›</button>
-        <div class="dots" id="dots" role="tablist" aria-label="Steps"></div>
+        <noscript><span class="ns">The controls need JavaScript. Open this file in a browser.</span></noscript>
+        <div class="dots" id="dots" role="tablist" aria-label="Steps">
+          <button class="dot" aria-label="Step 1" aria-current="true"></button>
+          <button class="dot" aria-label="Step 2"></button>
+          <button class="dot" aria-label="Step 3"></button>
+          <button class="dot" aria-label="Step 4"></button>
+          <button class="dot" aria-label="Step 5"></button>
+          <button class="dot" aria-label="Step 6"></button>
+        </div>
       </div>
-    </div>
-  </section>
-
-  <!-- ===== ARCHITECTURE DIAGRAM ===== -->
-  <section>
-    <h2><span class="n">03</span>The whole flow at once</h2>
-    <p class="lead">The same process as a wiring diagram. Hover a box to see what it does. Custom instructions feed the completeness gate. The challenge is a side loop.</p>
-    <div class="diagram grid-bg">
-      <svg viewBox="0 0 920 240" preserveAspectRatio="xMidYMid meet" aria-label="visual-plan architecture: task to planner to plan to review to record">
-        <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--blue)"/></marker></defs>
-        <path class="edge" d="M150,70 H196"/>
-        <path class="edge" d="M340,70 H386"/>
-        <path class="edge" d="M540,70 H586"/>
-        <path class="edge" d="M740,70 H786"/>
-        <path class="edge" d="M270,120 V70"/>
-        <path class="edge opt" d="M636,96 C 636,150 470,150 470,150"/>
-
-        <g class="node"><rect x="20" y="46" width="130" height="48" rx="8"/><text x="85" y="68" text-anchor="middle">task</text><text class="sub" x="85" y="84" text-anchor="middle">ticket or one line</text><text class="tip" x="85" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">no question loop starts</text></g>
-        <g class="node"><rect x="196" y="46" width="144" height="48" rx="8"/><text x="268" y="68" text-anchor="middle">AI planner</text><text class="sub" x="268" y="84" text-anchor="middle">reads real code</text><text class="tip" x="268" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">pins the baseline commit</text></g>
-        <g class="node"><rect x="386" y="46" width="154" height="48" rx="8"/><text x="463" y="68" text-anchor="middle">visual HTML plan</text><text class="sub" x="463" y="84" text-anchor="middle">drawn in one pass</text><text class="tip" x="463" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">intent gaps become cards</text></g>
-        <g class="node"><rect x="586" y="46" width="154" height="48" rx="8"/><text x="663" y="68" text-anchor="middle">you review</text><text class="sub" x="663" y="84" text-anchor="middle">answer in the browser</text><text class="tip" x="663" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">override only to disagree</text></g>
-        <g class="node"><rect x="786" y="46" width="120" height="48" rx="8"/><text x="846" y="68" text-anchor="middle">record</text><text class="sub" x="846" y="84" text-anchor="middle">where you track work</text><text class="tip" x="846" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">ticket, file, or nothing</text></g>
-
-        <g class="node"><rect x="196" y="128" width="144" height="44" rx="8" style="stroke:var(--amber)"/><text x="268" y="149" text-anchor="middle">custom instructions</text><text class="sub" x="268" y="164" text-anchor="middle">optional · sets "done"</text></g>
-        <g class="node"><rect x="386" y="132" width="168" height="44" rx="8" style="stroke:var(--violet)"/><text x="470" y="153" text-anchor="middle">challenge-plan</text><text class="sub" x="470" y="168" text-anchor="middle">optional · only cuts</text></g>
-      </svg>
     </div>
   </section>
 
   <!-- ===== LIVE DECISION CARD ===== -->
   <section>
-    <h2><span class="n">04</span>Anatomy of a decision card</h2>
+    <h2><span class="n">03</span>Anatomy of a decision card</h2>
     <p class="lead">This is a real card from the CSV-export plan. Click an option. Notice the recommended default and the "Other" escape hatch.</p>
     <div class="demo-grid">
       <div class="dcard" id="dcard">
         <p class="q">Very large reports could outrun the 30-second timeout. How do we handle them?</p>
         <p class="why">Most reports are small and stream in under a second. A few have tens of thousands of rows. <code>rows_to_csv()</code> could hold the request open past the gateway timeout.</p>
         <div class="opts" id="opts">
-          <div class="opt rec" data-v="Stream now, cap at 50,000 rows" data-default="1">
+          <div class="opt rec on" data-v="Stream now, cap at 50,000 rows" data-default="1">
             <span class="radio"></span>
             <span><span class="ot">Stream now, cap at 50,000 rows<span class="badge">recommended</span></span><span class="ds">Above the cap, ask the user to narrow filters. No queue or worker is built. The seam to go async stays open.</span></span>
           </div>
@@ -364,46 +316,30 @@
     </div>
   </section>
 
-  <!-- ===== WHO DOES WHAT ===== -->
+  <!-- ===== INSTALL ===== -->
   <section>
-    <h2><span class="n">05</span>Who does what</h2>
-    <p class="lead">The AI does the drafting. You hold the decisions. Filter the steps to see the split.</p>
-    <div class="chips" id="chips">
-      <button class="chip" data-f="all" aria-pressed="true">All</button>
-      <button class="chip" data-f="ai" aria-pressed="false">AI does</button>
-      <button class="chip" data-f="you" aria-pressed="false">You do</button>
-    </div>
-    <div class="steps" id="steps">
-      <div class="step" data-who="ai"><div class="who">AI</div><h4>Read + pin</h4><p>Read the real code the change touches. Record the exact baseline commit.</p></div>
-      <div class="step" data-who="ai"><div class="who">AI</div><h4>Draft in one pass</h4><p>Draw the change, the steps, and the checks. Surface intent gaps as cards.</p></div>
-      <div class="step" data-who="you"><div class="who">You</div><h4>Review</h4><p>Read the plan in the browser. Answer only the decisions that matter.</p></div>
-      <div class="step" data-who="you"><div class="who">You</div><h4>Approve or override</h4><p>Say “looks good,” or change a decision in chat.</p></div>
-      <div class="step" data-who="ai"><div class="who">AI</div><h4>Record</h4><p>Write a compact plan where your team tracks work.</p></div>
-      <div class="step" data-who="you"><div class="who">You</div><h4>Challenge (optional)</h4><p>Run <code>/challenge-plan</code> when a plan is worth a second model's attack.</p></div>
-    </div>
-  </section>
-
-  <!-- ===== GLOSSARY ===== -->
-  <section>
-    <h2><span class="n">06</span>Words to know</h2>
-    <dl class="glossary">
-      <div class="term"><dt>decision card</dt><dd>A multiple-choice question in the plan. It has a recommended default and an "Other" field. You answer it in the browser.</dd></div>
-      <div class="term"><dt>intent gap</dt><dd>A point where the task does not say what the result must do. The AI asks about it. It does not guess.</dd></div>
-      <div class="term"><dt>custom instructions</dt><dd>An optional file. It sets what a finished plan must contain, and where to record it.</dd></div>
-      <div class="term"><dt>compact plan</dt><dd>The short markdown the agent records on approval. The HTML file stays the human-readable reference.</dd></div>
-      <div class="term"><dt>deliberately not built</dt><dd>A note in the plan: what was cut, the seam that keeps it pluggable, and the signal that would revive it.</dd></div>
-      <div class="term"><dt>challenge-plan</dt><dd>A separate skill. A different model attacks the plan for over-building. It may only cut, reuse, simplify, or ask.</dd></div>
-    </dl>
-  </section>
-
-  <!-- ===== EXTRAS ===== -->
-  <section>
-    <h2><span class="n">07</span>Also useful</h2>
-    <div class="extras">
-      <div class="extra"><h4>One self-contained file</h4><p>No CDN, no build step. The plan opens straight from disk, offline.</p></div>
-      <div class="extra"><h4>Grounded in real code</h4><p>The diagram names real functions and files. The AI reads the code first, not just the ticket.</p></div>
-      <div class="extra"><h4>Tracker-agnostic</h4><p>Linear, Jira, GitHub Issues, a file, or nothing. The skill does not assume one.</p></div>
-      <div class="extra"><h4>Copy that never fails</h4><p>"Copy decisions" falls back from the Clipboard API to a manual box, so it works inside a sandboxed preview.</p></div>
+    <h2><span class="n">04</span>Install the skills</h2>
+    <p class="lead">The skills are plain <code style="font-family:var(--mono)">SKILL.md</code> folders. Clone the repo once. Then copy the folders to where your agent loads skills.</p>
+    <pre class="cmd clone">git clone https://github.com/parthjshah95/visual-planning-skills
+cd visual-planning-skills</pre>
+    <div class="inst">
+      <div class="item"><h4>Claude Code<small>plugin</small></h4>
+        <pre class="cmd">claude plugin marketplace add parthjshah95/visual-planning-skills
+claude plugin install visual-planning-skills@visual-planning-skills</pre></div>
+      <div class="item"><h4>Codex / ChatGPT<small>global</small></h4>
+        <pre class="cmd">cp -R skills/* ~/.codex/skills/</pre></div>
+      <div class="item"><h4>Cursor<small>global</small></h4>
+        <pre class="cmd">cp -R skills/* ~/.cursor/skills/</pre></div>
+      <div class="item"><h4>OpenCode<small>global</small></h4>
+        <pre class="cmd">cp -R skills/* ~/.config/opencode/skills/</pre></div>
+      <div class="item"><h4>OpenClaw<small>global</small></h4>
+        <pre class="cmd">cp -R skills/* ~/.openclaw/skills/</pre></div>
+      <div class="item"><h4>Hermes<small>per profile</small></h4>
+        <pre class="cmd">cp -R skills/* ~/.hermes/profiles/&lt;profile&gt;/skills/</pre></div>
+      <div class="item"><h4>Windsurf<small>per project</small></h4>
+        <pre class="cmd">cp -R skills/* &lt;project&gt;/.windsurf/skills/</pre></div>
+      <div class="item"><h4>Antigravity<small>per workspace</small></h4>
+        <pre class="cmd">cp -R skills/* &lt;workspace&gt;/.agents/skills/</pre></div>
     </div>
   </section>
 
@@ -436,50 +372,38 @@
   const stage=document.querySelector(".stage");
   const titleEl=document.getElementById("sc-title");
   const bodyEl=document.getElementById("sc-body");
-  const dotsWrap=document.getElementById("dots");
+  const dots=Array.from(document.querySelectorAll("#dots .dot"));
   let scene=0,timer=null;
 
-  SCENES.forEach((_,i)=>{
-    const b=document.createElement("button");
-    b.className="dot";b.setAttribute("role","tab");b.setAttribute("aria-label","Step "+(i+1));
-    b.addEventListener("click",()=>{stopAuto();setScene(i);});
-    dotsWrap.appendChild(b);
-  });
-  const dots=Array.from(dotsWrap.children);
+  dots.forEach((d,i)=>d.addEventListener("click",()=>{stopAuto();setScene(i);}));
 
-  function setScene(n){
+  function setScene(n,replay){
     scene=(n+SCENES.length)%SCENES.length;
-    stage.setAttribute("data-scene","reset");
-    requestAnimationFrame(()=>requestAnimationFrame(()=>stage.setAttribute("data-scene",String(scene))));
+    if(replay){
+      // re-enter the same scene: clear, force one synchronous style flush, then set.
+      // A rAF wait can stall in a hidden tab and leave the stage blank on "reset".
+      stage.setAttribute("data-scene","reset");
+      void stage.getBoundingClientRect();
+    }
+    stage.setAttribute("data-scene",String(scene));
     titleEl.textContent=SCENES[scene].title;
     renderSegments(bodyEl,SCENES[scene].body);
-    dots.forEach((d,i)=>d.setAttribute("aria-current",i===scene?"true":"false"));
+    dots.forEach((d,i)=>{
+      if(i===scene){d.setAttribute("aria-current","true");}
+      else{d.removeAttribute("aria-current");}
+    });
   }
   function stopAuto(){if(timer){clearInterval(timer);timer=null;document.getElementById("auto").textContent="▶ Auto-play";}}
   function startAuto(){document.getElementById("auto").textContent="⏸ Pause";timer=setInterval(()=>{if(scene===SCENES.length-1){stopAuto();return;}setScene(scene+1);},2600);}
   document.getElementById("prev").addEventListener("click",()=>{stopAuto();setScene(scene-1);});
   document.getElementById("next").addEventListener("click",()=>{stopAuto();setScene(scene+1);});
-  document.getElementById("replay").addEventListener("click",()=>{stopAuto();setScene(0);});
+  document.getElementById("replay").addEventListener("click",()=>{stopAuto();setScene(0,true);});
   document.getElementById("auto").addEventListener("click",()=>{timer?stopAuto():startAuto();});
   document.addEventListener("keydown",(e)=>{
     if(e.key==="ArrowLeft"){stopAuto();setScene(scene-1);}
     else if(e.key==="ArrowRight"){stopAuto();setScene(scene+1);}
     else if(e.key===" "){e.preventDefault();timer?stopAuto():startAuto();}
-    else if(e.key.toLowerCase()==="r"){stopAuto();setScene(0);}
-  });
-  setScene(0);
-
-  /* morph toggle */
-  const MCAP={old:"Question loop: one prompt at a time. You cannot see the shape until the end.",
-              new:"visual-plan: the whole plan at once. You answer only the decisions that matter."};
-  const mcap=document.getElementById("morph-cap");
-  document.querySelectorAll(".tbtn").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      const m=btn.getAttribute("data-mode-set");
-      document.body.setAttribute("data-mode",m);
-      document.querySelectorAll(".tbtn").forEach(b=>b.setAttribute("aria-pressed",b===btn?"true":"false"));
-      mcap.textContent=MCAP[m];
-    });
+    else if(e.key.toLowerCase()==="r"){stopAuto();setScene(0,true);}
   });
 
   /* live decision card */
@@ -504,16 +428,6 @@
   opts.forEach(o=>o.addEventListener("click",()=>select(o)));
   otherField.addEventListener("focus",()=>select(otherField.closest(".opt")));
   otherField.addEventListener("input",()=>select(otherField.closest(".opt")));
-
-  /* who-does-what filter */
-  const steps=Array.from(document.querySelectorAll("#steps .step"));
-  document.querySelectorAll("#chips .chip").forEach(chip=>{
-    chip.addEventListener("click",()=>{
-      const f=chip.getAttribute("data-f");
-      document.querySelectorAll("#chips .chip").forEach(c=>c.setAttribute("aria-pressed",c===chip?"true":"false"));
-      steps.forEach(s=>s.setAttribute("data-dim",(f==="all"||s.getAttribute("data-who")===f)?"false":"true"));
-    });
-  });
 </script>
 </body>
 </html>
