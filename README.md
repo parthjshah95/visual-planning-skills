@@ -1,24 +1,21 @@
 # Visual Planning Skills
 
-Three small, tool-agnostic [agent skills](https://docs.claude.com/en/docs/claude-code/skills) for
-turning ideas into things you can *look at* before you build them.
+Three small [agent skills](https://docs.claude.com/en/docs/claude-code/skills). Each one makes a change into something you can look at before you build it. Any agent that reads a `SKILL.md` file can use them.
 
 ![The animated visual plan that visual-plan produces](assets/plan-visual.gif)
 
-<sub>Above — `visual-plan` planning one small feature, *"Add CSV export to the Reports page."* It animates the change step by step, then turns the one real trade-off into a decision card you answer in the browser. Source: [`plan.html`](skills/visual-plan/examples/csv-export/plan.html) · [view it live](https://htmlpreview.github.io/?https://github.com/parthjshah95/visual-planning-skills/blob/main/skills/visual-plan/examples/csv-export/plan.html) (GitHub shows the raw `.html` as source, so the GIF is a recording of it running).</sub>
+<sub>Above: `visual-plan` plans one small feature, *Add CSV export to the Reports page*. It shows the change as an animation. It turns the one real decision into a card you answer in the browser. Source: [`plan.html`](skills/visual-plan/examples/csv-export/plan.html) · [view it live](https://htmlpreview.github.io/?https://github.com/parthjshah95/visual-planning-skills/blob/main/skills/visual-plan/examples/csv-export/plan.html).</sub>
 
 | Skill | What it makes | Trigger |
 | --- | --- | --- |
-| **`visual-explainer`** | A single, self-contained interactive HTML explainer — hand-drawn inline-SVG illustrations, an animated scene player or pipeline, mermaid-style diagrams, a glossary. No CDNs, no build step, opens offline. | "illustrate / explain / visualize how X works as a web page" |
-| **`visual-plan`** | A visual, interactive HTML plan for a change: a diagram-led explanation grounded in the real code, plus every decision as a multiple-choice card you answer in the browser. You review, override in chat, and the agent records the approved plan wherever you track work. | "plan this change so I can review it before you build it" |
-| **`challenge-plan`** | An adversarial simplification review of an AI-authored plan, run by a *different* model. It can only cut, reuse, simplify, align to convention, or ask the human — never add scope. Returns `SATISFIED` or `REVISE`. | run it on a drafted plan when you want a second model to attack it for over-engineering |
+| **`visual-explainer`** | One self-contained HTML file that shows how something works. It has inline-SVG art, an animated scene player, hand-built diagrams, and a glossary. No CDN. No build step. It opens offline. | "illustrate / explain / visualize how X works as a web page" |
+| **`visual-plan`** | A visual HTML plan for a change. The diagram comes from the real code. Each decision is a card you answer in the browser. You review it and override in chat. The agent records the result. | "plan this change so I can review it first" |
+| **`challenge-plan`** | A different model reviews an AI-authored plan. It may only cut, reuse, simplify, or ask — never add scope. It returns `SATISFIED` or `REVISE`. | "check this plan for over-engineering" |
 
-They compose but don't require each other:
+The skills work together, but none needs the others.
 
-- `visual-plan` **builds on** `visual-explainer`'s drawing patterns.
-- `challenge-plan` is a **separate, on-demand** pass. `visual-plan` does not run it for you — you decide when a plan is worth challenging, so you never pay for a review round you didn't want.
-
-Written as plain `SKILL.md` files, so any agent that can read a skill can use them — Claude Code is the reference harness.
+- `visual-plan` reuses the drawing patterns from `visual-explainer`.
+- `challenge-plan` is separate. `visual-plan` never runs it for you. You run it when a plan needs a check.
 
 ## Install
 
@@ -29,56 +26,54 @@ claude plugin marketplace add parthjshah95/visual-planning-skills
 claude plugin install visual-planning-skills@visual-planning-skills
 ```
 
-Then invoke a skill by name in a session: `/visual-explainer`, `/visual-plan`, `/challenge-plan` — or just describe the task and let the agent pick.
+Then call a skill by name: `/visual-explainer`, `/visual-plan`, or `/challenge-plan`. Or describe the task and let the agent choose.
 
 ### By hand (any agent)
 
-Copy the skill directories into wherever your agent loads skills from. For Claude Code that's `~/.claude/skills/`:
+Copy the skill folders to where your agent loads skills. For Claude Code, that is `~/.claude/skills/`:
 
 ```bash
 git clone https://github.com/parthjshah95/visual-planning-skills
 cp -R visual-planning-skills/skills/* ~/.claude/skills/
 ```
 
-Each `skills/<name>/SKILL.md` is self-contained. The `visual-explainer` skill also ships a reference example at `skills/visual-explainer/examples/pipeline-explainer.html` — open it in a browser to see every pattern working.
+Each `SKILL.md` is self-contained. `visual-explainer` ships an example, [`pipeline-explainer.html`](skills/visual-explainer/examples/pipeline-explainer.html). Open it in a browser.
 
 ## Custom instructions
 
-A plan is only "done" relative to a workflow. One team merges straight to trunk; another has a dev environment, a prod monitoring window, and a sign-off. Hardcoding either into the skill makes it useless to the other team, so `visual-plan` keeps that contract in an **optional custom-instructions file** instead.
+A finished plan means different things to different teams. One team merges straight to trunk. Another team needs a dev environment, a monitoring window, and a sign-off. So `visual-plan` keeps that contract in an optional file, not in the skill.
 
-- Pass one with `instructions=<path>`, or drop a `custom-instructions.md` file at your workspace root.
-- With no custom instructions, the skill uses a generic default: goal, the change shown visually, an implementation outline, "how we'll know it worked," and whatever decisions the change actually raises.
-- Custom instructions add three things only: extra **required sections**, extra **required decisions** (rendered as decision cards), and where the approved plan is **recorded**.
+- Pass a file with `instructions=<path>`, or drop a `custom-instructions.md` file at your workspace root.
+- With no file, the skill uses a default: a goal, a picture of the change, the steps, a check that it worked, and the open decisions.
+- A `custom-instructions.md` file adds three things only: extra required sections, extra required decisions (each one becomes a card), and where the agent records the approved plan.
 
-### Example — a dev → prod pipeline
+### Example — a staged delivery pipeline
 
-Save as `custom-instructions.md`. This turns the generic default into a plan with a dev test plan, a prod monitoring plan, and four fixed decisions — the kind of contract a team with staged environments needs. Adapt or delete freely.
+Save this as `custom-instructions.md`. It adds a dev test plan, a prod monitoring plan, and four fixed decisions. Change it or delete it as you need.
 
 ```markdown
 # Custom instructions — staged dev/prod delivery
 
 ## Required sections
-- **Dev integration test plan** — environment, concrete steps, observable expected results,
-  smoke tests, and the logs/metrics to check after merge to the dev branch.
-- **Prod testing and monitoring plan** — at least one production-only validation step, a concrete
-  monitoring window (not "until it looks fine"), objective failure criteria (a number or a log
-  signature), a rollback-or-fix-forward choice with steps, and who gets notified.
+- **Dev test plan** — the environment, the steps, the expected results, and the logs to check.
+- **Prod monitoring plan** — one production-only check, a fixed monitoring window, the failure
+  threshold, the rollback choice, and who to notify.
 
 ## Required decisions
-- Pause for human PR review before merging to the dev branch? (default: no, for low-risk changes)
-- Dev testing strategy — confirm the concrete steps and expected results.
-- Prod testing strategy — confirm the production validation steps and rollback choice.
-- Extended monitoring required? If yes, duration and thresholds; if no, why standard monitoring is enough.
+- Pause for a human PR review before the dev merge? (default: no, for low-risk changes)
+- Confirm the dev test steps and expected results.
+- Confirm the prod validation steps and the rollback choice.
+- Is extended monitoring needed? If yes, give the window and thresholds.
 
 ## Record the approved plan in
-- The project's tracker ticket description. Move the ticket to the "ready to start" state on approval.
+- The tracker ticket. Move the ticket to "ready to start" on approval.
 ```
 
-## Why these exist
+## Why
 
-- **`visual-explainer`** — most "explain this system" output is prettified docs. An explainer that *animates the real mechanism*, walks one concrete example end-to-end, and defines its terms teaches far better — and a single offline HTML file travels anywhere.
-- **`visual-plan`** — a plan you read as prose is a plan you skim. A plan you *see* — the failure animated, the data flow moving, each decision as a card with a recommended default — gets reviewed properly, and the review is a few clicks plus one chat message.
-- **`challenge-plan`** — the specific way AI plans fail is over-building: an under-specified requirement gets the defensive reading, and machinery grows for needs nobody has. A different model, told it may only *subtract*, is a cheap and effective counterweight.
+- `visual-explainer` — an animation of the real mechanism teaches better than prettified docs.
+- `visual-plan` — a plan you see gets reviewed. A plan you read gets skimmed.
+- `challenge-plan` — AI plans fail because they over-build. A second model that may only cut is the counterweight.
 
 ## License
 
