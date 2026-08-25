@@ -80,14 +80,25 @@ Then call a skill by name: `/visual-explainer`, `/visual-plan`, `/visual-schema`
 
 ### By hand (any agent)
 
-Copy the skill folders to where your agent loads skills. For Claude Code, that is `~/.claude/skills/`:
+Clone the repo once. Then copy the skill folders to where your agent loads skills.
 
 ```bash
 git clone https://github.com/parthjshah95/visual-planning-skills
-cp -R visual-planning-skills/skills/* ~/.claude/skills/
+cd visual-planning-skills
 ```
 
-Each `SKILL.md` is self-contained. The [interactive explainer](https://parthjshah95.github.io/visual-planning-skills/skills/visual-plan/examples/visual-plan-explainer.html) lists the skill folders for Codex/ChatGPT, Cursor, OpenCode, OpenClaw, Hermes, Windsurf, and Antigravity.
+| Agent | Copy the skills to |
+| --- | --- |
+| Claude Code | `cp -R skills/* ~/.claude/skills/` |
+| Codex / ChatGPT | `cp -R skills/* ~/.codex/skills/` |
+| Cursor | `cp -R skills/* ~/.cursor/skills/` |
+| OpenCode | `cp -R skills/* ~/.config/opencode/skills/` |
+| OpenClaw | `cp -R skills/* ~/.openclaw/skills/` |
+| Hermes | `cp -R skills/* ~/.hermes/profiles/<profile>/skills/` |
+| Windsurf (per project) | `cp -R skills/* <project>/.windsurf/skills/` |
+| Antigravity (per workspace) | `cp -R skills/* <workspace>/.agents/skills/` |
+
+Each `SKILL.md` is self-contained.
 
 ## Custom instructions
 
