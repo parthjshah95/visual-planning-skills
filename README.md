@@ -2,9 +2,62 @@
 
 Three small [agent skills](https://docs.claude.com/en/docs/claude-code/skills). Each one makes a change into something you can look at before you build it. Any agent that reads a `SKILL.md` file can use them.
 
-![The animated visual plan that visual-plan produces](assets/plan-visual.gif)
+## You are not alone.
 
-<sub>Above: `visual-plan` plans one small feature, *Add CSV export to the Reports page*. It shows the change as an animation. It turns the one real decision into a card you answer in the browser. Source: [`plan.html`](skills/visual-plan/examples/csv-export/plan.html) · [view it live](https://htmlpreview.github.io/?https://github.com/parthjshah95/visual-planning-skills/blob/main/skills/visual-plan/examples/csv-export/plan.html).</sub>
+No one understands AI these days.
+
+![Eight slides: real posts about AI jargon walls, and the fix](assets/deck.gif)
+
+**[Open the interactive explainer →](https://parthjshah95.github.io/visual-planning-skills/skills/visual-plan/examples/visual-plan-explainer.html)** It plays this deck with controls. It shows the whole flow, a live decision card, and install steps for eight agents.
+
+<details>
+<summary><b>See each slide</b></summary>
+
+### 1 · One question, three findings
+<img src="assets/memes/01-one-question.jpg" width="640" alt="X post by George Mayer: his wife asks if he picked up the kids; he answers with three findings, one more serious than the question she asked.">
+
+You ask one question. You get three findings. A direct answer is not one of them.
+
+### 2 · Strong at code, weak at the report
+<img src="assets/memes/02-code-vs-report.jpg" width="620" alt="Swole-doge versus crying-cheems meme: Opus 5 coding versus Opus 5 communicating what it is doing.">
+
+The model codes like a champion. Then it reports like this.
+
+### 3 · “Talk like a normal person”
+<img src="assets/memes/03-talk-like-a-normal-person.jpg" width="640" alt="r/ClaudeAI post titled: How do I prompt Claude to talk like a normal person?">
+
+Users beg the model to talk like a person. The preference does not stick.
+
+### 4 · Hard to follow, and readers say why
+<img src="assets/memes/04-hard-to-follow.jpg" width="640" alt="r/ClaudeAI post: Is anyone else finding Claude really hard to follow lately? It names context whiplash, cryptic shorthand, and thinking brain leak.">
+
+Readers name the failure modes: context whiplash, cryptic shorthand, and brain leak.
+
+### 5 · The 320-comment verdict
+<img src="assets/memes/05-jargon-verdict.jpg" width="640" alt="r/ClaudeAI moderator-bot summary after 320 comments: the jargon drives everyone up the wall, with a Jargon Hall of Shame list.">
+
+One moderator summary, after 320 comments: the jargon drives everyone up the wall.
+
+### 6 · A shrug becomes doctrine
+<img src="assets/memes/06-shrug-becomes-doctrine.jpg" width="560" alt="Four-panel comic: an agent asks an incomprehensible jargon question, the human shrugs, and the agents ratify the shrug as a ruling carved in stone.">
+
+This is the cost. You shrug at a question you do not understand. The agents ratify the shrug.
+
+### 7 · A fix appears: plain language
+<img src="assets/memes/07-plain-language-fix.jpg" width="640" alt="r/ClaudeAI post: Opus 5 feels like talking to Jordan Peterson. The author keeps the human docs in ASD-STE100 Simplified Technical English.">
+
+One user found a fix. The human docs use Simplified Technical English. The slop stays out of them.
+
+### 8 · This repo packages that fix
+<img src="assets/hero.svg" width="720" alt="A wall of gray text turns into a small drawn plan with one decision card and the line: a plan you can see gets read.">
+
+`visual-plan` draws the plan. `asd-ste100` keeps the words plain. Decision cards ask questions you can answer.
+
+</details>
+
+<sub>Slide credits: Steve Yegge (the workflow comic); the r/ClaudeAI community — the moderator-bot summary, u/nightbunnies, u/endlesskitty, u/Careless_Leg_4905; George Mayer on X; the Swole Doge format. The ASD-STE100 subskill draws on [danyuchn/asd-ste100-skill](https://github.com/danyuchn/asd-ste100-skill).</sub>
+
+## The skills
 
 | Skill | What it makes | Trigger |
 | --- | --- | --- |
@@ -16,6 +69,12 @@ The skills work together, but none needs the others.
 
 - `visual-plan` reuses the drawing patterns from `visual-explainer`.
 - `challenge-plan` is separate. `visual-plan` never runs it for you. You run it when a plan needs a check.
+
+## What `visual-plan` produces
+
+![The animated visual plan that visual-plan produces](assets/plan-visual.gif)
+
+<sub>Above: `visual-plan` plans one small feature, *Add CSV export to the Reports page*. It shows the change as an animation. It turns the one real decision into a card you answer in the browser. Source: [`plan.html`](skills/visual-plan/examples/csv-export/plan.html) · [view it live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-plan/examples/csv-export/plan.html).</sub>
 
 ## Install
 
@@ -37,7 +96,7 @@ git clone https://github.com/parthjshah95/visual-planning-skills
 cp -R visual-planning-skills/skills/* ~/.claude/skills/
 ```
 
-Each `SKILL.md` is self-contained. `visual-explainer` ships an example, [`pipeline-explainer.html`](skills/visual-explainer/examples/pipeline-explainer.html). Open it in a browser.
+Each `SKILL.md` is self-contained. `visual-explainer` ships an example, [`pipeline-explainer.html`](skills/visual-explainer/examples/pipeline-explainer.html). Open it in a browser. The [interactive explainer](https://parthjshah95.github.io/visual-planning-skills/skills/visual-plan/examples/visual-plan-explainer.html) lists the skill folders for Codex/ChatGPT, Cursor, OpenCode, OpenClaw, Hermes, Windsurf, and Antigravity.
 
 ## Custom instructions
 

@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" font-family="ui-monospace,SFMono-Regular,Consolas,Menlo,monospace">
+  <style>
+    .bar{fill:#37568a;}
+    .wall-label,.plan-label{fill:#69799d;font-size:12px;}
+    .jargon{fill:#f0b429;font-size:11px;opacity:0;animation:jcycle 12s infinite;}
+    .j2{animation-delay:1.2s;}
+    .j3{animation-delay:2.4s;}
+    @keyframes jcycle{
+      0%{opacity:0;} 3%{opacity:1;} 22%{opacity:1;} 26%{opacity:0;} 100%{opacity:0;}
+    }
+    .arrow{stroke:#46b8d8;stroke-width:3;fill:none;stroke-dasharray:70;stroke-dashoffset:70;
+      animation:drawarrow 12s infinite;}
+    @keyframes drawarrow{
+      0%,28%{stroke-dashoffset:70;opacity:0;}
+      30%{opacity:1;}
+      36%,88%{stroke-dashoffset:0;opacity:1;}
+      94%,100%{stroke-dashoffset:0;opacity:0;}
+    }
+    .arrowhead{fill:#46b8d8;opacity:0;animation:popin 12s infinite;animation-delay:0s;}
+    .plan-el{opacity:0;transform-origin:center;transform-box:fill-box;animation:popin 12s infinite;}
+    .p1{animation-delay:.4s;} .p2{animation-delay:.8s;} .p3{animation-delay:1.2s;}
+    .p4{animation-delay:1.8s;} .p5{animation-delay:2.4s;}
+    @keyframes popin{
+      0%,36%{opacity:0;transform:scale(.9);}
+      40%{opacity:1;transform:scale(1.03);}
+      42%,88%{opacity:1;transform:scale(1);}
+      94%,100%{opacity:0;transform:scale(.98);}
+    }
+    .check{stroke:#54cf8d;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;
+      stroke-dasharray:30;stroke-dashoffset:30;animation:drawcheck 12s infinite;}
+    @keyframes drawcheck{
+      0%,58%{stroke-dashoffset:30;opacity:0;}
+      60%{opacity:1;}
+      66%,88%{stroke-dashoffset:0;opacity:1;}
+      94%,100%{stroke-dashoffset:0;opacity:0;}
+    }
+    .tagline{fill:#82dcef;font-size:15px;opacity:0;animation:popin 12s infinite;animation-delay:2.8s;}
+  </style>
+
+  <!-- background -->
+  <rect width="900" height="320" rx="14" fill="#0b1322"/>
+  <rect x="1.5" y="1.5" width="897" height="317" rx="13" fill="none" stroke="#26406a" stroke-width="2"/>
+
+  <!-- the wall of text -->
+  <g>
+    <rect x="46" y="42" width="250" height="224" rx="9" fill="#101b2f" stroke="#37568a" stroke-width="2"/>
+    <g class="bar">
+      <rect x="64" y="62" width="214" height="8" rx="4"/><rect x="64" y="78" width="192" height="8" rx="4"/>
+      <rect x="64" y="94" width="206" height="8" rx="4"/><rect x="64" y="110" width="178" height="8" rx="4"/>
+      <rect x="64" y="126" width="214" height="8" rx="4"/><rect x="64" y="142" width="198" height="8" rx="4"/>
+      <rect x="64" y="174" width="209" height="8" rx="4"/><rect x="64" y="190" width="170" height="8" rx="4"/>
+      <rect x="64" y="206" width="214" height="8" rx="4"/><rect x="64" y="222" width="187" height="8" rx="4"/>
+      <rect x="64" y="238" width="203" height="8" rx="4"/>
+    </g>
+    <text class="jargon" x="64" y="165">epoch-fenced quorum re-attestation</text>
+    <text class="jargon j2" x="64" y="165">load-bearing substrate seams</text>
+    <text class="jargon j3" x="64" y="165">idempotent ratchet manifest</text>
+    <text class="wall-label" x="171" y="288" text-anchor="middle">the plan, as a wall of text</text>
+  </g>
+
+  <!-- arrow -->
+  <path class="arrow" d="M320 154 H 385"/>
+  <path class="arrowhead" d="M385 145 L 403 154 L 385 163 z"/>
+
+  <!-- the plan, drawn -->
+  <g>
+    <g class="plan-el p1">
+      <rect x="428" y="42" width="426" height="128" rx="9" fill="#0f2740" stroke="#46b8d8" stroke-width="2"/>
+      <text class="plan-label" x="641" y="34" text-anchor="middle" fill="#82dcef">the same plan, drawn</text>
+    </g>
+    <g class="plan-el p2">
+      <rect x="458" y="66" width="96" height="34" rx="6" fill="#16233a" stroke="#37568a" stroke-width="1.6"/>
+      <rect x="592" y="66" width="96" height="34" rx="6" fill="#16233a" stroke="#37568a" stroke-width="1.6"/>
+      <rect x="726" y="66" width="96" height="34" rx="6" fill="#16233a" stroke="#37568a" stroke-width="1.6"/>
+    </g>
+    <g class="plan-el p3">
+      <path d="M554 83 H 588" stroke="#46b8d8" stroke-width="2.4"/>
+      <path d="M688 83 H 722" stroke="#46b8d8" stroke-width="2.4"/>
+      <rect x="592" y="120" width="96" height="34" rx="6" fill="#16233a" stroke="#37568a" stroke-width="1.6"/>
+      <path d="M640 100 V 116" stroke="#46b8d8" stroke-width="2.4"/>
+    </g>
+    <g class="plan-el p4">
+      <rect x="428" y="190" width="426" height="76" rx="9" fill="#16233a" stroke="#54cf8d" stroke-width="2"/>
+      <circle cx="458" cy="216" r="8" fill="none" stroke="#54cf8d" stroke-width="2.4"/>
+      <circle cx="458" cy="216" r="3.4" fill="#54cf8d"/>
+      <rect x="478" y="210" width="240" height="10" rx="5" fill="#95a7c9"/>
+      <circle cx="458" cy="244" r="8" fill="none" stroke="#37568a" stroke-width="2.4"/>
+      <rect x="478" y="238" width="180" height="10" rx="5" fill="#37568a"/>
+      <text class="plan-label" x="641" y="288" text-anchor="middle">one plain question, default picked</text>
+    </g>
+    <path class="check" d="M806 208 l8 9 l16 -18"/>
+  </g>
+
+  <!-- tagline -->
+  <text class="tagline" x="450" y="308" text-anchor="middle">A plan you can see gets read.</text>
+</svg>
