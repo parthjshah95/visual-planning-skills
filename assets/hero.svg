@@ -3,8 +3,8 @@
     .bar{fill:#37568a;}
     .wall-label,.plan-label{fill:#69799d;font-size:12px;}
     .jargon{fill:#f0b429;font-size:11px;opacity:0;animation:jcycle 12s infinite;}
-    .j2{animation-delay:1.2s;}
-    .j3{animation-delay:2.4s;}
+    .j2{animation-delay:4s;}
+    .j3{animation-delay:8s;}
     @keyframes jcycle{
       0%{opacity:0;} 3%{opacity:1;} 22%{opacity:1;} 26%{opacity:0;} 100%{opacity:0;}
     }
