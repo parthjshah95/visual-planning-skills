@@ -304,7 +304,8 @@ let scale = 1, tx = 0, ty = 0;
 function applyTransform(){ canvas.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`; }
 function fitCanvas(){
   const vw = viewport.clientWidth, vh = viewport.clientHeight;
-  scale = Math.min(vw / CANVAS_W, vh / CANVAS_H, 1.4) * 0.96;
+  if (vw < 40 || vh < 40){ scale = 1; tx = 0; ty = 0; applyTransform(); return; }
+  scale = Math.max(0.2, Math.min(vw / CANVAS_W, vh / CANVAS_H, 1.4) * 0.96);
   tx = (vw - CANVAS_W * scale) / 2;
   ty = (vh - CANVAS_H * scale) / 2;
   applyTransform();
