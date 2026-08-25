@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bookstore — Schema</title>
+<style>
+  :root{
+    --bg-0:#0b1322; --bg-1:#101b2f; --bg-2:#16233a;
+    --line:#26406a; --line-2:#37568a;
+    --ink:#e9eefb; --ink-dim:#95a7c9; --ink-faint:#69799d;
+    --blue:#46b8d8; --violet:#a88bff; --ok:#54cf8d; --amber:#ffca6b;
+    --edge:#9db2d5; --edge-inherit:#c084fc;
+    --mono:"SFMono-Regular","Consolas","Menlo",monospace;
+    --body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:linear-gradient(var(--bg-0),var(--bg-1));color:var(--ink);font-family:var(--body);padding:0 20px 60px;}
+  header{max-width:1240px;margin:0 auto;padding:30px 0 6px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+  h1{font-family:Georgia,serif;font-size:26px;margin:0;}
+  .src{font-family:var(--mono);font-size:12px;color:var(--ink-faint);}
+  .legend{max-width:1240px;margin:8px auto 18px;display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--ink-dim);align-items:center;}
+  .legend .sw{display:inline-flex;align-items:center;gap:6px;}
+  .hint{max-width:1240px;margin:0 auto 10px;color:var(--ink-faint);font-size:13px;}
+
+  #canvas{position:relative;margin:0 auto;}
+  .group{position:absolute;border:1.5px solid;border-radius:14px;}
+  .glabel{position:absolute;top:10px;left:14px;font-family:var(--mono);font-size:13px;font-weight:700;}
+  .gcaption{position:absolute;top:28px;left:14px;font-size:11px;color:var(--ink-faint);}
+
+  .table{position:absolute;background:var(--bg-2);border:1.5px solid var(--line-2);border-radius:10px;
+    box-shadow:0 8px 22px rgba(0,0,0,.4);cursor:pointer;transition:opacity .2s ease,border-color .2s ease;}
+  .table .thead{padding:9px 12px 7px;border-bottom:1px solid var(--line);}
+  .table .tname{font-family:var(--mono);font-size:14px;font-weight:700;}
+  .table .ttag{font-family:var(--mono);font-size:10px;color:var(--ink-faint);}
+  .frow{display:flex;justify-content:space-between;gap:10px;padding:3px 12px;font-family:var(--mono);font-size:12px;}
+  .frow .fn{color:var(--ink);}
+  .frow .fb{color:var(--amber);margin-left:5px;}
+  .frow .ft{color:var(--ink-faint);}
+  .tnote{padding:5px 12px 8px;font-size:11px;color:var(--ink-dim);border-top:1px dashed var(--line);}
+  .table.dim{opacity:.22;}
+  .table.focus{border-color:var(--amber);}
+  .table.related{border-color:var(--blue);}
+  #edges{position:absolute;top:0;left:0;pointer-events:none;}
+  #edges .e{transition:opacity .2s ease;}
+  #edges .e.dim{opacity:.12;}
+  #edges text{font-family:var(--mono);font-size:10px;fill:var(--ink-dim);paint-order:stroke;stroke:#0b1322;stroke-width:3px;}
+</style>
+</head>
+<body>
+  <header>
+    <h1>Bookstore — Schema</h1>
+    <span class="src">example schema · fields come from the model source</span>
+  </header>
+  <div class="legend" id="legend">
+    <span class="sw">● primary key</span>
+    <span class="sw">◆ unique</span>
+    <span class="sw">° nullable</span>
+    <span class="sw"><svg width="30" height="8"><line x1="0" y1="4" x2="30" y2="4" stroke="#9db2d5" stroke-width="2"/></svg> foreign key</span>
+    <span class="sw"><svg width="30" height="8"><line x1="0" y1="4" x2="30" y2="4" stroke="#c084fc" stroke-width="2" stroke-dasharray="7 4"/></svg> inherits</span>
+  </div>
+  <p class="hint">Click a table to see its relationships. Click the background to clear.</p>
+  <div id="canvas"></div>
+
+<script>
+"use strict";
+
+/* ============ 1. DATA — the single source of truth ============ */
+
+const GROUPS = {
+  identity: { label: "Identity", caption: "Who is acting", color: "#46b8d8" },
+  catalog:  { label: "Catalog",  caption: "What the store sells", color: "#a88bff" },
+  orders:   { label: "Orders",   caption: "What people buy", color: "#54cf8d" },
+};
+
+const TABLES = [
+  { id:"base_model", group:"identity", title:"BaseModel", tag:"abstract · no table", x:80, y:120, width:300,
+    fields:[
+      {name:"id", badges:"●", type:"ULID"},
+      {name:"created_at", type:"timestamptz"},
+      {name:"updated_at", type:"timestamptz"},
+      {name:"deleted_at", badges:"°", type:"timestamptz"},
+    ], note:"Soft delete only. Rows never leave the database." },
+  { id:"user", group:"identity", title:"User", tag:"table", x:80, y:330, width:300,
+    fields:[
+      {name:"email", badges:"◆", type:"text"},
+      {name:"name", type:"text"},
+      {name:"phone", badges:"°", type:"text"},
+      {name:"is_staff", type:"boolean"},
+    ], note:"" },
+  { id:"session", group:"identity", title:"Session", tag:"table", x:80, y:540, width:300,
+    fields:[
+      {name:"user_id", type:"ULID → User"},
+      {name:"token_hash", badges:"◆", type:"text"},
+      {name:"expires_at", type:"timestamptz"},
+    ], note:"" },
+
+  { id:"author", group:"catalog", title:"Author", tag:"table", x:500, y:120, width:300,
+    fields:[
+      {name:"name", type:"text"},
+      {name:"bio", badges:"°", type:"text"},
+    ], note:"" },
+  { id:"book", group:"catalog", title:"Book", tag:"table", x:500, y:300, width:300,
+    fields:[
+      {name:"author_id", type:"ULID → Author"},
+      {name:"isbn", badges:"◆", type:"text"},
+      {name:"title", type:"text"},
+      {name:"price_cents", type:"integer"},
+      {name:"published_on", badges:"°", type:"date"},
+    ], note:"" },
+
+  { id:"order", group:"orders", title:"Order", tag:"table", x:920, y:120, width:300,
+    fields:[
+      {name:"user_id", type:"ULID → User"},
+      {name:"status", type:"enum: cart | paid | shipped"},
+      {name:"paid_at", badges:"°", type:"timestamptz"},
+    ], note:"" },
+  { id:"order_item", group:"orders", title:"OrderItem", tag:"table", x:920, y:330, width:300,
+    fields:[
+      {name:"order_id", type:"ULID → Order"},
+      {name:"book_id", type:"ULID → Book"},
+      {name:"quantity", type:"integer"},
+      {name:"unit_price_cents", type:"integer"},
+    ], note:"Price is copied at purchase time." },
+];
+
+const RELATIONSHIPS = [
+  { from:"user",       to:"base_model", label:"inherits", kind:"inherit" },
+  { from:"book",       to:"base_model", label:"inherits", kind:"inherit" },
+  { from:"order",      to:"base_model", label:"inherits", kind:"inherit" },
+  { from:"session",    to:"user",   label:"belongs to", kind:"fk" },
+  { from:"book",       to:"author", label:"written by", kind:"fk" },
+  { from:"order",      to:"user",   label:"placed by", kind:"fk" },
+  { from:"order_item", to:"order",  label:"", kind:"fk" },
+  { from:"order_item", to:"book",   label:"", kind:"fk" },
+];
+
+/* ============ 2. GEOMETRY — heights, group regions, canvas: all DERIVED ============ */
+
+const ROW_H = 21, HEAD_H = 42, PAD_B = 8, NOTE_H = 24, GROUP_PAD = 22, GROUP_HEAD = 46, CANVAS_MARGIN = 30;
+
+function tableHeight(t){
+  return HEAD_H + t.fields.length * ROW_H + PAD_B + (t.note && t.note.trim() ? NOTE_H : 0);
+}
+function tableRect(t){ return { id:t.id, x:t.x, y:t.y, w:t.width, h:tableHeight(t) }; }
+
+function groupRect(gid){
+  const members = TABLES.filter(t => t.group === gid).map(tableRect);
+  const x0 = Math.min(...members.map(r => r.x)) - GROUP_PAD;
+  const y0 = Math.min(...members.map(r => r.y)) - GROUP_PAD - GROUP_HEAD;
+  const x1 = Math.max(...members.map(r => r.x + r.w)) + GROUP_PAD;
+  const y1 = Math.max(...members.map(r => r.y + r.h)) + GROUP_PAD;
+  return { x:x0, y:y0, w:x1 - x0, h:y1 - y0 };
+}
+
+const groupRects = Object.fromEntries(Object.keys(GROUPS).map(g => [g, groupRect(g)]));
+const CANVAS_W = Math.max(...Object.values(groupRects).map(r => r.x + r.w)) + CANVAS_MARGIN;
+const CANVAS_H = Math.max(...Object.values(groupRects).map(r => r.y + r.h)) + CANVAS_MARGIN;
+
+/* ============ 3. LAYOUT AUDIT — runs at load; a clean console is part of done ============ */
+
+function auditLayout(){
+  const rects = TABLES.map(tableRect), gap = 24;
+  for (let i = 0; i < rects.length; i++){
+    for (let j = i + 1; j < rects.length; j++){
+      const a = rects[i], b = rects[j];
+      const clear = a.x + a.w + gap <= b.x || b.x + b.w + gap <= a.x ||
+                    a.y + a.h + gap <= b.y || b.y + b.h + gap <= a.y;
+      if (!clear) console.warn(`layout: ${a.id} and ${b.id} overlap or sit closer than ${gap}px`);
+    }
+  }
+  for (const t of TABLES){
+    const words = (t.note || "").trim().split(/\s+/).filter(Boolean).length;
+    if (words > 30) console.warn(`note: ${t.id} has ${words} words (cap is 30)`);
+  }
+}
+
+/* ============ 4. RENDER (createElement only — never innerHTML) ============ */
+
+const canvas = document.getElementById("canvas");
+canvas.style.width = CANVAS_W + "px";
+canvas.style.height = CANVAS_H + "px";
+
+function el(parent, tag, cls, text){
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text !== undefined) n.textContent = text;
+  parent.appendChild(n);
+  return n;
+}
+
+for (const [gid, g] of Object.entries(GROUPS)){
+  const r = groupRects[gid];
+  const gEl = el(canvas, "section", "group");
+  gEl.style.left = r.x + "px"; gEl.style.top = r.y + "px";
+  gEl.style.width = r.w + "px"; gEl.style.height = r.h + "px";
+  gEl.style.borderColor = g.color + "66"; gEl.style.background = g.color + "0d";
+  el(gEl, "div", "glabel", g.label).style.color = g.color;
+  el(gEl, "div", "gcaption", g.caption);
+}
+
+const svgNS = "http://www.w3.org/2000/svg";
+const edgeSvg = document.createElementNS(svgNS, "svg");
+edgeSvg.id = "edges";
+edgeSvg.setAttribute("width", CANVAS_W); edgeSvg.setAttribute("height", CANVAS_H);
+edgeSvg.setAttribute("viewBox", `0 0 ${CANVAS_W} ${CANVAS_H}`);
+canvas.appendChild(edgeSvg);
+
+const tableEls = {};
+for (const t of TABLES){
+  const r = tableRect(t);
+  const tEl = el(canvas, "article", "table");
+  tEl.style.left = r.x + "px"; tEl.style.top = r.y + "px"; tEl.style.width = r.w + "px";
+  const head = el(tEl, "div", "thead");
+  el(head, "div", "tname", t.title);
+  el(head, "div", "ttag", t.tag);
+  for (const f of t.fields){
+    const row = el(tEl, "div", "frow");
+    const left = el(row, "span", "fn", f.name);
+    if (f.badges) el(left, "span", "fb", f.badges);
+    el(row, "span", "ft", f.type);
+  }
+  if (t.note && t.note.trim()) el(tEl, "div", "tnote", t.note);
+  tEl.addEventListener("click", (ev) => { ev.stopPropagation(); focusTable(t.id); });
+  tableEls[t.id] = tEl;
+}
+
+function anchor(fromR, toR){
+  if (fromR.x + fromR.w + 10 < toR.x) return { x: fromR.x + fromR.w, y: fromR.y + fromR.h / 2 };
+  if (toR.x + toR.w + 10 < fromR.x)  return { x: fromR.x,           y: fromR.y + fromR.h / 2 };
+  if (fromR.y > toR.y)               return { x: fromR.x + fromR.w / 2, y: fromR.y };
+  return { x: fromR.x + fromR.w / 2, y: fromR.y + fromR.h };
+}
+
+const edgeEls = [];
+for (const rel of RELATIONSHIPS){
+  const a = tableRect(TABLES.find(t => t.id === rel.from));
+  const b = tableRect(TABLES.find(t => t.id === rel.to));
+  const p1 = anchor(a, b), p2 = anchor(b, a);
+  const g = document.createElementNS(svgNS, "g");
+  g.setAttribute("class", "e");
+  const line = document.createElementNS(svgNS, "line");
+  line.setAttribute("x1", p1.x); line.setAttribute("y1", p1.y);
+  line.setAttribute("x2", p2.x); line.setAttribute("y2", p2.y);
+  line.setAttribute("stroke", rel.kind === "inherit" ? "var(--edge-inherit)" : "var(--edge)");
+  line.setAttribute("stroke-width", "1.8");
+  if (rel.kind === "inherit") line.setAttribute("stroke-dasharray", "7 4");
+  g.appendChild(line);
+  if (rel.label){
+    const txt = document.createElementNS(svgNS, "text");
+    txt.setAttribute("x", (p1.x + p2.x) / 2); txt.setAttribute("y", (p1.y + p2.y) / 2 - 5);
+    txt.setAttribute("text-anchor", "middle");
+    txt.textContent = rel.label;
+    g.appendChild(txt);
+  }
+  edgeSvg.appendChild(g);
+  edgeEls.push({ g, rel });
+}
+
+/* ============ 5. FOCUS ============ */
+
+function focusTable(id){
+  const related = new Set([id]);
+  for (const { rel } of edgeEls){
+    if (rel.from === id) related.add(rel.to);
+    if (rel.to === id) related.add(rel.from);
+  }
+  for (const [tid, tEl] of Object.entries(tableEls)){
+    tEl.classList.toggle("focus", tid === id);
+    tEl.classList.toggle("related", tid !== id && related.has(tid));
+    tEl.classList.toggle("dim", !related.has(tid));
+  }
+  for (const { g, rel } of edgeEls){
+    g.classList.toggle("dim", rel.from !== id && rel.to !== id);
+  }
+}
+function clearFocus(){
+  for (const tEl of Object.values(tableEls)) tEl.classList.remove("focus", "related", "dim");
+  for (const { g } of edgeEls) g.classList.remove("dim");
+}
+document.body.addEventListener("click", clearFocus);
+
+auditLayout();
+</script>
+</body>
+</html>

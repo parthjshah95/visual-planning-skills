@@ -1,7 +1,7 @@
 {
   "name": "visual-planning-skills",
   "version": "0.1.0",
-  "description": "Tool-agnostic Claude skills: visual-explainer (single-file interactive HTML explainers), visual-plan (visual, decision-card plans reviewed in a browser), challenge-plan (adversarial simplification review of an AI-authored plan), and asd-ste100 (the Simplified Technical English the visual skills write in).",
+  "description": "Tool-agnostic Claude skills: visual-explainer (single-file interactive HTML explainers), visual-plan (visual, decision-card plans reviewed in a browser), challenge-plan (adversarial simplification review of an AI-authored plan), visual-schema (interactive database-schema diagrams), and asd-ste100 (the Simplified Technical English the visual skills write in).",
   "author": {
     "name": "Parth Shah"
   },

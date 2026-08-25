@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "visual-planning-skills",
-      "description": "visual-explainer, visual-plan, challenge-plan, and asd-ste100. Build single-file interactive HTML explainers and browser-reviewed plans in Simplified Technical English; challenge any AI-authored plan for over-engineering.",
+      "description": "visual-explainer, visual-plan, visual-schema, challenge-plan, and asd-ste100. Build single-file interactive HTML explainers, browser-reviewed plans, and database-schema diagrams in Simplified Technical English; challenge any AI-authored plan for over-engineering.",
       "source": ".",
       "category": "productivity"
     }

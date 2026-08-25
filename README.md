@@ -63,6 +63,7 @@ One user found a fix. The human docs use Simplified Technical English. The slop 
 | --- | --- | --- |
 | **`visual-explainer`** | One self-contained HTML file that shows how something works. It has inline-SVG art, an animated scene player, hand-built diagrams, and a glossary. No CDN. No build step. It opens offline. | "illustrate / explain / visualize how X works as a web page" |
 | **`visual-plan`** | A visual HTML plan for a change. The diagram comes from the real code. Each decision is a card you answer in the browser. You review it and override in chat. The agent records the result. | "plan this change so I can review it first" |
+| **`visual-schema`** | An interactive HTML diagram of a database schema. Entity boxes come from the real model source. Groups and canvas grow with the tables. A built-in audit warns on overlap. | "visualize / diagram this database schema" |
 | **`challenge-plan`** | A different model reviews an AI-authored plan. It may only cut, reuse, simplify, or ask — never add scope. It returns `SATISFIED` or `REVISE`. | "check this plan for over-engineering" |
 
 The skills work together, but none needs the others.
