@@ -1,7 +1,11 @@
 # Visual Planning Skills
 
 Three small, tool-agnostic [agent skills](https://docs.claude.com/en/docs/claude-code/skills) for
-turning ideas into things you can *look at* before you build them:
+turning ideas into things you can *look at* before you build them.
+
+![The animated visual plan that visual-plan produces](assets/plan-visual.gif)
+
+<sub>Above — `visual-plan` planning one small feature, *"Add CSV export to the Reports page."* It animates the change step by step, then turns the one real trade-off into a decision card you answer in the browser. Source: [`plan.html`](skills/visual-plan/examples/csv-export/plan.html) · [view it live](https://htmlpreview.github.io/?https://github.com/parthjshah95/visual-planning-skills/blob/main/skills/visual-plan/examples/csv-export/plan.html) (GitHub shows the raw `.html` as source, so the GIF is a recording of it running).</sub>
 
 | Skill | What it makes | Trigger |
 | --- | --- | --- |
@@ -15,22 +19,6 @@ They compose but don't require each other:
 - `challenge-plan` is a **separate, on-demand** pass. `visual-plan` does not run it for you — you decide when a plan is worth challenging, so you never pay for a review round you didn't want.
 
 Written as plain `SKILL.md` files, so any agent that can read a skill can use them — Claude Code is the reference harness.
-
-## The same plan, two ways
-
-Here is one small feature — *"Add CSV export to the Reports page"* — planned both ways. Same goal, same five steps, same single real trade-off. The only difference is whether you **read** the plan or **watch** it.
-
-**📄 A traditional Markdown plan** — complete, and a wall of text you scroll through:
-
-![A traditional Markdown plan, scrolling](assets/plan-markdown.gif)
-
-**✨ What `visual-plan` produces for the same feature** — shown instead of told:
-
-![The animated visual plan for the same feature](assets/plan-visual.gif)
-
-Both hold the identical plan — goal, five ordered steps, and the one real decision (*"what about reports too large to stream in time?"*). The first you read top to bottom. The second animates the request flow step by step and turns that decision into a card you answer in the browser, with the recommended option pre-selected.
-
-Source for both: [`plan.md`](skills/visual-plan/examples/csv-export/plan.md) and [`plan.html`](skills/visual-plan/examples/csv-export/plan.html). GitHub shows the `.html` as source, so the GIF above is a recording of it running — to see the real thing, download `plan.html` and open it, or [**view it live**](https://htmlpreview.github.io/?https://github.com/parthjshah95/visual-planning-skills/blob/main/skills/visual-plan/examples/csv-export/plan.html) (it is one self-contained file).
 
 ## Install
 
