@@ -1,6 +1,6 @@
 ---
 name: challenge-plan
-description: Adversarial simplification review of an AI-authored plan, run by a different model before the plan is finalized. It may only push toward deletion, reuse, simplification, convention alignment, or a question for the human — a challenge that adds scope is invalid, even when labeled non-negotiable. Returns SATISFIED or REVISE. Run it on demand after a plan is drafted (for example, one produced by interactive-plan-html).
+description: Adversarial simplification review of an AI-authored plan, run by a different model before the plan is finalized. It may only push toward deletion, reuse, simplification, convention alignment, or a question for the human — a challenge that adds scope is invalid, even when labeled non-negotiable. Returns SATISFIED or REVISE. Run it on demand after a plan is drafted (for example, one produced by visual-plan).
 ---
 
 # Challenge Plan — Adversarial Review Of AI-Authored Plans
@@ -11,7 +11,7 @@ AI-authored plans fail one way more than any other: **under-specified intent →
 
 ## When It Runs, Who Runs It
 
-- **On demand.** Run it after a plan is drafted — for example, a plan produced by [`interactive-plan-html`](../interactive-plan-html/SKILL.md), which does *not* invoke this skill automatically. A calling skill or a human decides when to challenge, and owns any round cap and stalemate handling.
+- **On demand.** Run it after a plan is drafted — for example, a plan produced by [`visual-plan`](../visual-plan/SKILL.md), which does *not* invoke this skill automatically. A calling skill or a human decides when to challenge, and owns any round cap and stalemate handling.
 - **The challenger must be a different model/agent than the author.** Same-model, fresh-context is a last resort, not the goal — an author rarely finds the assumption it just made. Invoke a genuinely different model however your environment allows (a second CLI agent, an API call to another model family, a different local model). If no different challenger can be reached after a reasonable attempt, proceed with the plan but record `Simplification challenge: skipped — <reason>` in the plan and say so plainly. Never skip silently.
 
 ## The Mandate — One Direction Only

@@ -1,23 +1,23 @@
 ---
-name: interactive-plan-html
+name: visual-plan
 description: Generate a visual, interactive HTML plan for a task in one pass. No sequential question loop — the AI reads context, builds a diagram-led plan with encouraged but optional animations, and presents decisions as multiple-choice cards with pre-selected defaults. The user reviews it in a browser, overrides decisions in chat, and the agent writes the approved plan wherever the project tracks work. Use when the user wants a reviewable plan for a change before any code is written.
 ---
 
-# Interactive Plan HTML
+# Visual Plan — Interactive, Reviewable HTML Plans
 
 Generate a visual, interactive HTML plan in one pass. The user reviews it in a browser, overrides decisions in chat, and the agent records the approved plan wherever the project keeps its plans. No sequential question loop.
 
 ## Invocation
 
 ```text
-/interactive-plan-html <task description or ticket reference> [workspace=<path>] [profile=<path>] [out=<dir>] [notes]
+/visual-plan <task description or ticket reference> [workspace=<path>] [profile=<path>] [out=<dir>] [notes]
 ```
 
 Examples:
 
-- `/interactive-plan-html "Pre-warm the connection pool at deploy time"` — plan a free-form task.
-- `/interactive-plan-html PROJ-1234` — plan against an existing tracker ticket, if the project uses one.
-- `/interactive-plan-html "Add CSV export to the reports page" profile=./.plan-profile.md out=./plans`
+- `/visual-plan "Pre-warm the connection pool at deploy time"` — plan a free-form task.
+- `/visual-plan PROJ-1234` — plan against an existing tracker ticket, if the project uses one.
+- `/visual-plan "Add CSV export to the reports page" profile=./.plan-profile.md out=./plans`
 
 If the workspace is ambiguous, ask which repo or worktree before any tool call.
 
@@ -109,11 +109,11 @@ Generate the full plan as a single self-contained HTML file. This replaces the q
 
 #### HTML structure
 
-One self-contained file (no CDN, no external deps), built with the patterns from the `illustrate-html` skill. Sections in order:
+One self-contained file (no CDN, no external deps), built with the patterns from the `visual-explainer` skill. Sections in order:
 
 **1. Header.** Task/ticket id, title, one-line goal, a risk pill, and the step count. Nothing else.
 
-**2. Visual explanation — the centerpiece.** Reuse relevant `illustrate-html` patterns. Prefer an animated scenario, scene player, or moving pipeline when the plan has a meaningful sequence, state change, or request flow. Animation is encouraged but optional: omit it when motion adds nothing, would make the artifact fragile, or the user asked for a static presentation.
+**2. Visual explanation — the centerpiece.** Reuse relevant `visual-explainer` patterns. Prefer an animated scenario, scene player, or moving pipeline when the plan has a meaningful sequence, state change, or request flow. Animation is encouraged but optional: omit it when motion adds nothing, would make the artifact fragile, or the user asked for a static presentation.
 
 Selection rules:
 - **Animated scenario / scene player** — ordered workflows, user journeys, branching outcomes, event pipelines, lifecycle/state transitions, before/after behavior.
@@ -155,7 +155,7 @@ What to visualize, by change type:
 
 #### Technical rules
 
-- Reuse the `illustrate-html` animation and scene-player patterns when they strengthen the explanation, not as mandatory boilerplate. Keep the output self-contained, avoid `innerHTML`, use system font stacks, and make diagrams responsive.
+- Reuse the `visual-explainer` animation and scene-player patterns when they strengthen the explanation, not as mandatory boilerplate. Keep the output self-contained, avoid `innerHTML`, use system font stacks, and make diagrams responsive.
 - If the visual uses a flowchart, verify `height: auto`, `max-height: none`, `overflow: visible` on the section/container. No internal scroll area, fixed aspect ratio, viewport-height cap, clipped SVG, or transform scaling to constrain its vertical size.
 - Use a clean, professional palette — an engineering plan should feel like a well-designed dashboard, not an art-deco explainer.
 - File goes to `<out>/<YYYY-MM-DD>_<slug>.html` (default `out` is `./plans/`). `<YYYY-MM-DD>` is today's date; `<slug>` is a short lowercase-hyphenated descriptor.

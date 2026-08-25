@@ -1,9 +1,9 @@
 ---
-name: illustrate-html
+name: visual-explainer
 description: Generate a single-file, interactive HTML explainer for a concept, system, tool, architecture, or workflow — with hand-drawn inline-SVG illustrations, an animated scene-player or pipeline, mermaid-style diagrams, and a glossary. Use when the user asks to illustrate, explain, visualize, or build an interactive walkthrough/explainer of how something works as an HTML page (not a slide deck, not prose).
 ---
 
-# Illustrate HTML — Interactive Explainers
+# Visual Explainer — Illustrated, Interactive HTML
 
 Produce a polished, self-contained `.html` file that *teaches how something works* through
 illustration and interaction — not by prettifying its docs. The output is one file with no

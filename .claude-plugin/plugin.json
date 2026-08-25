@@ -1,10 +1,10 @@
 {
-  "name": "visual-planning-skills",
+  "name": "visual-thinking-skills",
   "version": "0.1.0",
-  "description": "Three tool-agnostic Claude skills: illustrate-html (single-file interactive HTML explainers), interactive-plan-html (visual, decision-card plans reviewed in a browser), and challenge-plan (adversarial simplification review of an AI-authored plan).",
+  "description": "Three tool-agnostic Claude skills: visual-explainer (single-file interactive HTML explainers), visual-plan (visual, decision-card plans reviewed in a browser), and challenge-plan (adversarial simplification review of an AI-authored plan).",
   "author": {
     "name": "Parth Shah"
   },
-  "homepage": "https://github.com/parthjshah95/visual-planning-skills",
+  "homepage": "https://github.com/parthjshah95/visual-thinking-skills",
   "license": "MIT"
 }
