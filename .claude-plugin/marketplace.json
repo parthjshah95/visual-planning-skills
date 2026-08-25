@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "visual-planning-skills",
+  "version": "0.1.0",
+  "description": "Visual, tool-agnostic planning and illustration skills for Claude Code.",
+  "owner": {
+    "name": "Parth Shah"
+  },
+  "plugins": [
+    {
+      "name": "visual-planning-skills",
+      "description": "illustrate-html, interactive-plan-html, and challenge-plan. Build single-file interactive HTML explainers and browser-reviewed plans; challenge any AI-authored plan for over-engineering.",
+      "source": ".",
+      "category": "productivity"
+    }
+  ]
+}

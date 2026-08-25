@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a Deploy Pipeline Works</title>
+<style>
+  /* =========================================================
+     PALETTE — an assembly line at dusk.
+     Deep navy shop floor + amber machine light + blueprint cyan
+     for the "automated" wiring, green pass / red fail signals.
+     ========================================================= */
+  :root {
+    --floor-top: #12182b;
+    --floor-mid: #1a2338;
+    --floor-low: #232f4a;
+    --steel-dark: #2c3852;
+    --steel: #3d4d6b;
+    --steel-light: #5a6d90;
+    --amber: #f0a83c;
+    --amber-glow: #ffca6b;
+    --blueprint: #45d0dd;
+    --blueprint-deep: #1c8b97;
+    --pass: #5ec98a;
+    --fail: #e2685f;
+    --ink: #e8edf7;
+    --ink-dim: #9fb0cc;
+    --card: #1b2540;
+    --card-line: #33456a;
+    --shadow: rgba(0,0,0,.45);
+    --display: "Georgia", "Times New Roman", serif;
+    --mono: "SFMono-Regular", "Consolas", "Menlo", monospace;
+    --body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background:
+      radial-gradient(1200px 600px at 50% -10%, var(--floor-low), transparent 70%),
+      linear-gradient(var(--floor-top), var(--floor-mid));
+    color: var(--ink);
+    font-family: var(--body);
+    line-height: 1.55;
+    padding: 0 20px 80px;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  header { text-align: center; padding: 54px 0 20px; }
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(30px, 6vw, 52px);
+    margin: 0 0 6px;
+    letter-spacing: .5px;
+  }
+  h1 .amber { color: var(--amber-glow); }
+  .subtitle { color: var(--ink-dim); font-size: 18px; margin: 0 auto; max-width: 640px; }
+
+  .ribbon {
+    display: inline-flex; gap: 10px; align-items: center;
+    margin: 22px auto 0;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-left: 4px solid var(--amber);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: var(--mono); font-size: 14px;
+    box-shadow: 0 6px 20px var(--shadow);
+  }
+  .ribbon .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--amber); animation: pulse 1.8s ease-in-out infinite; }
+
+  section { margin-top: 64px; }
+  h2 {
+    font-family: var(--display);
+    font-size: clamp(22px, 3.6vw, 30px);
+    border-bottom: 1px solid var(--card-line);
+    padding-bottom: 10px;
+  }
+  h2 .n { color: var(--blueprint); font-family: var(--mono); font-size: .7em; margin-right: 10px; }
+  .lead { color: var(--ink-dim); max-width: 720px; }
+
+  /* ---------- concept cards ---------- */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-top: 22px; }
+  .card {
+    background: var(--card); border: 1px solid var(--card-line); border-radius: 12px;
+    padding: 18px; box-shadow: 0 8px 22px var(--shadow);
+    transition: transform .25s ease, border-color .25s ease;
+  }
+  .card:hover { transform: translateY(-4px); border-color: var(--steel-light); }
+  .card h3 { margin: 12px 0 4px; font-size: 18px; }
+  .card p { margin: 0; color: var(--ink-dim); font-size: 15px; }
+  .card svg { display: block; width: 100%; height: 120px; }
+
+  /* ---------- morph toggle ---------- */
+  .morph-controls { display: flex; gap: 10px; justify-content: center; margin: 18px 0; }
+  .toggle-btn, .btn {
+    font-family: var(--mono); font-size: 14px; cursor: pointer;
+    background: var(--steel-dark); color: var(--ink);
+    border: 1px solid var(--card-line); border-radius: 8px; padding: 9px 16px;
+    transition: background .2s ease, border-color .2s ease, transform .1s ease;
+  }
+  .toggle-btn:hover, .btn:hover { border-color: var(--steel-light); }
+  .toggle-btn[aria-pressed="true"] { background: var(--amber); color: #1a1305; border-color: var(--amber-glow); font-weight: 700; }
+  .btn:active { transform: translateY(1px); }
+
+  .morph-stage { background: var(--card); border: 1px solid var(--card-line); border-radius: 12px; padding: 8px; box-shadow: 0 8px 22px var(--shadow); }
+  .morph-stage svg { display: block; width: 100%; height: auto; }
+  .m-auto { opacity: 0; transition: opacity .6s ease; }
+  .m-manual { opacity: 1; transition: opacity .6s ease; }
+  body[data-mode="auto"] .m-auto { opacity: 1; }
+  body[data-mode="auto"] .m-manual { opacity: 0; }
+  .m-caption { text-align: center; color: var(--ink-dim); font-size: 15px; margin-top: 10px; min-height: 22px; }
+
+  /* ---------- scene player ---------- */
+  .player { background: var(--card); border: 1px solid var(--card-line); border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px var(--shadow); }
+  .stage-wrap { background: linear-gradient(var(--floor-mid), var(--floor-low)); }
+  .stage { display: block; width: 100%; height: auto; }
+
+  /* actors default hidden; scenes reveal them */
+  .actor, .flow, .label, .signal { opacity: 0; transition: opacity .5s ease, transform .8s ease; }
+  .parcel { transition: transform .9s cubic-bezier(.5,.05,.3,1), opacity .5s ease; }
+
+  /* station lights */
+  .station { fill: var(--steel-dark); stroke: var(--card-line); stroke-width: 2; }
+  .station-on { fill: var(--amber); }
+
+  /* SCENE 0 — the commit appears */
+  .stage[data-scene="0"] .a-dev,   .stage[data-scene="0"] .l-commit  { opacity: 1; }
+  .stage[data-scene="0"] .parcel   { opacity: 1; transform: translateX(0); }
+  /* SCENE 1 — build */
+  .stage[data-scene="1"] .a-dev,   .stage[data-scene="1"] .st-build,
+  .stage[data-scene="1"] .l-build, .stage[data-scene="1"] .f-1       { opacity: 1; }
+  .stage[data-scene="1"] .st-build .station { fill: var(--amber); }
+  .stage[data-scene="1"] .parcel   { opacity: 1; transform: translateX(150px); }
+  /* SCENE 2 — test */
+  .stage[data-scene="2"] .st-build, .stage[data-scene="2"] .st-test,
+  .stage[data-scene="2"] .l-test,   .stage[data-scene="2"] .f-2,
+  .stage[data-scene="2"] .sig-pass  { opacity: 1; }
+  .stage[data-scene="2"] .st-test .station { fill: var(--amber); }
+  .stage[data-scene="2"] .parcel    { opacity: 1; transform: translateX(300px); }
+  /* SCENE 3 — deploy */
+  .stage[data-scene="3"] .st-test,  .stage[data-scene="3"] .st-deploy,
+  .stage[data-scene="3"] .l-deploy, .stage[data-scene="3"] .f-3,
+  .stage[data-scene="3"] .a-server  { opacity: 1; }
+  .stage[data-scene="3"] .st-deploy .station { fill: var(--amber); }
+  .stage[data-scene="3"] .parcel    { opacity: 1; transform: translateX(450px); }
+  /* SCENE 4 — monitor / live */
+  .stage[data-scene="4"] .a-server, .stage[data-scene="4"] .l-live,
+  .stage[data-scene="4"] .sig-live, .stage[data-scene="4"] .a-users  { opacity: 1; }
+  .stage[data-scene="4"] .parcel    { opacity: 0; transform: translateX(560px); }
+
+  .narrator { padding: 18px 22px; border-top: 1px solid var(--card-line); min-height: 92px; }
+  .narrator .scene-title { font-family: var(--display); font-size: 20px; margin: 0 0 4px; color: var(--amber-glow); }
+  .narrator p { margin: 0; color: var(--ink); }
+  .narrator code { font-family: var(--mono); background: var(--steel-dark); padding: 1px 6px; border-radius: 4px; font-size: .92em; }
+
+  .controls { display: flex; align-items: center; gap: 10px; padding: 14px 22px; border-top: 1px solid var(--card-line); flex-wrap: wrap; }
+  .dots { display: flex; gap: 8px; margin-left: auto; }
+  .dot-btn { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--steel-light); background: transparent; cursor: pointer; padding: 0; }
+  .dot-btn[aria-current="true"] { background: var(--amber); border-color: var(--amber-glow); }
+
+  /* ---------- architecture diagram ---------- */
+  .diagram { background: var(--card); border: 1px solid var(--card-line); border-radius: 12px; padding: 10px; box-shadow: 0 8px 22px var(--shadow); }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .node rect { fill: var(--steel-dark); stroke: var(--card-line); stroke-width: 2; transition: stroke .2s ease, fill .2s ease; }
+  .node:hover rect { stroke: var(--amber); fill: var(--floor-low); }
+  .node text { fill: var(--ink); font-family: var(--mono); font-size: 13px; }
+  .node .sub { fill: var(--ink-dim); font-size: 11px; }
+  .edge { stroke: var(--blueprint); stroke-width: 2; fill: none; marker-end: url(#arrow); stroke-dasharray: 6 5; animation: dash 22s linear infinite; }
+  .node .tip { opacity: 0; transition: opacity .2s ease; }
+  .node:hover .tip { opacity: 1; }
+
+  /* ---------- filter chips ---------- */
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+  .chip { font-family: var(--mono); font-size: 13px; cursor: pointer; background: var(--steel-dark); color: var(--ink-dim); border: 1px solid var(--card-line); border-radius: 20px; padding: 6px 14px; }
+  .chip[aria-pressed="true"] { background: var(--blueprint-deep); color: var(--ink); border-color: var(--blueprint); }
+  .stage-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 12px; }
+  .stage-item { background: var(--card); border: 1px solid var(--card-line); border-left: 4px solid var(--steel-light); border-radius: 10px; padding: 14px; transition: opacity .25s ease, filter .25s ease; }
+  .stage-item[data-dim="true"] { opacity: .28; filter: grayscale(.6); }
+  .stage-item h4 { margin: 0 0 4px; font-size: 16px; }
+  .stage-item .kind { font-family: var(--mono); font-size: 11px; color: var(--blueprint); text-transform: uppercase; letter-spacing: .5px; }
+  .stage-item p { margin: 6px 0 0; color: var(--ink-dim); font-size: 14px; }
+
+  /* ---------- comparison table ---------- */
+  table { width: 100%; border-collapse: collapse; margin-top: 18px; background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 22px var(--shadow); }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--card-line); font-size: 15px; }
+  th { background: var(--steel-dark); font-family: var(--mono); font-size: 13px; letter-spacing: .5px; }
+  td.manual { color: var(--fail); } td.auto { color: var(--pass); }
+  tr:last-child td { border-bottom: none; }
+
+  /* ---------- glossary ---------- */
+  .glossary { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 14px; margin-top: 20px; }
+  .term { background: var(--card); border: 1px solid var(--card-line); border-radius: 10px; padding: 14px 16px; }
+  .term dt { font-family: var(--mono); color: var(--amber-glow); font-size: 15px; margin-bottom: 4px; }
+  .term dd { margin: 0; color: var(--ink-dim); font-size: 14px; }
+
+  footer { text-align: center; color: var(--ink-dim); font-size: 13px; margin-top: 70px; font-family: var(--mono); }
+
+  /* ---------- keyframes ---------- */
+  @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: .5; } }
+  @keyframes dash  { to { stroke-dashoffset: -220; } }
+  @keyframes spin  { to { transform: rotate(360deg); } }
+  .gear { transform-box: fill-box; transform-origin: center; animation: spin 8s linear infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .gear, .edge, .ribbon .dot { animation: none; }
+    .actor, .flow, .label, .signal, .parcel { transition: opacity .01s; }
+  }
+</style>
+</head>
+<body data-mode="manual">
+<div class="wrap">
+
+  <header>
+    <h1>How a <span class="amber">Deploy Pipeline</span> Works</h1>
+    <p class="subtitle">The machine that takes a change from your laptop to real users — one stage at a time, without anyone running commands by hand.</p>
+    <div class="ribbon"><span class="dot"></span><span id="ribbon-text">Follow one change: “fix the typo in the footer”</span></div>
+  </header>
+
+  <!-- ============ CONCEPT CARDS ============ -->
+  <section>
+    <h2><span class="n">01</span>The cast</h2>
+    <p class="lead">Three things do all the work. A change leaves your hands; a pipeline carries it through checks; a server hands it to users.</p>
+    <div class="cards">
+      <div class="card">
+        <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" aria-label="A commit: a labeled box of changed code">
+          <rect x="55" y="34" width="90" height="60" rx="6" fill="var(--steel)" stroke="var(--amber)" stroke-width="2"/>
+          <line x1="68" y1="52" x2="132" y2="52" stroke="var(--amber-glow)" stroke-width="3"/>
+          <line x1="68" y1="64" x2="118" y2="64" stroke="var(--ink-dim)" stroke-width="3"/>
+          <line x1="68" y1="76" x2="126" y2="76" stroke="var(--ink-dim)" stroke-width="3"/>
+          <circle cx="100" cy="24" r="7" fill="var(--amber)"/>
+        </svg>
+        <h3>The change</h3>
+        <p>One commit: a small, named bundle of edits. Ours fixes a typo in the page footer.</p>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" aria-label="The pipeline: a machine with a turning gear">
+          <rect x="40" y="46" width="120" height="52" rx="8" fill="var(--steel-dark)" stroke="var(--card-line)" stroke-width="2"/>
+          <g class="gear">
+            <circle cx="100" cy="40" r="18" fill="var(--blueprint-deep)"/>
+            <circle cx="100" cy="40" r="7" fill="var(--floor-top)"/>
+            <g fill="var(--blueprint)">
+              <rect x="96" y="16" width="8" height="10"/><rect x="96" y="54" width="8" height="10"/>
+              <rect x="76" y="36" width="10" height="8"/><rect x="114" y="36" width="10" height="8"/>
+            </g>
+          </g>
+          <rect x="54" y="70" width="30" height="10" rx="2" fill="var(--pass)"/>
+          <rect x="90" y="70" width="30" height="10" rx="2" fill="var(--amber)"/>
+          <rect x="126" y="70" width="20" height="10" rx="2" fill="var(--steel-light)"/>
+        </svg>
+        <h3>The pipeline</h3>
+        <p>An automated line of stations. Each one runs a check, then passes the change along — no human at the controls.</p>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" aria-label="A server stack with a live signal">
+          <rect x="66" y="26" width="68" height="20" rx="3" fill="var(--steel)" stroke="var(--card-line)" stroke-width="2"/>
+          <rect x="66" y="50" width="68" height="20" rx="3" fill="var(--steel)" stroke="var(--card-line)" stroke-width="2"/>
+          <rect x="66" y="74" width="68" height="20" rx="3" fill="var(--steel)" stroke="var(--card-line)" stroke-width="2"/>
+          <circle cx="122" cy="36" r="4" fill="var(--pass)"/><circle cx="122" cy="60" r="4" fill="var(--pass)"/><circle cx="122" cy="84" r="4" fill="var(--pass)"/>
+        </svg>
+        <h3>The server</h3>
+        <p>Where the running app lives. When the pipeline finishes, this is what real users are now talking to.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MORPH TOGGLE ============ -->
+  <section>
+    <h2><span class="n">02</span>The old way vs the pipeline</h2>
+    <p class="lead">Before pipelines, a person ran every deploy step by hand at 5pm and hoped. Flip the switch to see what changed.</p>
+    <div class="morph-controls">
+      <button class="toggle-btn" data-mode-set="manual" aria-pressed="true">By hand</button>
+      <button class="toggle-btn" data-mode-set="auto" aria-pressed="false">Automated</button>
+    </div>
+    <div class="morph-stage">
+      <svg viewBox="0 0 640 200" preserveAspectRatio="xMidYMid meet" aria-label="Comparison of a manual deploy versus an automated pipeline">
+        <!-- manual: a lone person juggling steps -->
+        <g class="m-manual">
+          <circle cx="120" cy="70" r="20" fill="var(--amber)"/>
+          <rect x="104" y="92" width="32" height="40" rx="6" fill="var(--steel)"/>
+          <text x="320" y="60" fill="var(--ink)" font-family="var(--mono)" font-size="15" text-anchor="middle">One person, many manual steps</text>
+          <text x="320" y="88" fill="var(--fail)" font-family="var(--mono)" font-size="13" text-anchor="middle">ssh · build · copy · restart · pray</text>
+          <text x="320" y="150" fill="var(--ink-dim)" font-family="var(--mono)" font-size="12" text-anchor="middle">A missed step ships a broken site. Nobody remembers the order.</text>
+        </g>
+        <!-- auto: a conveyor of stations -->
+        <g class="m-auto">
+          <line x1="70" y1="100" x2="570" y2="100" stroke="var(--blueprint)" stroke-width="3" stroke-dasharray="6 5"/>
+          <g fill="var(--blueprint-deep)" stroke="var(--blueprint)" stroke-width="2">
+            <rect x="90"  y="82" width="70" height="36" rx="6"/>
+            <rect x="215" y="82" width="70" height="36" rx="6"/>
+            <rect x="340" y="82" width="70" height="36" rx="6"/>
+            <rect x="465" y="82" width="70" height="36" rx="6"/>
+          </g>
+          <g fill="var(--ink)" font-family="var(--mono)" font-size="12" text-anchor="middle">
+            <text x="125" y="104">build</text><text x="250" y="104">test</text><text x="375" y="104">deploy</text><text x="500" y="104">watch</text>
+          </g>
+          <text x="320" y="150" fill="var(--ink-dim)" font-family="var(--mono)" font-size="12" text-anchor="middle">Same steps, same order, every time. A failed check stops the line.</text>
+        </g>
+      </svg>
+    </div>
+    <p class="m-caption" id="morph-caption">By hand: every deploy depends on someone remembering each step in the right order.</p>
+  </section>
+
+  <!-- ============ SCENE PLAYER ============ -->
+  <section>
+    <h2><span class="n">03</span>Follow the change down the line</h2>
+    <p class="lead">Watch the footer fix move through the pipeline. Use the controls, the dots, or your arrow keys.</p>
+    <div class="player">
+      <div class="stage-wrap">
+        <svg class="stage" data-scene="0" viewBox="0 0 640 320" preserveAspectRatio="xMidYMid meet" aria-label="Animated pipeline stage player">
+          <defs>
+            <marker id="arrowflow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--blueprint)"/>
+            </marker>
+          </defs>
+
+          <!-- the developer -->
+          <g class="actor a-dev">
+            <circle cx="52" cy="150" r="16" fill="var(--amber)"/>
+            <rect x="38" y="168" width="28" height="34" rx="6" fill="var(--steel)"/>
+          </g>
+
+          <!-- stations -->
+          <g class="actor st-build">
+            <rect class="station" x="150" y="132" width="86" height="56" rx="8"/>
+            <text x="193" y="165" fill="var(--ink)" font-family="var(--mono)" font-size="13" text-anchor="middle">BUILD</text>
+          </g>
+          <g class="actor st-test">
+            <rect class="station" x="290" y="132" width="86" height="56" rx="8"/>
+            <text x="333" y="165" fill="var(--ink)" font-family="var(--mono)" font-size="13" text-anchor="middle">TEST</text>
+          </g>
+          <g class="actor st-deploy">
+            <rect class="station" x="430" y="132" width="86" height="56" rx="8"/>
+            <text x="473" y="165" fill="var(--ink)" font-family="var(--mono)" font-size="13" text-anchor="middle">DEPLOY</text>
+          </g>
+
+          <!-- server + users -->
+          <g class="actor a-server">
+            <rect x="556" y="120" width="52" height="24" rx="3" fill="var(--steel)" stroke="var(--card-line)" stroke-width="2"/>
+            <rect x="556" y="150" width="52" height="24" rx="3" fill="var(--steel)" stroke="var(--card-line)" stroke-width="2"/>
+            <circle cx="598" cy="132" r="3.5" fill="var(--pass)"/><circle cx="598" cy="162" r="3.5" fill="var(--pass)"/>
+          </g>
+          <g class="actor a-users">
+            <circle cx="574" cy="212" r="9" fill="var(--blueprint)"/>
+            <circle cx="598" cy="212" r="9" fill="var(--blueprint)"/>
+            <circle cx="586" cy="230" r="9" fill="var(--blueprint)"/>
+          </g>
+
+          <!-- flow arrows -->
+          <line class="flow f-1" x1="74"  y1="160" x2="146" y2="160" stroke="var(--blueprint)" stroke-width="2.5" marker-end="url(#arrowflow)"/>
+          <line class="flow f-2" x1="240" y1="160" x2="286" y2="160" stroke="var(--blueprint)" stroke-width="2.5" marker-end="url(#arrowflow)"/>
+          <line class="flow f-3" x1="380" y1="160" x2="426" y2="160" stroke="var(--blueprint)" stroke-width="2.5" marker-end="url(#arrowflow)"/>
+
+          <!-- the parcel = the commit, travels left→right -->
+          <g class="parcel" transform="translate(96,0)">
+            <rect x="0" y="146" width="30" height="28" rx="4" fill="var(--amber-glow)" stroke="#8a5a10" stroke-width="1.5"/>
+            <line x1="6" y1="156" x2="24" y2="156" stroke="#8a5a10" stroke-width="2"/>
+            <line x1="6" y1="164" x2="20" y2="164" stroke="#8a5a10" stroke-width="2"/>
+          </g>
+
+          <!-- signals -->
+          <text class="signal sig-pass" x="333" y="120" fill="var(--pass)" font-family="var(--mono)" font-size="14" text-anchor="middle">✓ all checks pass</text>
+          <text class="signal sig-live" x="582" y="196" fill="var(--pass)" font-family="var(--mono)" font-size="13" text-anchor="middle">live</text>
+
+          <!-- captions -->
+          <text class="label l-commit" x="52"  y="122" fill="var(--ink-dim)" font-family="var(--mono)" font-size="12" text-anchor="middle">commit</text>
+          <text class="label l-build"  x="193" y="210" fill="var(--amber-glow)" font-family="var(--mono)" font-size="12" text-anchor="middle">compiling…</text>
+          <text class="label l-test"   x="333" y="210" fill="var(--amber-glow)" font-family="var(--mono)" font-size="12" text-anchor="middle">running tests…</text>
+          <text class="label l-deploy" x="473" y="210" fill="var(--amber-glow)" font-family="var(--mono)" font-size="12" text-anchor="middle">shipping…</text>
+          <text class="label l-live"   x="582" y="108" fill="var(--pass)" font-family="var(--mono)" font-size="12" text-anchor="middle">users see the fix</text>
+        </svg>
+      </div>
+
+      <div class="narrator">
+        <p class="scene-title" id="scene-title"></p>
+        <p id="scene-body"></p>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="prev">‹ Prev</button>
+        <button class="btn" id="replay">↻ Replay</button>
+        <button class="btn" id="auto">▶ Auto-play</button>
+        <button class="btn" id="next">Next ›</button>
+        <div class="dots" id="dots" role="tablist" aria-label="Pipeline stages"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ARCHITECTURE DIAGRAM ============ -->
+  <section>
+    <h2><span class="n">04</span>The whole line at once</h2>
+    <p class="lead">The same pipeline as a wiring diagram. Hover a station to see what it actually does. The dashed line is the automated hand-off — no person in between.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 900 190" preserveAspectRatio="xMidYMid meet" aria-label="Deploy pipeline architecture: commit to build to test to deploy to monitor">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--blueprint)"/>
+          </marker>
+        </defs>
+        <path class="edge" d="M150,95 H190"/>
+        <path class="edge" d="M330,95 H370"/>
+        <path class="edge" d="M510,95 H550"/>
+        <path class="edge" d="M690,95 H730"/>
+
+        <g class="node"><rect x="20" y="70" width="130" height="50" rx="8"/>
+          <text x="85" y="92" text-anchor="middle">commit</text>
+          <text class="sub" x="85" y="108" text-anchor="middle">push to a branch</text>
+          <text class="tip" x="85" y="150" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">the trigger: a new commit</text>
+        </g>
+        <g class="node"><rect x="190" y="70" width="140" height="50" rx="8"/>
+          <text x="260" y="92" text-anchor="middle">build</text>
+          <text class="sub" x="260" y="108" text-anchor="middle">compile / package</text>
+          <text class="tip" x="260" y="150" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">turns source into a runnable artifact</text>
+        </g>
+        <g class="node"><rect x="370" y="70" width="140" height="50" rx="8"/>
+          <text x="440" y="92" text-anchor="middle">test</text>
+          <text class="sub" x="440" y="108" text-anchor="middle">automated checks</text>
+          <text class="tip" x="440" y="150" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">a failure here stops the line</text>
+        </g>
+        <g class="node"><rect x="550" y="70" width="140" height="50" rx="8"/>
+          <text x="620" y="92" text-anchor="middle">deploy</text>
+          <text class="sub" x="620" y="108" text-anchor="middle">release to server</text>
+          <text class="tip" x="620" y="150" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">swaps the running version</text>
+        </g>
+        <g class="node"><rect x="730" y="70" width="150" height="50" rx="8"/>
+          <text x="805" y="92" text-anchor="middle">monitor</text>
+          <text class="sub" x="805" y="108" text-anchor="middle">watch it in prod</text>
+          <text class="tip" x="805" y="150" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">roll back if signals go bad</text>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ============ FILTER CHIPS ============ -->
+  <section>
+    <h2><span class="n">05</span>What runs at each station</h2>
+    <p class="lead">Filter the stages by what they protect you from.</p>
+    <div class="chips" id="chips">
+      <button class="chip" data-f="all" aria-pressed="true">All</button>
+      <button class="chip" data-f="speed" aria-pressed="false">Saves time</button>
+      <button class="chip" data-f="safety" aria-pressed="false">Catches mistakes</button>
+    </div>
+    <div class="stage-list" id="stage-list">
+      <div class="stage-item" data-kind="speed"><span class="kind">build</span><h4>Compile &amp; package</h4><p>Makes the artifact once, the same way every time, so "works on my machine" stops mattering.</p></div>
+      <div class="stage-item" data-kind="safety"><span class="kind">test</span><h4>Automated checks</h4><p>Runs the test suite. If a test fails, the change never reaches users — the line halts here.</p></div>
+      <div class="stage-item" data-kind="speed"><span class="kind">deploy</span><h4>Release</h4><p>Puts the new version on the server with no manual copy-paste. One consistent step, not five remembered ones.</p></div>
+      <div class="stage-item" data-kind="safety"><span class="kind">monitor</span><h4>Watch &amp; roll back</h4><p>Checks error rates after release. If they spike, it can return to the last good version automatically.</p></div>
+    </div>
+  </section>
+
+  <!-- ============ COMPARISON TABLE ============ -->
+  <section>
+    <h2><span class="n">06</span>By hand vs the pipeline</h2>
+    <table>
+      <thead><tr><th>Question</th><th>By hand</th><th>Automated pipeline</th></tr></thead>
+      <tbody>
+        <tr><td>Who runs the steps?</td><td class="manual">A person, from memory</td><td class="auto">The pipeline, from a file</td></tr>
+        <tr><td>Same order every time?</td><td class="manual">Only if they remember</td><td class="auto">Always — it is written down</td></tr>
+        <tr><td>What if a test fails?</td><td class="manual">Easy to skip and ship anyway</td><td class="auto">The line stops; nothing ships</td></tr>
+        <tr><td>How fast to recover?</td><td class="manual">Redo the steps under pressure</td><td class="auto">Roll back to the last good build</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ============ GLOSSARY ============ -->
+  <section>
+    <h2><span class="n">07</span>Words worth knowing</h2>
+    <dl class="glossary">
+      <div class="term"><dt>commit</dt><dd>One named bundle of code changes. It is the thing the pipeline carries from start to finish.</dd></div>
+      <div class="term"><dt>artifact</dt><dd>The runnable package the build stage produces from your source code — the thing that actually gets deployed.</dd></div>
+      <div class="term"><dt>stage</dt><dd>One station on the line (build, test, deploy, monitor). Each runs, then hands off to the next.</dd></div>
+      <div class="term"><dt>roll back</dt><dd>Return the server to the previous working version when a new release misbehaves.</dd></div>
+      <div class="term"><dt>production</dt><dd>The live environment real users touch — as opposed to a test environment that only the team uses.</dd></div>
+    </dl>
+  </section>
+
+  <footer>A self-contained example for the <strong>illustrate-html</strong> skill · no CDNs, no build step, opens offline.</footer>
+</div>
+
+<script>
+  "use strict";
+
+  /* -------- safe rich-text renderer (never innerHTML) -------- */
+  const ALLOWED_TAGS = new Set(["strong", "em", "code"]);
+  function renderSegments(target, segments) {
+    target.textContent = "";
+    for (const seg of segments) {
+      if (typeof seg === "string") {
+        target.appendChild(document.createTextNode(seg));
+      } else if (seg && ALLOWED_TAGS.has(seg.tag)) {
+        const el = document.createElement(seg.tag);
+        el.textContent = String(seg.text ?? "");
+        target.appendChild(el);
+      }
+    }
+  }
+
+  /* -------- scene player -------- */
+  const SCENES = [
+    { title: "A change is committed",
+      body: ["You fix the footer typo and commit it. That commit — shown as the ",
+             {tag:"code", text:"amber parcel"}, " — is the trigger. Pushing it starts the pipeline on its own."] },
+    { title: "Build: make it runnable",
+      body: ["The ", {tag:"strong", text:"build"}, " station turns your source code into one packaged artifact — the same way every time, so it does not depend on your laptop."] },
+    { title: "Test: catch mistakes",
+      body: ["The ", {tag:"strong", text:"test"}, " station runs the automated checks. They pass, so the change is allowed to continue. A failure here would ", {tag:"em", text:"stop the line"}, "."] },
+    { title: "Deploy: release it",
+      body: ["The ", {tag:"strong", text:"deploy"}, " station puts the new version onto the server — no manual copy-paste, no remembered steps."] },
+    { title: "Live: users see the fix",
+      body: ["The server now runs the new version, and users see the corrected footer. The pipeline keeps ", {tag:"strong", text:"watching"}, " it, ready to roll back if signals go bad."] },
+  ];
+
+  const stage = document.querySelector(".stage");
+  const titleEl = document.getElementById("scene-title");
+  const bodyEl = document.getElementById("scene-body");
+  const dotsWrap = document.getElementById("dots");
+  let scene = 0, timer = null;
+
+  // build dots
+  SCENES.forEach((_, i) => {
+    const b = document.createElement("button");
+    b.className = "dot-btn";
+    b.setAttribute("role", "tab");
+    b.setAttribute("aria-label", "Scene " + (i + 1));
+    b.addEventListener("click", () => { stopAuto(); setScene(i); });
+    dotsWrap.appendChild(b);
+  });
+  const dotBtns = Array.from(dotsWrap.children);
+
+  function setScene(n) {
+    scene = (n + SCENES.length) % SCENES.length;
+    // reset so the CSS transitions re-fire cleanly
+    stage.setAttribute("data-scene", "reset");
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      stage.setAttribute("data-scene", String(scene));
+    }));
+    titleEl.textContent = SCENES[scene].title;
+    renderSegments(bodyEl, SCENES[scene].body);
+    dotBtns.forEach((d, i) => d.setAttribute("aria-current", i === scene ? "true" : "false"));
+  }
+
+  function stopAuto() {
+    if (timer) { clearInterval(timer); timer = null; document.getElementById("auto").textContent = "▶ Auto-play"; }
+  }
+  function startAuto() {
+    document.getElementById("auto").textContent = "⏸ Pause";
+    timer = setInterval(() => {
+      if (scene === SCENES.length - 1) { stopAuto(); return; }
+      setScene(scene + 1);
+    }, 2600);
+  }
+
+  document.getElementById("prev").addEventListener("click", () => { stopAuto(); setScene(scene - 1); });
+  document.getElementById("next").addEventListener("click", () => { stopAuto(); setScene(scene + 1); });
+  document.getElementById("replay").addEventListener("click", () => { stopAuto(); setScene(0); });
+  document.getElementById("auto").addEventListener("click", () => { timer ? stopAuto() : startAuto(); });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") { stopAuto(); setScene(scene - 1); }
+    else if (e.key === "ArrowRight") { stopAuto(); setScene(scene + 1); }
+    else if (e.key === " ") { e.preventDefault(); timer ? stopAuto() : startAuto(); }
+    else if (e.key.toLowerCase() === "r") { stopAuto(); setScene(0); }
+  });
+
+  setScene(0);
+
+  /* -------- morph toggle -------- */
+  const MORPH_CAPTIONS = {
+    manual: "By hand: every deploy depends on someone remembering each step in the right order.",
+    auto: "Automated: the same steps run in the same order every time, and a failed check stops the line.",
+  };
+  const morphCaption = document.getElementById("morph-caption");
+  document.querySelectorAll(".toggle-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const mode = btn.getAttribute("data-mode-set");
+      document.body.setAttribute("data-mode", mode);
+      document.querySelectorAll(".toggle-btn").forEach((b) =>
+        b.setAttribute("aria-pressed", b === btn ? "true" : "false"));
+      morphCaption.textContent = MORPH_CAPTIONS[mode];
+    });
+  });
+
+  /* -------- filter chips -------- */
+  const items = Array.from(document.querySelectorAll("#stage-list .stage-item"));
+  document.querySelectorAll("#chips .chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const f = chip.getAttribute("data-f");
+      document.querySelectorAll("#chips .chip").forEach((c) =>
+        c.setAttribute("aria-pressed", c === chip ? "true" : "false"));
+      items.forEach((it) => {
+        const match = f === "all" || it.getAttribute("data-kind") === f;
+        it.setAttribute("data-dim", match ? "false" : "true");
+      });
+    });
+  });
+</script>
+</body>
+</html>

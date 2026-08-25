@@ -1,0 +1,8 @@
+# Scratch produced by the skills at run time — never part of the repo
+/plans/
+.plan-preview/
+.plan-profile.local.md
+
+# OS / editor cruft
+.DS_Store
+*.swp
