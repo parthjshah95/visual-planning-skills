@@ -1,6 +1,6 @@
 # Visual Planning Skills
 
-Small [agent skills](https://docs.claude.com/en/docs/claude-code/skills). Each one makes a change into something you can look at before you build it. Any agent that reads a `SKILL.md` file can use them.
+Struggling to understand the giant walls of text your AI throws at you? Frustrated by jargon AI invents that only it can fathom?
 
 ## You are not alone.
 
