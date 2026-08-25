@@ -562,6 +562,11 @@
   });
 
   setScene(0);
+  const sceneHash = location.hash.match(/^#s=(\d+)$/);
+  if (sceneHash) {
+    setScene(Math.min(parseInt(sceneHash[1], 10), SCENES.length - 1));
+    document.querySelector(".player").scrollIntoView();
+  }
 
   /* -------- morph toggle -------- */
   const MORPH_CAPTIONS = {

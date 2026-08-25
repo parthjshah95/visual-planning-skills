@@ -1,6 +1,6 @@
 # Visual Planning Skills
 
-Three small [agent skills](https://docs.claude.com/en/docs/claude-code/skills). Each one makes a change into something you can look at before you build it. Any agent that reads a `SKILL.md` file can use them.
+Small [agent skills](https://docs.claude.com/en/docs/claude-code/skills). Each one makes a change into something you can look at before you build it. Any agent that reads a `SKILL.md` file can use them.
 
 ## You are not alone.
 
@@ -20,23 +20,46 @@ No one understands AI these days.
 
 ## The skills
 
-| Skill | What it makes | Trigger |
-| --- | --- | --- |
-| **`visual-explainer`** | One self-contained HTML file that shows how something works. It has inline-SVG art, an animated scene player, hand-built diagrams, and a glossary. No CDN. No build step. It opens offline. | "illustrate / explain / visualize how X works as a web page" |
-| **`visual-plan`** | A visual HTML plan for a change. The diagram comes from the real code. Each decision is a card you answer in the browser. You review it and override in chat. The agent records the result. | "plan this change so I can review it first" |
-| **`visual-schema`** | An interactive HTML diagram of a database schema. Entity boxes come from the real model source. Groups and canvas grow with the tables. A built-in audit warns on overlap. | "visualize / diagram this database schema" |
-| **`challenge-plan`** | A different model reviews an AI-authored plan. It may only cut, reuse, simplify, or ask. It never adds scope. It returns `SATISFIED` or `REVISE`. | "check this plan for over-engineering" |
+| Skill | What it does |
+| --- | --- |
+| **`visual-explainer`** | "Visually explain how the code works." Creates an HTML file with animations and diagrams. |
+| **`visual-plan`** | "Visually plan this task." Replaces the plan mode with an HTML version of it. Less text, more interactivity. |
+| **`visual-schema`** | "Visualize my database schema." Visually see the models, relationships, and fields on a draggable canvas. |
+| **`challenge-plan`** | "Challenge this plan for over-engineering." A different model reviews the plan. It may only cut, never add. |
 
 The skills work together, but none needs the others.
 
 - `visual-plan` reuses the drawing patterns from `visual-explainer`.
 - `challenge-plan` is separate. `visual-plan` never runs it for you. You run it when a plan needs a check.
 
+## What `visual-explainer` produces
+
+![The animated explainer that visual-explainer produces](assets/explainer-demo.gif)
+
+<sub>Above: `visual-explainer` explains one subject, how a deploy pipeline works. A scene player walks the mechanism step by step. Source: [`pipeline-explainer.html`](skills/visual-explainer/examples/pipeline-explainer.html) · [view it live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-explainer/examples/pipeline-explainer.html).</sub>
+
 ## What `visual-plan` produces
 
 ![The animated visual plan that visual-plan produces](assets/plan-visual.gif)
 
 <sub>Above: `visual-plan` plans one small feature, *Add CSV export to the Reports page*. It shows the change as an animation. It turns the one real decision into a card you answer in the browser. Source: [`plan.html`](skills/visual-plan/examples/csv-export/plan.html) · [view it live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-plan/examples/csv-export/plan.html).</sub>
+
+## What `visual-schema` produces
+
+![The interactive schema diagram that visual-schema produces](assets/schema-demo.gif)
+
+<sub>Above: `visual-schema` draws a small bookstore database. The tables come from the model source. Click a table to see its relationships. Drag to pan, zoom to fit. Source: [`bookstore-schema.html`](skills/visual-schema/examples/bookstore-schema.html) · [view it live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-schema/examples/bookstore-schema.html).</sub>
+
+## Examples
+
+Every example is one self-contained HTML file. Open the live link, or download the source and open it in a browser.
+
+| Example | Made with | Open |
+| --- | --- | --- |
+| Deploy-pipeline explainer | `visual-explainer` | [live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-explainer/examples/pipeline-explainer.html) · [source](skills/visual-explainer/examples/pipeline-explainer.html) |
+| The visual-plan explainer (the deck above) | `visual-explainer` | [live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-plan/examples/visual-plan-explainer.html) · [source](skills/visual-plan/examples/visual-plan-explainer.html) |
+| CSV-export plan | `visual-plan` | [live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-plan/examples/csv-export/plan.html) · [source](skills/visual-plan/examples/csv-export/plan.html) |
+| Bookstore schema | `visual-schema` | [live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-schema/examples/bookstore-schema.html) · [source](skills/visual-schema/examples/bookstore-schema.html) |
 
 ## Install
 
@@ -58,7 +81,7 @@ git clone https://github.com/parthjshah95/visual-planning-skills
 cp -R visual-planning-skills/skills/* ~/.claude/skills/
 ```
 
-Each `SKILL.md` is self-contained. `visual-explainer` ships an example, [`pipeline-explainer.html`](skills/visual-explainer/examples/pipeline-explainer.html). Open it in a browser. The [interactive explainer](https://parthjshah95.github.io/visual-planning-skills/skills/visual-plan/examples/visual-plan-explainer.html) lists the skill folders for Codex/ChatGPT, Cursor, OpenCode, OpenClaw, Hermes, Windsurf, and Antigravity.
+Each `SKILL.md` is self-contained. The [interactive explainer](https://parthjshah95.github.io/visual-planning-skills/skills/visual-plan/examples/visual-plan-explainer.html) lists the skill folders for Codex/ChatGPT, Cursor, OpenCode, OpenClaw, Hermes, Windsurf, and Antigravity.
 
 ## Custom instructions
 
@@ -96,13 +119,6 @@ Save this as `custom-instructions.md`. It adds a dev test plan, a prod monitorin
 ```
 
 </details>
-
-## Why
-
-- `visual-explainer`: an animation of the real mechanism teaches better than prettified docs.
-- `visual-plan`: a plan you see gets reviewed. A plan you read gets skimmed.
-- `visual-schema`: a schema you can pan, zoom, and click beats a wall of DDL.
-- `challenge-plan`: AI plans fail because they over-build. A second model that may only cut is the counterweight.
 
 ## License
 

@@ -347,6 +347,8 @@ viewport.addEventListener("click", (ev) => {
 
 fitCanvas();
 window.addEventListener("resize", fitCanvas);
+const focusHash = location.hash.match(/^#focus=([a-z_]+)$/);
+if (focusHash && tableEls[focusHash[1]]) focusTable(focusHash[1]);
 auditLayout();
 </script>
 </body>
