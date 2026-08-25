@@ -133,6 +133,7 @@ After any edit, open the file and check the console. A clean console is part of 
 - **Legend** for badges and edge kinds. **Header** with the schema name and source commit or date.
 - **Pan and zoom** (drag + buttons) when the schema is larger than one screen; a `fit` control frames the whole canvas.
 - Palette as `:root` CSS variables; system font stacks; the whole page works offline.
+- The diagram renders with JavaScript, so include a `<noscript>` notice. Any real browser and any static host (GitHub Pages, `file://`) work; a scriptless snapshot viewer shows the notice instead of an empty canvas.
 
 ## Language rules
 
