@@ -32,23 +32,29 @@ The skills work together, but none needs the others.
 - `visual-plan` reuses the drawing patterns from `visual-explainer`.
 - `challenge-plan` is separate. `visual-plan` never runs it for you. You run it when a plan needs a check.
 
-## What `visual-explainer` produces
+## `visual-explainer` example
 
 ![The animated explainer that visual-explainer produces](assets/explainer-demo.gif)
 
-<sub>Above: `visual-explainer` explains one subject, how a deploy pipeline works. A scene player walks the mechanism step by step. Source: [`pipeline-explainer.html`](skills/visual-explainer/examples/pipeline-explainer.html) · [view it live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-explainer/examples/pipeline-explainer.html).</sub>
+### [▶&nbsp;&nbsp;View it live on GitHub Pages](https://parthjshah95.github.io/visual-planning-skills/skills/visual-explainer/examples/pipeline-explainer.html)
 
-## What `visual-plan` produces
+<sub>Above: `visual-explainer` explains one subject, how a deploy pipeline works. A scene player walks the mechanism step by step. Source: [`pipeline-explainer.html`](skills/visual-explainer/examples/pipeline-explainer.html).</sub>
+
+## `visual-plan` example
 
 ![The animated visual plan that visual-plan produces](assets/plan-visual.gif)
 
-<sub>Above: `visual-plan` plans one small feature, *Add CSV export to the Reports page*. It shows the change as an animation. It turns the one real decision into a card you answer in the browser. Source: [`plan.html`](skills/visual-plan/examples/csv-export/plan.html) · [view it live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-plan/examples/csv-export/plan.html).</sub>
+### [▶&nbsp;&nbsp;View it live on GitHub Pages](https://parthjshah95.github.io/visual-planning-skills/skills/visual-plan/examples/csv-export/plan.html)
 
-## What `visual-schema` produces
+<sub>Above: `visual-plan` plans one small feature, *Add CSV export to the Reports page*. It shows the change as an animation. It turns the one real decision into a card you answer in the browser. Source: [`plan.html`](skills/visual-plan/examples/csv-export/plan.html).</sub>
+
+## `visual-schema` example
 
 ![The interactive schema diagram that visual-schema produces](assets/schema-demo.gif)
 
-<sub>Above: `visual-schema` draws a small bookstore database. The tables come from the model source. Click a table to see its relationships. Drag to pan, zoom to fit. Source: [`bookstore-schema.html`](skills/visual-schema/examples/bookstore-schema.html) · [view it live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-schema/examples/bookstore-schema.html).</sub>
+### [▶&nbsp;&nbsp;View it live on GitHub Pages](https://parthjshah95.github.io/visual-planning-skills/skills/visual-schema/examples/bookstore-schema.html)
+
+<sub>Above: `visual-schema` draws a small bookstore database. The tables come from the model source. Click a table to see its relationships. Drag to pan, zoom to fit. Source: [`bookstore-schema.html`](skills/visual-schema/examples/bookstore-schema.html).</sub>
 
 ## Examples
 
