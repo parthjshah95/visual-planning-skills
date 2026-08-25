@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visual plan — CSV export for the Reports page</title>
+<style>
+  :root {
+    --bg-0:#0e1320; --bg-1:#141b2d; --bg-2:#1b2438;
+    --card:#18213a; --line:#2b3a5c; --line-2:#3b4f78;
+    --ink:#e7ecf7; --ink-dim:#93a3c4; --ink-faint:#6b7ba0;
+    --accent:#5e7bff; --accent-glow:#8aa5ff;
+    --teal:#37d1c4; --violet:#a889ff;
+    --ok:#4fce8b; --warn:#f0b429; --bad:#f0655a;
+    --mono:"SFMono-Regular","Consolas","Menlo",monospace;
+    --body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    --shadow:0 10px 30px rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:radial-gradient(1100px 500px at 50% -8%,var(--bg-2),transparent 70%),linear-gradient(var(--bg-0),var(--bg-1));
+    color:var(--ink); font-family:var(--body); line-height:1.5; padding:0 18px 70px;
+  }
+  .wrap{max-width:1040px;margin:0 auto;}
+
+  /* ---- header ---- */
+  header{padding:26px 0 8px;}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-glow);}
+  h1{font-size:clamp(24px,4vw,34px);margin:6px 0 8px;letter-spacing:.3px;}
+  .goal{color:var(--ink-dim);max-width:760px;margin:0;font-size:16px;}
+  .pills{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .pill{font-family:var(--mono);font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--line-2);background:var(--bg-2);color:var(--ink-dim);}
+  .pill.risk{border-color:#3a5a34;background:#16261a;color:var(--ok);}
+  .pill.steps{border-color:var(--line-2);}
+
+  section{margin-top:30px;}
+  h2{font-size:19px;margin:0 0 4px;display:flex;align-items:center;gap:10px;}
+  h2 .n{font-family:var(--mono);color:var(--accent);font-size:13px;}
+  .sub{color:var(--ink-faint);font-size:14px;margin:0 0 14px;}
+
+  /* ---- scene player (the hero) ---- */
+  .player{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);}
+  .stage-wrap{background:linear-gradient(var(--bg-1),var(--bg-2));}
+  .stage{display:block;width:100%;height:auto;}
+  .actor,.flow,.label,.signal,.rows,.csvfile{opacity:0;transition:opacity .45s ease, transform .7s ease;}
+  .parcel{transition:transform .8s cubic-bezier(.5,.05,.3,1),opacity .45s ease;}
+  .station rect.box{fill:var(--bg-2);stroke:var(--line-2);stroke-width:2;transition:stroke .3s ease,fill .3s ease;}
+
+  /* scene reveals */
+  .stage[data-scene="0"] .a-ui,.stage[data-scene="0"] .l-click,.stage[data-scene="0"] .btn-hot{opacity:1;}
+  .stage[data-scene="0"] .parcel{opacity:1;transform:translateX(0);}
+
+  .stage[data-scene="1"] .a-ui,.stage[data-scene="1"] .st-api,.stage[data-scene="1"] .f-1,.stage[data-scene="1"] .l-api{opacity:1;}
+  .stage[data-scene="1"] .st-api rect.box{stroke:var(--accent);fill:#16203c;}
+  .stage[data-scene="1"] .parcel{opacity:1;transform:translateX(68px);}
+
+  .stage[data-scene="2"] .a-ui,.stage[data-scene="2"] .st-api,.stage[data-scene="2"] .st-query,.stage[data-scene="2"] .f-1,.stage[data-scene="2"] .f-2,.stage[data-scene="2"] .l-query,.stage[data-scene="2"] .rows{opacity:1;}
+  .stage[data-scene="2"] .st-query rect.box{stroke:var(--teal);fill:#0f2a2a;}
+  .stage[data-scene="2"] .parcel{opacity:1;transform:translateX(200px);}
+
+  .stage[data-scene="3"] .a-ui,.stage[data-scene="3"] .st-api,.stage[data-scene="3"] .st-query,.stage[data-scene="3"] .st-csv,.stage[data-scene="3"] .f-1,.stage[data-scene="3"] .f-2,.stage[data-scene="3"] .f-3,.stage[data-scene="3"] .l-csv,.stage[data-scene="3"] .rows,.stage[data-scene="3"] .csvfile{opacity:1;}
+  .stage[data-scene="3"] .st-csv rect.box{stroke:var(--violet);fill:#221a3a;}
+  .stage[data-scene="3"] .parcel{opacity:1;transform:translateX(332px);}
+
+  .stage[data-scene="4"] .a-ui,.stage[data-scene="4"] .st-api,.stage[data-scene="4"] .st-query,.stage[data-scene="4"] .st-csv,.stage[data-scene="4"] .a-dl,.stage[data-scene="4"] .f-1,.stage[data-scene="4"] .f-2,.stage[data-scene="4"] .f-3,.stage[data-scene="4"] .f-4,.stage[data-scene="4"] .l-done,.stage[data-scene="4"] .rows,.stage[data-scene="4"] .csvfile,.stage[data-scene="4"] .sig-ok{opacity:1;}
+  .stage[data-scene="4"] .parcel{opacity:0;transform:translateX(420px);}
+
+  .narrator{padding:16px 20px;border-top:1px solid var(--line);min-height:74px;}
+  .narrator .st{font-size:16px;margin:0 0 3px;color:var(--accent-glow);font-weight:600;}
+  .narrator p{margin:0;color:var(--ink);font-size:15px;}
+  .narrator code{font-family:var(--mono);background:var(--bg-0);padding:1px 6px;border-radius:4px;font-size:.9em;color:var(--teal);}
+
+  .controls{display:flex;align-items:center;gap:9px;padding:12px 20px;border-top:1px solid var(--line);flex-wrap:wrap;}
+  .btn{font-family:var(--mono);font-size:13px;cursor:pointer;background:var(--bg-2);color:var(--ink);border:1px solid var(--line-2);border-radius:8px;padding:8px 14px;}
+  .btn:hover{border-color:var(--accent);}
+  .dots{display:flex;gap:7px;margin-left:auto;}
+  .dot-btn{width:11px;height:11px;border-radius:50%;border:1px solid var(--line-2);background:transparent;cursor:pointer;padding:0;}
+  .dot-btn[aria-current="true"]{background:var(--accent);border-color:var(--accent-glow);}
+  body[data-frame="1"] .controls{display:none;}
+  body[data-frame="1"]{padding-top:6px;}
+  body[data-frame="1"] .eyebrow{display:none;}
+  body[data-frame="1"] header{padding:14px 0 6px;}
+  body[data-frame="1"] #hero>h2,body[data-frame="1"] #hero>.sub{display:none;}
+  body[data-frame="1"] #hero{margin-top:14px;}
+
+  /* ---- implementation pipeline ---- */
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:14px;border-top:3px solid var(--accent);}
+  .step .k{font-family:var(--mono);font-size:11px;color:var(--accent);}
+  .step h4{margin:4px 0 5px;font-size:15px;}
+  .step p{margin:0;color:var(--ink-dim);font-size:13px;}
+
+  /* ---- decision card ---- */
+  .decision{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow);}
+  .decision .q{font-size:17px;margin:0 0 8px;}
+  .decision .why{color:var(--ink-dim);font-size:14px;margin:0 0 16px;}
+  .decision .why code{font-family:var(--mono);color:var(--teal);background:var(--bg-0);padding:1px 5px;border-radius:4px;}
+  .opts{display:flex;flex-direction:column;gap:10px;}
+  .opt{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line-2);border-radius:10px;padding:12px 14px;background:var(--bg-2);position:relative;}
+  .opt.rec{border-color:var(--ok);background:#132618;}
+  .opt .radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--line-2);margin-top:2px;flex:0 0 auto;}
+  .opt.rec .radio{border-color:var(--ok);background:radial-gradient(circle,var(--ok) 42%,transparent 46%);}
+  .opt .otitle{font-weight:600;font-size:14px;display:block;}
+  .opt .desc{color:var(--ink-dim);font-size:13px;margin-top:3px;display:block;}
+  .opt .badge{display:inline-block;margin-left:8px;font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--ok);border:1px solid var(--ok);border-radius:20px;padding:1px 8px;vertical-align:middle;}
+
+  .testing{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .tcard{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:14px;}
+  .tcard h4{margin:0 0 8px;font-size:14px;}
+  .tcard li{color:var(--ink-dim);font-size:13px;margin:3px 0;}
+  @media (max-width:640px){.testing{grid-template-columns:1fr;}}
+
+  footer{color:var(--ink-faint);font-family:var(--mono);font-size:12px;text-align:center;margin-top:40px;}
+
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.45;}}
+  .hot{animation:pulse 1.4s ease-in-out infinite;}
+  @media (prefers-reduced-motion:reduce){.hot{animation:none;}.actor,.flow,.label,.signal,.parcel{transition:opacity .01s;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Visual plan · reviewable in the browser</div>
+    <h1>Add CSV export to the Reports page</h1>
+    <p class="goal">Let a user download the report they are viewing as a CSV, with the same filters applied. The exported rows always match the rows on screen.</p>
+    <div class="pills">
+      <span class="pill risk">● low risk</span>
+      <span class="pill steps">5 steps</span>
+      <span class="pill">1 open decision</span>
+    </div>
+  </header>
+
+  <!-- ======= HERO: animated flow ======= -->
+  <section id="hero">
+    <h2><span class="n">01</span> What happens when the user clicks Export</h2>
+    <p class="sub">The export reuses the table's own query, so the file can never drift from what is on screen.</p>
+    <div class="player">
+      <div class="stage-wrap">
+        <svg class="stage" data-scene="0" viewBox="0 0 640 300" preserveAspectRatio="xMidYMid meet" aria-label="Animated CSV export flow">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+
+          <!-- reports UI -->
+          <g class="actor a-ui">
+            <rect x="16" y="96" width="104" height="96" rx="7" fill="var(--bg-0)" stroke="var(--line-2)" stroke-width="2"/>
+            <rect x="16" y="96" width="104" height="16" rx="7" fill="var(--bg-2)"/>
+            <line x1="28" y1="126" x2="108" y2="126" stroke="var(--line-2)" stroke-width="3"/>
+            <line x1="28" y1="138" x2="100" y2="138" stroke="var(--line)" stroke-width="3"/>
+            <line x1="28" y1="150" x2="104" y2="150" stroke="var(--line)" stroke-width="3"/>
+            <g class="btn-hot hot">
+              <rect x="30" y="164" width="76" height="18" rx="4" fill="var(--accent)"/>
+              <text x="68" y="177" fill="#0b1122" font-family="var(--mono)" font-size="10" text-anchor="middle">Export CSV</text>
+            </g>
+          </g>
+
+          <!-- stations -->
+          <g class="actor station st-api">
+            <rect class="box" x="168" y="120" width="82" height="48" rx="8"/>
+            <text x="209" y="149" fill="var(--ink)" font-family="var(--mono)" font-size="11" text-anchor="middle">export API</text>
+          </g>
+          <g class="actor station st-query">
+            <rect class="box" x="300" y="120" width="82" height="48" rx="8"/>
+            <text x="341" y="149" fill="var(--ink)" font-family="var(--mono)" font-size="11" text-anchor="middle">query rows</text>
+          </g>
+          <g class="actor station st-csv">
+            <rect class="box" x="432" y="120" width="82" height="48" rx="8"/>
+            <text x="473" y="149" fill="var(--ink)" font-family="var(--mono)" font-size="11" text-anchor="middle">to CSV</text>
+          </g>
+
+          <!-- rows stacking (scene 2) -->
+          <g class="rows">
+            <rect x="308" y="176" width="66" height="5" rx="2" fill="var(--teal)"/>
+            <rect x="308" y="184" width="66" height="5" rx="2" fill="var(--teal)" opacity=".7"/>
+            <rect x="308" y="192" width="66" height="5" rx="2" fill="var(--teal)" opacity=".45"/>
+          </g>
+          <!-- csv file (scene 3) -->
+          <g class="csvfile">
+            <rect x="450" y="176" width="46" height="26" rx="3" fill="var(--violet)" opacity=".25" stroke="var(--violet)" stroke-width="1.5"/>
+            <text x="473" y="193" fill="var(--violet)" font-family="var(--mono)" font-size="9" text-anchor="middle">.csv</text>
+          </g>
+
+          <!-- download target -->
+          <g class="actor a-dl">
+            <path d="M560 128 v26 M551 146 l9 9 l9 -9" fill="none" stroke="var(--ok)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="546" y="160" width="30" height="7" rx="2" fill="var(--ok)"/>
+          </g>
+
+          <!-- flow arrows -->
+          <line class="flow f-1" x1="124" y1="144" x2="164" y2="144" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#ar)"/>
+          <line class="flow f-2" x1="254" y1="144" x2="296" y2="144" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#ar)"/>
+          <line class="flow f-3" x1="386" y1="144" x2="428" y2="144" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#ar)"/>
+          <line class="flow f-4" x1="518" y1="144" x2="544" y2="144" stroke="var(--ok)" stroke-width="2.5" marker-end="url(#ar)"/>
+
+          <!-- the parcel = the export request/file -->
+          <g class="parcel" transform="translate(128,0)">
+            <rect x="0" y="96" width="26" height="20" rx="4" fill="var(--accent-glow)"/>
+            <line x1="5" y1="103" x2="21" y2="103" stroke="#0b1122" stroke-width="2"/>
+            <line x1="5" y1="109" x2="17" y2="109" stroke="#0b1122" stroke-width="2"/>
+          </g>
+
+          <!-- captions -->
+          <text class="label l-click" x="68"  y="88"  fill="var(--ink-dim)" font-family="var(--mono)" font-size="11" text-anchor="middle">clicks Export</text>
+          <text class="label l-api"   x="209" y="110" fill="var(--accent-glow)" font-family="var(--mono)" font-size="10" text-anchor="middle">same filters attached</text>
+          <text class="label l-query" x="341" y="110" fill="var(--teal)" font-family="var(--mono)" font-size="10" text-anchor="middle">reuses table query</text>
+          <text class="label l-csv"   x="473" y="110" fill="var(--violet)" font-family="var(--mono)" font-size="10" text-anchor="middle">stdlib csv module</text>
+          <text class="label l-done"  x="561" y="112" fill="var(--ok)" font-family="var(--mono)" font-size="10" text-anchor="middle">file downloads</text>
+          <text class="signal sig-ok" x="561" y="184" fill="var(--ok)" font-family="var(--mono)" font-size="10" text-anchor="middle">✓ matches screen</text>
+        </svg>
+      </div>
+      <div class="narrator">
+        <p class="st" id="scene-title"></p>
+        <p id="scene-body"></p>
+      </div>
+      <div class="controls">
+        <button class="btn" id="prev">‹ Prev</button>
+        <button class="btn" id="replay">↻ Replay</button>
+        <button class="btn" id="auto">▶ Auto-play</button>
+        <button class="btn" id="next">Next ›</button>
+        <div class="dots" id="dots" role="tablist" aria-label="Flow steps"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= implementation pipeline ======= -->
+  <section id="impl">
+    <h2><span class="n">02</span> Implementation, in order</h2>
+    <p class="sub">Backend first (the endpoint and serializer), then the button wires to it.</p>
+    <div class="steps">
+      <div class="step"><div class="k">backend</div><h4>Export endpoint</h4><p><code>GET /reports/:id/export</code> reuses <code>build_report_query()</code> — the table's own query.</p></div>
+      <div class="step"><div class="k">backend</div><h4>CSV serializer</h4><p><code>rows_to_csv()</code> using the stdlib <code>csv</code> module. Quotes commas, newlines, unicode.</p></div>
+      <div class="step"><div class="k">frontend</div><h4>Export button</h4><p>An <code>ExportButton</code> by the filter bar. Spinner while in flight; disabled on empty results.</p></div>
+      <div class="step"><div class="k">frontend</div><h4>Filter parity</h4><p>Pass the identical filter query string the table already builds, so the two never diverge.</p></div>
+      <div class="step"><div class="k">tests</div><h4>Cover it</h4><p>Unit-test the serializer edge cases; integration-test that export row count equals the table's.</p></div>
+    </div>
+  </section>
+
+  <!-- ======= decision card ======= -->
+  <section id="decisions">
+    <h2><span class="n">03</span> One decision to confirm</h2>
+    <p class="sub">Everything else has a safe default. This one changes what gets built.</p>
+    <div class="decision" id="decision">
+      <p class="q">Very large reports could outrun the 30-second request timeout. How do we handle them?</p>
+      <p class="why">Most reports are a few hundred rows and stream in under a second. A few have tens of thousands. Streaming a huge one synchronously from <code>rows_to_csv()</code> risks holding the request open past the gateway timeout. The endpoint URL is stable either way, so a background path can be added later behind the same URL.</p>
+      <div class="opts">
+        <div class="opt rec">
+          <span class="radio"></span>
+          <span><span class="otitle">Stream now, cap at 50,000 rows<span class="badge">recommended</span></span><span class="desc">Above the cap, return “narrow your filters.” No report in production exceeds it today, so no queue or worker is built. The seam to go async stays open.</span></span>
+        </div>
+        <div class="opt">
+          <span class="radio"></span>
+          <span><span class="otitle">Background job + emailed link</span><span class="desc">Robust for any size, but adds a queue, a worker, object storage, and an email template — none of which exist for this feature yet.</span></span>
+        </div>
+        <div class="opt">
+          <span class="radio"></span>
+          <span><span class="otitle">Other</span><span class="desc">None of these fit — reply in chat with what to do instead.</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= testing ======= -->
+  <section id="testing">
+    <h2><span class="n">04</span> How we'll know it worked</h2>
+    <div class="testing">
+      <div class="tcard">
+        <h4>Dev check</h4>
+        <ul>
+          <li>Apply a filter, click Export, open the file in a spreadsheet.</li>
+          <li>Row count in the file == rows in the filtered table.</li>
+          <li>Over-cap report returns the guidance message, not a timeout.</li>
+        </ul>
+      </div>
+      <div class="tcard">
+        <h4>Tests</h4>
+        <ul>
+          <li><code>rows_to_csv</code>: commas, quotes, newlines, empty, unicode.</li>
+          <li>Endpoint returns <code>text/csv</code> + attachment filename.</li>
+          <li>Filtered export count == table endpoint count.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>Generated by the <strong>visual-plan</strong> skill · self-contained · the same information as plan.md, shown instead of told.</footer>
+</div>
+
+<script>
+  "use strict";
+  const ALLOWED_TAGS = new Set(["strong","em","code"]);
+  function renderSegments(target, segments){
+    target.textContent = "";
+    for(const seg of segments){
+      if(typeof seg === "string"){ target.appendChild(document.createTextNode(seg)); }
+      else if(seg && ALLOWED_TAGS.has(seg.tag)){
+        const el = document.createElement(seg.tag); el.textContent = String(seg.text ?? ""); target.appendChild(el);
+      }
+    }
+  }
+
+  const SCENES = [
+    { title:"1 · The user clicks Export CSV",
+      body:["On the Reports page, the user has filters applied and clicks ",{tag:"strong",text:"Export CSV"},". The current filter string is attached to the request."] },
+    { title:"2 · The request hits the export endpoint",
+      body:["The button calls ",{tag:"code",text:"GET /reports/:id/export"},", carrying the ",{tag:"em",text:"same filters"}," the table used — so the two can never disagree."] },
+    { title:"3 · The endpoint reuses the table's query",
+      body:["It calls ",{tag:"code",text:"build_report_query()"},", the exact function the table endpoint uses, and gets back the matching rows."] },
+    { title:"4 · Rows are serialized to CSV",
+      body:[{tag:"code",text:"rows_to_csv()"}," writes a header plus each row with the stdlib ",{tag:"code",text:"csv"}," module, quoting commas and newlines safely."] },
+    { title:"5 · The browser downloads the file",
+      body:["The response streams back with an ",{tag:"code",text:"attachment"}," header, so the browser saves it. Its rows match the screen exactly."] },
+  ];
+
+  const stage = document.querySelector(".stage");
+  const titleEl = document.getElementById("scene-title");
+  const bodyEl = document.getElementById("scene-body");
+  const dotsWrap = document.getElementById("dots");
+  let scene = 0, timer = null;
+
+  SCENES.forEach((_, i) => {
+    const b = document.createElement("button");
+    b.className = "dot-btn"; b.setAttribute("role","tab"); b.setAttribute("aria-label","Step "+(i+1));
+    b.addEventListener("click", () => { stopAuto(); setScene(i); });
+    dotsWrap.appendChild(b);
+  });
+  const dotBtns = Array.from(dotsWrap.children);
+
+  function setScene(n){
+    scene = (n + SCENES.length) % SCENES.length;
+    stage.setAttribute("data-scene","reset");
+    requestAnimationFrame(() => requestAnimationFrame(() => stage.setAttribute("data-scene", String(scene))));
+    titleEl.textContent = SCENES[scene].title;
+    renderSegments(bodyEl, SCENES[scene].body);
+    dotBtns.forEach((d,i) => d.setAttribute("aria-current", i===scene ? "true":"false"));
+  }
+  function stopAuto(){ if(timer){ clearInterval(timer); timer=null; document.getElementById("auto").textContent="▶ Auto-play"; } }
+  function startAuto(){ document.getElementById("auto").textContent="⏸ Pause"; timer=setInterval(()=>{ if(scene===SCENES.length-1){ stopAuto(); return; } setScene(scene+1); },2500); }
+
+  document.getElementById("prev").addEventListener("click", ()=>{ stopAuto(); setScene(scene-1); });
+  document.getElementById("next").addEventListener("click", ()=>{ stopAuto(); setScene(scene+1); });
+  document.getElementById("replay").addEventListener("click", ()=>{ stopAuto(); setScene(0); });
+  document.getElementById("auto").addEventListener("click", ()=>{ timer ? stopAuto() : startAuto(); });
+  document.addEventListener("keydown",(e)=>{
+    if(e.key==="ArrowLeft"){ stopAuto(); setScene(scene-1); }
+    else if(e.key==="ArrowRight"){ stopAuto(); setScene(scene+1); }
+    else if(e.key===" "){ e.preventDefault(); timer?stopAuto():startAuto(); }
+    else if(e.key.toLowerCase()==="r"){ stopAuto(); setScene(0); }
+  });
+
+  // ---- capture hooks for headless screenshots: ?scene=N&scrollto=ID&frame=1 ----
+  const params = new URLSearchParams(location.search);
+  if(params.get("frame") === "1"){ document.body.setAttribute("data-frame","1"); }
+  const startScene = parseInt(params.get("scene") ?? "0", 10);
+  setScene(Number.isFinite(startScene) ? startScene : 0);
+  const scrollTarget = params.get("scrollto");
+  if(scrollTarget){
+    const el = document.getElementById(scrollTarget);
+    if(el){ el.scrollIntoView({block:"center"}); }
+  }
+</script>
+</body>
+</html>
