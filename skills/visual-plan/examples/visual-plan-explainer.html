@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How the visual-plan skill works</title>
+<style>
+  /* ===== PALETTE — a blueprint studio at dusk ===== */
+  :root{
+    --bg-0:#0b1322; --bg-1:#101b2f; --bg-2:#16233a;
+    --paper:#14203a; --line:#26406a; --line-2:#37568a;
+    --blue:#46b8d8; --blue-glow:#82dcef; --blue-deep:#1b7d97;
+    --amber:#f0a83c; --amber-glow:#ffca6b;
+    --ok:#54cf8d; --warn:#f0b429; --bad:#ef6a5f; --violet:#a88bff;
+    --ink:#e9eefb; --ink-dim:#95a7c9; --ink-faint:#69799d;
+    --shadow:0 10px 30px rgba(0,0,0,.45);
+    --disp:"Georgia","Times New Roman",serif;
+    --mono:"SFMono-Regular","Consolas","Menlo",monospace;
+    --body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:
+      radial-gradient(1200px 560px at 50% -10%, var(--bg-2), transparent 70%),
+      linear-gradient(var(--bg-0), var(--bg-1));
+    color:var(--ink); font-family:var(--body); line-height:1.55; padding:0 20px 80px;
+  }
+  .wrap{max-width:1000px;margin:0 auto;}
+  a{color:var(--blue-glow);}
+
+  /* blueprint grid texture on some panels */
+  .grid-bg{
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:22px 22px; background-position:center;
+  }
+
+  header{text-align:center;padding:52px 0 12px;}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--blue);}
+  h1{font-family:var(--disp);font-size:clamp(30px,6vw,52px);margin:8px 0 8px;letter-spacing:.4px;}
+  h1 .blue{color:var(--blue-glow);}
+  .tagline{color:var(--ink-dim);font-size:18px;max-width:640px;margin:0 auto;}
+  .ribbon{
+    display:inline-flex;gap:10px;align-items:center;margin:22px auto 0;
+    background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--amber);
+    border-radius:8px;padding:10px 16px;font-family:var(--mono);font-size:14px;box-shadow:var(--shadow);
+  }
+  .ribbon .dot{width:9px;height:9px;border-radius:50%;background:var(--amber);animation:pulse 1.8s ease-in-out infinite;}
+
+  section{margin-top:60px;}
+  h2{font-family:var(--disp);font-size:clamp(22px,3.6vw,30px);border-bottom:1px solid var(--line);padding-bottom:10px;}
+  h2 .n{color:var(--blue);font-family:var(--mono);font-size:.62em;margin-right:10px;}
+  .lead{color:var(--ink-dim);max-width:740px;}
+
+  /* ===== morph toggle ===== */
+  .morph-ctl{display:flex;gap:10px;justify-content:center;margin:18px 0;}
+  .tbtn,.btn{font-family:var(--mono);font-size:14px;cursor:pointer;background:var(--bg-2);color:var(--ink);
+    border:1px solid var(--line-2);border-radius:8px;padding:9px 16px;transition:border-color .2s ease,background .2s ease,transform .1s ease;}
+  .tbtn:hover,.btn:hover{border-color:var(--blue);}
+  .tbtn[aria-pressed="true"]{background:var(--blue);color:#04222b;border-color:var(--blue-glow);font-weight:700;}
+  .btn:active{transform:translateY(1px);}
+  .morph-stage{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:var(--shadow);}
+  .morph-stage svg{display:block;width:100%;height:auto;}
+  .m-old{opacity:1;transition:opacity .6s ease;} .m-new{opacity:0;transition:opacity .6s ease;}
+  body[data-mode="new"] .m-old{opacity:0;} body[data-mode="new"] .m-new{opacity:1;}
+  .m-cap{text-align:center;color:var(--ink-dim);font-size:15px;margin-top:10px;min-height:22px;}
+
+  /* ===== scene player ===== */
+  .player{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);}
+  .stage-wrap{background:linear-gradient(var(--bg-1),var(--bg-2));}
+  .stage{display:block;width:100%;height:auto;}
+  .act,.flow,.lab,.gap,.human,.stamp,.chal,.verdict{opacity:0;transition:opacity .45s ease, transform .7s ease;}
+  .parcel{transition:transform .8s cubic-bezier(.5,.05,.3,1),opacity .45s ease;}
+  .st rect.box{fill:var(--bg-2);stroke:var(--line-2);stroke-width:2;transition:stroke .3s ease,fill .3s ease;}
+
+  /* cumulative reveals */
+  .stage[data-scene="0"] .a-task,.stage[data-scene="0"] .l-task{opacity:1;}
+  .stage[data-scene="0"] .parcel{opacity:1;transform:translateX(0);}
+
+  .stage[data-scene="1"] .a-task,.stage[data-scene="1"] .stA,.stage[data-scene="1"] .fA,.stage[data-scene="1"] .l-a{opacity:1;}
+  .stage[data-scene="1"] .stA rect.box{stroke:var(--blue);fill:#0f2740;}
+  .stage[data-scene="1"] .parcel{opacity:1;transform:translateX(65px);}
+
+  .stage[data-scene="2"] .a-task,.stage[data-scene="2"] .stA,.stage[data-scene="2"] .stB,.stage[data-scene="2"] .fA,.stage[data-scene="2"] .fB,.stage[data-scene="2"] .l-b,.stage[data-scene="2"] .gap{opacity:1;}
+  .stage[data-scene="2"] .stB rect.box{stroke:var(--blue);fill:#0f2740;}
+  .stage[data-scene="2"] .parcel{opacity:1;transform:translateX(197px);}
+
+  .stage[data-scene="3"] .a-task,.stage[data-scene="3"] .stA,.stage[data-scene="3"] .stB,.stage[data-scene="3"] .stC,.stage[data-scene="3"] .fA,.stage[data-scene="3"] .fB,.stage[data-scene="3"] .fC,.stage[data-scene="3"] .l-c,.stage[data-scene="3"] .human{opacity:1;}
+  .stage[data-scene="3"] .stC rect.box{stroke:var(--amber);fill:#2a2110;}
+  .stage[data-scene="3"] .parcel{opacity:1;transform:translateX(329px);}
+
+  .stage[data-scene="4"] .a-task,.stage[data-scene="4"] .stA,.stage[data-scene="4"] .stB,.stage[data-scene="4"] .stC,.stage[data-scene="4"] .stD,.stage[data-scene="4"] .fA,.stage[data-scene="4"] .fB,.stage[data-scene="4"] .fC,.stage[data-scene="4"] .fD,.stage[data-scene="4"] .l-d,.stage[data-scene="4"] .human,.stage[data-scene="4"] .stamp{opacity:1;}
+  .stage[data-scene="4"] .stD rect.box{stroke:var(--ok);fill:#122a1c;}
+  .stage[data-scene="4"] .parcel{opacity:0;transform:translateX(469px);}
+
+  .stage[data-scene="5"] .a-task,.stage[data-scene="5"] .stB,.stage[data-scene="5"] .stC,.stage[data-scene="5"] .stD,.stage[data-scene="5"] .fB,.stage[data-scene="5"] .fC,.stage[data-scene="5"] .fD,.stage[data-scene="5"] .chal,.stage[data-scene="5"] .verdict{opacity:1;}
+  .stage[data-scene="5"] .chal .box{stroke:var(--violet);fill:#221a3a;}
+  .stage[data-scene="5"] .parcel{opacity:0;}
+
+  /* parcel recolors after the plan is drafted */
+  .parcel .doc{fill:var(--amber-glow);transition:fill .4s ease;}
+  .stage[data-scene="2"] .parcel .doc,.stage[data-scene="3"] .parcel .doc{fill:var(--blue-glow);}
+
+  .narr{padding:16px 20px;border-top:1px solid var(--line);min-height:82px;}
+  .narr .st{font-family:var(--disp);font-size:19px;margin:0 0 3px;color:var(--blue-glow);}
+  .narr p{margin:0;color:var(--ink);}
+  .narr code{font-family:var(--mono);background:var(--bg-0);padding:1px 6px;border-radius:4px;font-size:.9em;color:var(--amber-glow);}
+
+  .controls{display:flex;align-items:center;gap:9px;padding:12px 20px;border-top:1px solid var(--line);flex-wrap:wrap;}
+  .dots{display:flex;gap:7px;margin-left:auto;}
+  .dot{width:11px;height:11px;border-radius:50%;border:1px solid var(--line-2);background:transparent;cursor:pointer;padding:0;}
+  .dot[aria-current="true"]{background:var(--blue);border-color:var(--blue-glow);}
+
+  /* ===== architecture diagram ===== */
+  .diagram{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px;box-shadow:var(--shadow);}
+  .diagram svg{display:block;width:100%;height:auto;}
+  .node rect{fill:var(--bg-2);stroke:var(--line-2);stroke-width:2;transition:stroke .2s ease,fill .2s ease;}
+  .node:hover rect{stroke:var(--blue);fill:#0f2740;}
+  .node text{fill:var(--ink);font-family:var(--mono);font-size:12px;}
+  .node .sub{fill:var(--ink-dim);font-size:10px;}
+  .node .tip{opacity:0;transition:opacity .2s ease;}
+  .node:hover .tip{opacity:1;}
+  .edge{stroke:var(--blue);stroke-width:2;fill:none;marker-end:url(#arr);stroke-dasharray:6 5;animation:dash 22s linear infinite;}
+  .edge.opt{stroke:var(--violet);}
+
+  /* ===== live decision card ===== */
+  .demo-grid{display:grid;grid-template-columns:1.4fr .9fr;gap:18px;align-items:start;}
+  @media(max-width:720px){.demo-grid{grid-template-columns:1fr;}}
+  .dcard{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);}
+  .dcard .q{font-size:16px;margin:0 0 6px;}
+  .dcard .why{color:var(--ink-dim);font-size:13px;margin:0 0 14px;}
+  .dcard .why code{font-family:var(--mono);color:var(--amber-glow);background:var(--bg-0);padding:1px 5px;border-radius:4px;}
+  .opts{display:flex;flex-direction:column;gap:10px;}
+  .opt{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line-2);border-radius:10px;padding:11px 13px;background:var(--bg-2);cursor:pointer;transition:border-color .15s ease,background .15s ease;}
+  .opt:hover{border-color:var(--blue);}
+  .opt .radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--line-2);margin-top:2px;flex:0 0 auto;transition:border-color .15s ease,background .15s ease;}
+  .opt.on{border-color:var(--blue);background:#0f2740;}
+  .opt.on .radio{border-color:var(--blue);background:radial-gradient(circle,var(--blue) 42%,transparent 46%);}
+  .opt.rec .radio{border-color:var(--ok);}
+  .opt.rec.on .radio{background:radial-gradient(circle,var(--ok) 42%,transparent 46%);}
+  .opt .ot{font-weight:600;font-size:14px;display:block;}
+  .opt .ds{color:var(--ink-dim);font-size:13px;margin-top:2px;display:block;}
+  .badge{display:inline-block;margin-left:8px;font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--ok);border:1px solid var(--ok);border-radius:20px;padding:1px 8px;vertical-align:middle;}
+  .other-field{margin-top:6px;width:100%;background:var(--bg-0);border:1px solid var(--line-2);border-radius:6px;color:var(--ink);
+    font-family:var(--body);font-size:13px;padding:6px 8px;}
+  .picked{margin-top:12px;font-family:var(--mono);font-size:13px;color:var(--blue-glow);min-height:18px;}
+  .anno{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;}
+  .anno li{border-left:3px solid var(--blue-deep);padding:2px 0 2px 12px;color:var(--ink-dim);font-size:13px;}
+  .anno b{color:var(--ink);}
+
+  /* ===== who-does-what steps ===== */
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0;}
+  .chip{font-family:var(--mono);font-size:13px;cursor:pointer;background:var(--bg-2);color:var(--ink-dim);border:1px solid var(--line-2);border-radius:20px;padding:6px 14px;}
+  .chip[aria-pressed="true"]{background:var(--blue-deep);color:var(--ink);border-color:var(--blue);}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
+  .step{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:13px;border-left:4px solid var(--line-2);transition:opacity .25s ease,filter .25s ease;}
+  .step[data-who="ai"]{border-left-color:var(--blue);}
+  .step[data-who="you"]{border-left-color:var(--amber);}
+  .step[data-dim="true"]{opacity:.26;filter:grayscale(.6);}
+  .step .who{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.5px;}
+  .step[data-who="ai"] .who{color:var(--blue);} .step[data-who="you"] .who{color:var(--amber-glow);}
+  .step h4{margin:4px 0 4px;font-size:15px;} .step p{margin:0;color:var(--ink-dim);font-size:13px;}
+
+  /* ===== glossary + extras ===== */
+  .glossary{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:20px;}
+  .term{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
+  .term dt{font-family:var(--mono);color:var(--blue-glow);font-size:15px;margin-bottom:4px;}
+  .term dd{margin:0;color:var(--ink-dim);font-size:14px;}
+  .extras{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:18px;}
+  .extra{background:var(--paper);border:1px solid var(--line);border-top:3px solid var(--amber);border-radius:10px;padding:13px 15px;}
+  .extra h4{margin:0 0 5px;font-size:14px;} .extra p{margin:0;color:var(--ink-dim);font-size:13px;}
+
+  footer{text-align:center;color:var(--ink-faint);font-family:var(--mono);font-size:13px;margin-top:64px;}
+  footer a{color:var(--ink-dim);}
+
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.5);opacity:.5;}}
+  @keyframes dash{to{stroke-dashoffset:-220;}}
+  @media(prefers-reduced-motion:reduce){
+    .edge,.ribbon .dot{animation:none;}
+    .act,.flow,.lab,.gap,.human,.stamp,.chal,.verdict,.parcel{transition:opacity .01s;}
+  }
+</style>
+</head>
+<body data-mode="old">
+<div class="wrap">
+
+  <header>
+    <div class="kicker">A visual explainer · built by the visual-explainer skill</div>
+    <h1>How the <span class="blue">visual-plan</span> skill works</h1>
+    <p class="tagline">It turns a task into a plan you can look at — and answer — before any code is written.</p>
+    <div class="ribbon"><span class="dot"></span><span>Follow one ticket: “Add CSV export to the Reports page”</span></div>
+  </header>
+
+  <!-- ===== MORPH TOGGLE ===== -->
+  <section>
+    <h2><span class="n">01</span>The old way vs one visual pass</h2>
+    <p class="lead">Most planning is a back-and-forth question loop. visual-plan replaces it with one pass and a set of decision cards.</p>
+    <div class="morph-ctl">
+      <button class="tbtn" data-mode-set="old" aria-pressed="true">Question loop</button>
+      <button class="tbtn" data-mode-set="new" aria-pressed="false">visual-plan</button>
+    </div>
+    <div class="morph-stage">
+      <svg viewBox="0 0 660 210" preserveAspectRatio="xMidYMid meet" aria-label="A sequential question loop versus one visual pass">
+        <!-- old: a stack of Q/A bubbles -->
+        <g class="m-old">
+          <circle cx="70" cy="60" r="18" fill="var(--amber)"/>
+          <g font-family="var(--mono)" font-size="12">
+            <rect x="120" y="34" width="150" height="24" rx="12" fill="var(--bg-2)" stroke="var(--line-2)"/><text x="132" y="50" fill="var(--ink-dim)">“Feature flag? y/n”</text>
+            <rect x="300" y="66" width="150" height="24" rx="12" fill="var(--bg-2)" stroke="var(--line-2)"/><text x="312" y="82" fill="var(--ink-dim)">“Sync or async?”</text>
+            <rect x="120" y="98" width="170" height="24" rx="12" fill="var(--bg-2)" stroke="var(--line-2)"/><text x="132" y="114" fill="var(--ink-dim)">“Which environment?”</text>
+            <rect x="320" y="130" width="150" height="24" rx="12" fill="var(--bg-2)" stroke="var(--line-2)"/><text x="332" y="146" fill="var(--ink-dim)">“…and 6 more”</text>
+          </g>
+          <text x="330" y="190" fill="var(--ink-faint)" font-family="var(--mono)" font-size="12" text-anchor="middle">One question at a time. You answer before you can see the shape.</text>
+        </g>
+        <!-- new: one blueprint + a row of decision cards -->
+        <g class="m-new">
+          <rect x="60" y="34" width="150" height="120" rx="6" fill="#0f2740" stroke="var(--blue)" stroke-width="2"/>
+          <g stroke="var(--blue-deep)" stroke-width="1"><line x1="60" y1="66" x2="210" y2="66"/><line x1="60" y1="98" x2="210" y2="98"/><line x1="60" y1="130" x2="210" y2="130"/><line x1="110" y1="34" x2="110" y2="154"/><line x1="160" y1="34" x2="160" y2="154"/></g>
+          <rect x="86" y="74" width="44" height="24" rx="2" fill="var(--blue)" opacity=".45"/>
+          <g>
+            <rect x="250" y="40" width="360" height="30" rx="6" fill="var(--bg-2)" stroke="var(--ok)"/><circle cx="268" cy="55" r="6" fill="none" stroke="var(--ok)" stroke-width="2"/><circle cx="268" cy="55" r="2.6" fill="var(--ok)"/><text x="284" y="59" fill="var(--ink)" font-family="var(--mono)" font-size="12">decision 1 · recommended pre-picked</text>
+            <rect x="250" y="80" width="360" height="30" rx="6" fill="var(--bg-2)" stroke="var(--line-2)"/><circle cx="268" cy="95" r="6" fill="none" stroke="var(--line-2)" stroke-width="2"/><text x="284" y="99" fill="var(--ink-dim)" font-family="var(--mono)" font-size="12">decision 2</text>
+            <rect x="250" y="120" width="360" height="30" rx="6" fill="var(--bg-2)" stroke="var(--line-2)"/><circle cx="268" cy="135" r="6" fill="none" stroke="var(--line-2)" stroke-width="2"/><text x="284" y="139" fill="var(--ink-dim)" font-family="var(--mono)" font-size="12">decision 3</text>
+          </g>
+          <text x="330" y="190" fill="var(--ink-faint)" font-family="var(--mono)" font-size="12" text-anchor="middle">See the whole plan at once. Answer only the decisions that matter.</text>
+        </g>
+      </svg>
+    </div>
+    <p class="m-cap" id="morph-cap">Question loop: one prompt at a time, and you cannot see the shape until the end.</p>
+  </section>
+
+  <!-- ===== SCENE PLAYER ===== -->
+  <section>
+    <h2><span class="n">02</span>Follow one ticket through the skill</h2>
+    <p class="lead">Six steps take the CSV-export ticket from a prompt to a recorded plan. Use the controls, the dots, or your arrow keys.</p>
+    <div class="player">
+      <div class="stage-wrap">
+        <svg class="stage" data-scene="0" viewBox="0 0 680 300" preserveAspectRatio="xMidYMid meet" aria-label="Animated walkthrough of the visual-plan steps">
+          <defs>
+            <marker id="af" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--blue)"/></marker>
+            <marker id="afo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--violet)"/></marker>
+          </defs>
+
+          <!-- the task note (origin) -->
+          <g class="act a-task">
+            <rect x="20" y="120" width="96" height="76" rx="6" fill="var(--bg-2)" stroke="var(--amber)" stroke-width="2"/>
+            <line x1="34" y1="140" x2="102" y2="140" stroke="var(--amber-glow)" stroke-width="3"/>
+            <line x1="34" y1="152" x2="90" y2="152" stroke="var(--line-2)" stroke-width="3"/>
+            <line x1="34" y1="164" x2="96" y2="164" stroke="var(--line-2)" stroke-width="3"/>
+            <line x1="34" y1="176" x2="82" y2="176" stroke="var(--line-2)" stroke-width="3"/>
+          </g>
+          <text class="lab l-task" x="68" y="112" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11" text-anchor="middle">/visual-plan</text>
+
+          <!-- stations -->
+          <g class="act st stA"><rect class="box" x="156" y="128" width="92" height="56" rx="8"/><text x="202" y="152" fill="var(--ink)" font-family="var(--mono)" font-size="11" text-anchor="middle">read code</text><text x="202" y="168" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10" text-anchor="middle">pin baseline</text></g>
+          <g class="act st stB"><rect class="box" x="288" y="128" width="92" height="56" rx="8"/><text x="334" y="152" fill="var(--ink)" font-family="var(--mono)" font-size="11" text-anchor="middle">draft plan</text><text x="334" y="168" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10" text-anchor="middle">one pass</text></g>
+          <g class="act st stC"><rect class="box" x="420" y="128" width="92" height="56" rx="8"/><text x="466" y="152" fill="var(--ink)" font-family="var(--mono)" font-size="11" text-anchor="middle">you review</text><text x="466" y="168" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10" text-anchor="middle">decide</text></g>
+          <g class="act st stD"><rect class="box" x="552" y="128" width="108" height="56" rx="8"/><text x="606" y="152" fill="var(--ink)" font-family="var(--mono)" font-size="11" text-anchor="middle">record</text><text x="606" y="168" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10" text-anchor="middle">your tracker</text></g>
+
+          <!-- flow arrows -->
+          <line class="flow fA" x1="120" y1="156" x2="152" y2="156" stroke="var(--blue)" stroke-width="2.5" marker-end="url(#af)"/>
+          <line class="flow fB" x1="252" y1="156" x2="284" y2="156" stroke="var(--blue)" stroke-width="2.5" marker-end="url(#af)"/>
+          <line class="flow fC" x1="384" y1="156" x2="416" y2="156" stroke="var(--blue)" stroke-width="2.5" marker-end="url(#af)"/>
+          <line class="flow fD" x1="516" y1="156" x2="548" y2="156" stroke="var(--ok)" stroke-width="2.5" marker-end="url(#af)"/>
+
+          <!-- intent-gap question marks at draft stage -->
+          <g class="gap" font-family="var(--disp)" font-weight="bold">
+            <circle cx="318" cy="112" r="10" fill="none" stroke="var(--warn)" stroke-width="2"/><text x="318" y="117" fill="var(--warn)" font-size="14" text-anchor="middle">?</text>
+            <circle cx="350" cy="112" r="10" fill="none" stroke="var(--warn)" stroke-width="2"/><text x="350" y="117" fill="var(--warn)" font-size="14" text-anchor="middle">?</text>
+            <text x="334" y="200" fill="var(--warn)" font-family="var(--mono)" font-size="10" text-anchor="middle">ask, don't guess</text>
+          </g>
+
+          <!-- human near review -->
+          <g class="human"><circle cx="466" cy="212" r="10" fill="var(--amber)"/><path d="M450 236 a16 14 0 0 1 32 0 z" fill="var(--amber-glow)"/></g>
+
+          <!-- approval stamp near record -->
+          <g class="stamp"><circle cx="606" cy="206" r="14" fill="none" stroke="var(--ok)" stroke-width="2.5"/><path d="M599 206 l5 5 l9 -10" fill="none" stroke="var(--ok)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+
+          <!-- optional challenge node + dashed branch -->
+          <path class="chal" d="M466 186 C 466 214, 430 214, 402 226" fill="none" stroke="var(--violet)" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#afo)"/>
+          <g class="chal st"><rect class="box" x="300" y="226" width="132" height="44" rx="8"/><text x="366" y="246" fill="var(--ink)" font-family="var(--mono)" font-size="11" text-anchor="middle">challenge-plan</text><text x="366" y="261" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10" text-anchor="middle">different model · optional</text></g>
+          <text class="verdict" x="366" y="212" fill="var(--violet)" font-family="var(--mono)" font-size="11" text-anchor="middle">only cuts — never adds</text>
+
+          <!-- the traveling parcel (ticket → blueprint) -->
+          <g class="parcel" transform="translate(124,0)">
+            <rect class="doc" x="0" y="144" width="26" height="24" rx="4"/>
+            <line x1="5" y1="152" x2="21" y2="152" stroke="#06202b" stroke-width="2"/>
+            <line x1="5" y1="159" x2="17" y2="159" stroke="#06202b" stroke-width="2"/>
+          </g>
+        </svg>
+      </div>
+      <div class="narr"><p class="st" id="sc-title"></p><p id="sc-body"></p></div>
+      <div class="controls">
+        <button class="btn" id="prev">‹ Prev</button>
+        <button class="btn" id="replay">↻ Replay</button>
+        <button class="btn" id="auto">▶ Auto-play</button>
+        <button class="btn" id="next">Next ›</button>
+        <div class="dots" id="dots" role="tablist" aria-label="Steps"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ARCHITECTURE DIAGRAM ===== -->
+  <section>
+    <h2><span class="n">03</span>The whole flow at once</h2>
+    <p class="lead">The same process as a wiring diagram. Hover a box to see what it does. Custom instructions feed the completeness gate. The challenge is a side loop.</p>
+    <div class="diagram grid-bg">
+      <svg viewBox="0 0 920 240" preserveAspectRatio="xMidYMid meet" aria-label="visual-plan architecture: task to planner to plan to review to record">
+        <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--blue)"/></marker></defs>
+        <path class="edge" d="M150,70 H196"/>
+        <path class="edge" d="M340,70 H386"/>
+        <path class="edge" d="M540,70 H586"/>
+        <path class="edge" d="M740,70 H786"/>
+        <path class="edge" d="M270,120 V70"/>
+        <path class="edge opt" d="M636,96 C 636,150 470,150 470,150"/>
+
+        <g class="node"><rect x="20" y="46" width="130" height="48" rx="8"/><text x="85" y="68" text-anchor="middle">task</text><text class="sub" x="85" y="84" text-anchor="middle">ticket or one line</text><text class="tip" x="85" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">no question loop starts</text></g>
+        <g class="node"><rect x="196" y="46" width="144" height="48" rx="8"/><text x="268" y="68" text-anchor="middle">AI planner</text><text class="sub" x="268" y="84" text-anchor="middle">reads real code</text><text class="tip" x="268" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">pins the baseline commit</text></g>
+        <g class="node"><rect x="386" y="46" width="154" height="48" rx="8"/><text x="463" y="68" text-anchor="middle">visual HTML plan</text><text class="sub" x="463" y="84" text-anchor="middle">drawn in one pass</text><text class="tip" x="463" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">intent gaps become cards</text></g>
+        <g class="node"><rect x="586" y="46" width="154" height="48" rx="8"/><text x="663" y="68" text-anchor="middle">you review</text><text class="sub" x="663" y="84" text-anchor="middle">answer in the browser</text><text class="tip" x="663" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">override only to disagree</text></g>
+        <g class="node"><rect x="786" y="46" width="120" height="48" rx="8"/><text x="846" y="68" text-anchor="middle">record</text><text class="sub" x="846" y="84" text-anchor="middle">where you track work</text><text class="tip" x="846" y="112" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="10">ticket, file, or nothing</text></g>
+
+        <g class="node"><rect x="196" y="128" width="144" height="44" rx="8" style="stroke:var(--amber)"/><text x="268" y="149" text-anchor="middle">custom instructions</text><text class="sub" x="268" y="164" text-anchor="middle">optional · sets "done"</text></g>
+        <g class="node"><rect x="386" y="132" width="168" height="44" rx="8" style="stroke:var(--violet)"/><text x="470" y="153" text-anchor="middle">challenge-plan</text><text class="sub" x="470" y="168" text-anchor="middle">optional · only cuts</text></g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ===== LIVE DECISION CARD ===== -->
+  <section>
+    <h2><span class="n">04</span>Anatomy of a decision card</h2>
+    <p class="lead">This is a real card from the CSV-export plan. Click an option. Notice the recommended default and the "Other" escape hatch.</p>
+    <div class="demo-grid">
+      <div class="dcard" id="dcard">
+        <p class="q">Very large reports could outrun the 30-second timeout. How do we handle them?</p>
+        <p class="why">Most reports are small and stream in under a second. A few have tens of thousands of rows. <code>rows_to_csv()</code> could hold the request open past the gateway timeout.</p>
+        <div class="opts" id="opts">
+          <div class="opt rec" data-v="Stream now, cap at 50,000 rows" data-default="1">
+            <span class="radio"></span>
+            <span><span class="ot">Stream now, cap at 50,000 rows<span class="badge">recommended</span></span><span class="ds">Above the cap, ask the user to narrow filters. No queue or worker is built. The seam to go async stays open.</span></span>
+          </div>
+          <div class="opt" data-v="Background job + emailed link">
+            <span class="radio"></span>
+            <span><span class="ot">Background job + emailed link</span><span class="ds">Robust for any size, but adds a queue, a worker, storage, and email — none of which exist yet.</span></span>
+          </div>
+          <div class="opt" data-v="Other" data-other="1">
+            <span class="radio"></span>
+            <span><span class="ot">Other</span><span class="ds">None of these fit — type what to do instead.</span>
+              <input class="other-field" id="other-field" type="text" placeholder="e.g. cap at 10,000 rows for now">
+            </span>
+          </div>
+        </div>
+        <p class="picked" id="picked">Selected: Stream now, cap at 50,000 rows <span style="color:var(--ink-faint)">(the default)</span></p>
+      </div>
+      <ul class="anno">
+        <li><b>Recommended default.</b> The AI's answer is pre-selected. Agree by doing nothing.</li>
+        <li><b>Plain question.</b> It asks the practical choice, not the mechanism.</li>
+        <li><b>Grounded.</b> It names the real function, <code>rows_to_csv()</code>, from your code.</li>
+        <li><b>Other.</b> Every card ends with a free-text escape hatch.</li>
+        <li><b>Copy decisions.</b> In the real plan, one button copies every answer back to chat.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===== WHO DOES WHAT ===== -->
+  <section>
+    <h2><span class="n">05</span>Who does what</h2>
+    <p class="lead">The AI does the drafting. You hold the decisions. Filter the steps to see the split.</p>
+    <div class="chips" id="chips">
+      <button class="chip" data-f="all" aria-pressed="true">All</button>
+      <button class="chip" data-f="ai" aria-pressed="false">AI does</button>
+      <button class="chip" data-f="you" aria-pressed="false">You do</button>
+    </div>
+    <div class="steps" id="steps">
+      <div class="step" data-who="ai"><div class="who">AI</div><h4>Read + pin</h4><p>Read the real code the change touches. Record the exact baseline commit.</p></div>
+      <div class="step" data-who="ai"><div class="who">AI</div><h4>Draft in one pass</h4><p>Draw the change, the steps, and the checks. Surface intent gaps as cards.</p></div>
+      <div class="step" data-who="you"><div class="who">You</div><h4>Review</h4><p>Read the plan in the browser. Answer only the decisions that matter.</p></div>
+      <div class="step" data-who="you"><div class="who">You</div><h4>Approve or override</h4><p>Say “looks good,” or change a decision in chat.</p></div>
+      <div class="step" data-who="ai"><div class="who">AI</div><h4>Record</h4><p>Write a compact plan where your team tracks work.</p></div>
+      <div class="step" data-who="you"><div class="who">You</div><h4>Challenge (optional)</h4><p>Run <code>/challenge-plan</code> when a plan is worth a second model's attack.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== GLOSSARY ===== -->
+  <section>
+    <h2><span class="n">06</span>Words worth knowing</h2>
+    <dl class="glossary">
+      <div class="term"><dt>decision card</dt><dd>A multiple-choice question in the plan. It has a recommended default and an "Other" field. You answer it in the browser.</dd></div>
+      <div class="term"><dt>intent gap</dt><dd>A point where the task does not say what the result should do. The AI asks about it instead of guessing the defensive reading.</dd></div>
+      <div class="term"><dt>custom instructions</dt><dd>An optional file that sets what a finished plan must contain for your team, plus where to record it.</dd></div>
+      <div class="term"><dt>compact plan</dt><dd>The short markdown the agent records on approval. The HTML file stays the human-readable reference.</dd></div>
+      <div class="term"><dt>deliberately not built</dt><dd>A note in the plan: what was cut, the seam that keeps it pluggable, and the signal that would revive it.</dd></div>
+      <div class="term"><dt>challenge-plan</dt><dd>A separate skill. A different model attacks the plan for over-building. It may only cut, reuse, simplify, or ask.</dd></div>
+    </dl>
+  </section>
+
+  <!-- ===== EXTRAS ===== -->
+  <section>
+    <h2><span class="n">07</span>Worth knowing</h2>
+    <div class="extras">
+      <div class="extra"><h4>One self-contained file</h4><p>No CDN, no build step. The plan opens straight from disk, offline.</p></div>
+      <div class="extra"><h4>Grounded in real code</h4><p>The diagram names real functions and files. The AI reads the code first, not just the ticket.</p></div>
+      <div class="extra"><h4>Tracker-agnostic</h4><p>Linear, Jira, GitHub Issues, a file, or nothing. The skill does not assume one.</p></div>
+      <div class="extra"><h4>Copy that never fails</h4><p>"Copy decisions" falls back from the Clipboard API to a manual box, so it works inside a sandboxed preview.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    A self-contained example for the <strong>visual-explainer</strong> skill · its subject is the <strong>visual-plan</strong> skill.<br>
+    See a real output: <a href="plan.html">plan.html</a> (open it in a browser).
+  </footer>
+</div>
+
+<script>
+  "use strict";
+  const ALLOWED=new Set(["strong","em","code"]);
+  function renderSegments(target,segs){
+    target.textContent="";
+    for(const s of segs){
+      if(typeof s==="string"){target.appendChild(document.createTextNode(s));}
+      else if(s&&ALLOWED.has(s.tag)){const e=document.createElement(s.tag);e.textContent=String(s.text??"");target.appendChild(e);}
+    }
+  }
+
+  const SCENES=[
+    {title:"1 · A task arrives",body:["A developer runs ",{tag:"code",text:"/visual-plan"}," on one task: ",{tag:"strong",text:"Add CSV export to the Reports page"},". No question loop starts."]},
+    {title:"2 · Read the code, pin the baseline",body:["The AI reads the ",{tag:"strong",text:"real code"}," the change will touch. It records the exact commit, so every claim is checked against that baseline."]},
+    {title:"3 · Draft the plan in one pass",body:["The AI draws the whole plan at once — the change, the steps, the checks. Where intent is unclear, it ",{tag:"strong",text:"asks"},", instead of a guess."]},
+    {title:"4 · You review it in the browser",body:["The plan opens as one HTML file. You read it and answer ",{tag:"strong",text:"decision cards"},". Each card has a recommended default. You step in only to disagree."]},
+    {title:"5 · Approve, and it is recorded",body:["You say “looks good.” The agent writes a compact plan where your team tracks work — a ticket, a file, or nothing."]},
+    {title:"6 · Optional: challenge it",body:["You may run ",{tag:"code",text:"/challenge-plan"},". A ",{tag:"strong",text:"different model"}," attacks the plan for over-building. It may only cut, never add."]},
+  ];
+
+  const stage=document.querySelector(".stage");
+  const titleEl=document.getElementById("sc-title");
+  const bodyEl=document.getElementById("sc-body");
+  const dotsWrap=document.getElementById("dots");
+  let scene=0,timer=null;
+
+  SCENES.forEach((_,i)=>{
+    const b=document.createElement("button");
+    b.className="dot";b.setAttribute("role","tab");b.setAttribute("aria-label","Step "+(i+1));
+    b.addEventListener("click",()=>{stopAuto();setScene(i);});
+    dotsWrap.appendChild(b);
+  });
+  const dots=Array.from(dotsWrap.children);
+
+  function setScene(n){
+    scene=(n+SCENES.length)%SCENES.length;
+    stage.setAttribute("data-scene","reset");
+    requestAnimationFrame(()=>requestAnimationFrame(()=>stage.setAttribute("data-scene",String(scene))));
+    titleEl.textContent=SCENES[scene].title;
+    renderSegments(bodyEl,SCENES[scene].body);
+    dots.forEach((d,i)=>d.setAttribute("aria-current",i===scene?"true":"false"));
+  }
+  function stopAuto(){if(timer){clearInterval(timer);timer=null;document.getElementById("auto").textContent="▶ Auto-play";}}
+  function startAuto(){document.getElementById("auto").textContent="⏸ Pause";timer=setInterval(()=>{if(scene===SCENES.length-1){stopAuto();return;}setScene(scene+1);},2600);}
+  document.getElementById("prev").addEventListener("click",()=>{stopAuto();setScene(scene-1);});
+  document.getElementById("next").addEventListener("click",()=>{stopAuto();setScene(scene+1);});
+  document.getElementById("replay").addEventListener("click",()=>{stopAuto();setScene(0);});
+  document.getElementById("auto").addEventListener("click",()=>{timer?stopAuto():startAuto();});
+  document.addEventListener("keydown",(e)=>{
+    if(e.key==="ArrowLeft"){stopAuto();setScene(scene-1);}
+    else if(e.key==="ArrowRight"){stopAuto();setScene(scene+1);}
+    else if(e.key===" "){e.preventDefault();timer?stopAuto():startAuto();}
+    else if(e.key.toLowerCase()==="r"){stopAuto();setScene(0);}
+  });
+  setScene(0);
+
+  /* morph toggle */
+  const MCAP={old:"Question loop: one prompt at a time, and you cannot see the shape until the end.",
+              new:"visual-plan: the whole plan at once, and you answer only the decisions that matter."};
+  const mcap=document.getElementById("morph-cap");
+  document.querySelectorAll(".tbtn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const m=btn.getAttribute("data-mode-set");
+      document.body.setAttribute("data-mode",m);
+      document.querySelectorAll(".tbtn").forEach(b=>b.setAttribute("aria-pressed",b===btn?"true":"false"));
+      mcap.textContent=MCAP[m];
+    });
+  });
+
+  /* live decision card */
+  const opts=Array.from(document.querySelectorAll("#opts .opt"));
+  const pickedEl=document.getElementById("picked");
+  const otherField=document.getElementById("other-field");
+  function select(opt){
+    opts.forEach(o=>o.classList.toggle("on",o===opt));
+    const isDefault=opt.hasAttribute("data-default");
+    let val=opt.getAttribute("data-v");
+    if(opt.hasAttribute("data-other")){
+      const typed=otherField.value.trim();
+      val="Other — "+(typed?typed:"(unspecified)");
+    }
+    pickedEl.textContent="Selected: "+val;
+    if(isDefault){
+      const tag=document.createElement("span");
+      tag.style.color="var(--ink-faint)";tag.textContent=" (the default)";
+      pickedEl.appendChild(tag);
+    }
+  }
+  opts.forEach(o=>o.addEventListener("click",()=>select(o)));
+  otherField.addEventListener("focus",()=>select(otherField.closest(".opt")));
+  otherField.addEventListener("input",()=>select(otherField.closest(".opt")));
+
+  /* who-does-what filter */
+  const steps=Array.from(document.querySelectorAll("#steps .step"));
+  document.querySelectorAll("#chips .chip").forEach(chip=>{
+    chip.addEventListener("click",()=>{
+      const f=chip.getAttribute("data-f");
+      document.querySelectorAll("#chips .chip").forEach(c=>c.setAttribute("aria-pressed",c===chip?"true":"false"));
+      steps.forEach(s=>s.setAttribute("data-dim",(f==="all"||s.getAttribute("data-who")===f)?"false":"true"));
+    });
+  });
+</script>
+</body>
+</html>

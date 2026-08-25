@@ -58,15 +58,13 @@ Abstract explainers don't land. Choose a single realistic task/ticket/request an
 end-to-end through the system. Reuse the *same* example across sections so the reader builds one
 mental model. (e.g. one order walked through all the stages of a checkout pipeline.)
 
-### 4. Commit to a visual metaphor + palette
-Lean into the subject's own metaphor (a "town" → frontier aesthetic; an SDK/control-plane →
-art-deco "city hall" + blueprint cyan; a pipeline → assembly line). Pick a tight palette as CSS
-variables and use it everywhere. Distinctive beats generic — avoid the default "AI slop" look
-(centered Inter on white cards).
+### 4. Pick a palette
+Pick a tight palette as CSS variables and use it everywhere. Distinctive beats generic: a warm,
+cohesive palette reads better than default centered Inter on white cards.
 
 ### 5. Build with the standard structure
 1. **Header** + a ribbon stating the concrete example (the "ticket").
-2. **Cast / concept cards** — one inline-SVG illustration per core concept.
+2. **Concept cards (optional)** — a labeled inline-SVG picture of each part, when seeing the parts helps.
 3. **The interactive centerpiece** — pick one:
    - *Scene player*: N scenes, a `data-scene` state machine, narrator panel, prev/next/autoplay.
    - *Pipeline / timeline*: clickable stages with a detail panel + filter chips.
@@ -156,7 +154,6 @@ Prev / Replay / Auto-play / Next, clickable progress dots, and keyboard nav
 - Display font for headings, mono for code/labels, serif/system for body (system stacks only).
 - Cards: subtle border + offset shadow; hover lift.
 - Hand-drawn SVG "cartoons" for concepts — simple flat shapes, recognizable, charming.
-- A concrete narrative thread, not a feature list.
 
 ## Gotchas (learned the hard way)
 
