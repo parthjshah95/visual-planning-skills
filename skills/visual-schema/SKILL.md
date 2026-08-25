@@ -133,7 +133,11 @@ After any edit, open the file and check the console. A clean console is part of 
 - **Legend** for badges and edge kinds. **Header** with the schema name and source commit or date.
 - **Pan and zoom** (drag + buttons) when the schema is larger than one screen; a `fit` control frames the whole canvas.
 - Palette as `:root` CSS variables; system font stacks; the whole page works offline.
-- The diagram renders with JavaScript, so include a `<noscript>` notice. Any real browser and any static host (GitHub Pages, `file://`) work; a scriptless snapshot viewer shows the notice instead of an empty canvas.
+- **Pan and zoom the canvas**: drag to pan, plus zoom in / zoom out / fit controls. Distinguish a drag from a click with a small movement threshold, so click-to-focus still works.
+
+## Footguns
+
+- **A scriptless viewer shows an empty page.** The diagram renders with JavaScript into an empty canvas element. Any real browser and any static host (GitHub Pages, `file://`) work. Embedded preview panels that render snapshots without scripts show nothing. Ship a `<noscript>` notice, and when someone reports "the document is empty," check the viewer in a real browser before you debug the code.
 
 ## Language rules
 
