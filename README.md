@@ -69,17 +69,6 @@ Every example is one self-contained HTML file. Open the live link, or download t
 
 ## Install
 
-### As a Claude Code plugin (recommended)
-
-```bash
-claude plugin marketplace add parthjshah95/visual-planning-skills
-claude plugin install visual-planning-skills@visual-planning-skills
-```
-
-Then call a skill by name: `/visual-explainer`, `/visual-plan`, `/visual-schema`, or `/challenge-plan`. Or describe the task and let the agent choose.
-
-### By hand (any agent)
-
 Clone the repo once. Then copy the skill folders to where your agent loads skills.
 
 ```bash
