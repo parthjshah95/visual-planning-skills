@@ -30,7 +30,7 @@ If the workspace is ambiguous, ask which repo or worktree before any tool call.
 - **Simplified Technical English is mandatory.** Every question, option, diagram label, and explanation MUST follow the [`asd-ste100`](../asd-ste100/SKILL.md) skill, strictly. The language rules below say what to say.
 - **Animation encouraged, never compulsory.** Start by considering an animated scenario, scene player, or moving data flow, because progressive storytelling often makes a change easier to understand. Use animation when it adds explanatory value; never force motion that is decorative, fragile, or contrary to the user's request.
 - **Intelligent pruning.** Skip decisions the codebase, the task, or repo docs already answer. For low-risk work, infer safe defaults, pre-select them, and only surface decisions that materially change scope, risk, verification, or rollout.
-- **Completeness is defined by custom instructions, not baked in.** What sections and decisions a finished plan *must* contain depends on the team's downstream workflow. That contract lives in an optional **custom-instructions file** (see below), never hardcoded into this skill. With no custom instructions, use the generic default.
+- **Team process lives in custom instructions, not in this skill.** What a finished plan must contain, which style rules apply, where the file goes, whether it is published, whether a challenger runs, and how the plan is recorded all depend on the team's workflow. That contract lives in an optional **custom-instructions file** (see below), never hardcoded here. With no custom instructions, use the generic defaults.
 - **Record only after approval.** Once approved, write the compact plan where the project tracks work (see *Recording the plan*) and exit.
 - **No code, no branches, no deploys.** This skill plans. It never edits the repo (except the plan artifacts), opens PRs, or runs anything downstream.
 
@@ -41,12 +41,22 @@ If the workspace is ambiguous, ask which repo or worktree before any tool call.
 
 ## Custom instructions — how completeness is defined
 
-A **custom-instructions file** is a short markdown file that lists the extra sections and decisions a plan must contain to be "done" for a given team or workflow. This is the seam that keeps team- or pipeline-specific requirements *out* of the skill.
+A **custom-instructions file** is a short markdown file that holds everything a team wants this skill to do differently. This is the seam that keeps team- or pipeline-specific requirements *out* of the skill: a team edits its own file, never this skill.
 
-- If the user passes `instructions=<path>`, or a file named `custom-instructions.md` exists at the workspace root, read it and treat its required sections and decisions as mandatory. Every one becomes content in the plan and, where it is a choice, a decision card.
-- If no custom instructions are found, use the **generic default** below.
+- If the user passes `instructions=<path>`, read that file. Otherwise, if a file named `custom-instructions.md` exists at the workspace root, read it. Otherwise use the generic defaults.
+- Every heading is optional. A missing heading means the generic default for that heading. A heading the table below does not list is ignored.
+- Custom instructions never change **how** the visual explanation and decision cards are built. They add settings, not skill steps. A file that restates steps of this skill is a defect in that file.
 
-Custom instructions control three things only: **(1)** extra required sections (e.g. a test plan, a rollout plan, a security review), **(2)** extra required decisions (rendered as decision cards), and **(3)** where the approved plan is recorded (see *Recording the plan*). They do not change how the visual explanation or decision cards are built.
+| Heading | What it holds | Generic default |
+| --- | --- | --- |
+| `## Style` | Paths of writing-rule files to read before any human-readable text is written. They apply on top of the `asd-ste100` skill, which is always mandatory. | None. |
+| `## Output` | `Path:` a file path pattern for the HTML, with `<YYYY-MM-DD>` and `<slug>` placeholders. `Publish:` a command or skill to run after the render check passes, with `<file>` as the placeholder. `Report:` what to tell the user after publish, for example the URL the publish step prints. | `<out>/<YYYY-MM-DD>_<slug>.html`; no publish. |
+| `## Required sections` | Extra sections a finished plan must contain, each with the fields it needs (a test plan, a rollout plan, a security review). | The generic default list below. |
+| `## Required decisions` | Extra decisions that must appear as decision cards. | None fixed; only the decisions the change raises. |
+| `## Challenge` | `Run: yes` turns on the automatic adversarial review in step 5b. `Rounds:` the revision cap. `Challenger:` the path of a file with the exact commands that invoke a different model. `Stalemate:` how an unresolved disagreement is shown (default: a decision card with the simpler option pre-selected). | Off; the user runs `/challenge-plan` by hand. |
+| `## Record the approved plan in` | The destination, the exact read and write commands for the tracker, the state to move the ticket to on approval, and the path of any ticket conventions file. | Ask the user, or a markdown file next to the HTML. |
+
+An explicit `out=` argument wins over `Output: Path`. An explicit user instruction in chat wins over any heading.
 
 ### Generic default (used when no custom instructions are supplied)
 
@@ -92,6 +102,8 @@ Read-only probes only. **No edits except the plan artifacts.**
 ### 3. Generate the HTML plan
 
 Generate the full plan as a single self-contained HTML file. This replaces the question loop — behavior, architecture, verification, and decisions are all resolved in one pass and rendered visually.
+
+Before you write any human-readable text, read every file listed under `## Style` in the custom instructions, and follow it together with the `asd-ste100` skill.
 
 **Resolve, in one pass:**
 
@@ -158,7 +170,7 @@ What to visualize, by change type:
 - Reuse the `visual-explainer` animation and scene-player patterns when they strengthen the explanation, not as mandatory boilerplate. Keep the output self-contained, avoid `innerHTML`, use system font stacks, and make diagrams responsive.
 - If the visual uses a flowchart, verify `height: auto`, `max-height: none`, `overflow: visible` on the section/container. No internal scroll area, fixed aspect ratio, viewport-height cap, clipped SVG, or transform scaling to constrain its vertical size.
 - Use a clean, professional palette — an engineering plan should feel like a well-designed dashboard, not an art-deco explainer.
-- File goes to `<out>/<YYYY-MM-DD>_<slug>.html` (default `out` is `./plans/`). `<YYYY-MM-DD>` is today's date; `<slug>` is a short lowercase-hyphenated descriptor.
+- File goes to `<out>/<YYYY-MM-DD>_<slug>.html` (default `out` is `./plans/`), or to the `Output: Path` pattern from the custom instructions when one is set and no `out=` argument was given. `<YYYY-MM-DD>` is today's date; `<slug>` is a short lowercase-hyphenated descriptor.
 - **Inline the layout audit (required).** Paste [`layout_audit.js`](../visual-explainer/layout_audit.js) from the `visual-explainer` skill inside a `<script>` at the end of `<body>`, and put `data-scenes="N"` on any `[data-scene]` stage. It reports text that spills out of a box and boxes that overlap, for every scene, in the console and in a hidden `<pre id="layout-audit">`.
 
 ### 4. Stop condition (before showing the plan)
@@ -179,12 +191,25 @@ Fix the HTML before presenting it. Do not show an incomplete plan.
 
 ### 5. Present the plan
 
-1. Open the file: `open <out>/<YYYY-MM-DD>_<slug>.html` (macOS) / `xdg-open` (Linux) / `start` (Windows). Print the absolute path in chat.
-2. Tell the user, in 2–3 sentences: the path, and that they can review it in the browser, then say "looks good" or override specific decisions ("change Q2 to Yes").
+1. If the custom instructions set `Output: Publish`, run it now with the file path substituted for `<file>`. If it fails because a credential or tool is missing, keep the local file and report each missing prerequisite by name. Never block the review on a failed publish.
+2. Open the file: `open <out>/<YYYY-MM-DD>_<slug>.html` (macOS) / `xdg-open` (Linux) / `start` (Windows). Print the absolute path in chat.
+3. Tell the user, in 2–3 sentences: the path, the published URL when `Output: Report` asks for it, and that they can review it in the browser, then say "looks good" or override specific decisions ("change Q2 to Yes").
 
 Do not paste the plan content into chat. The HTML is the presentation.
 
 **Preview-panel workaround (when an embedded preview panel is blank / "Awaiting server…").** `open` launches the real browser and always works. A harness preview panel serves over `localhost` and breaks two ways: (a) the file lives in a path the panel can't serve — stage a copy inside the workspace (e.g. a gitignored `./.plan-preview/index.html`) and serve that; (b) a server bound IPv4-only (`python3 -m http.server --bind 127.0.0.1`) leaves the panel stuck, because it resolves `localhost` to IPv6 `::1` first. Serve dual-stack: bind `::` with `IPV6_V6ONLY=0` (a ~15-line `socketserver.TCPServer` subclass). Keep any such preview server and staged copy in a gitignored dir, out of tracked code.
+
+### 5b. Automatic challenge (only when custom instructions turn it on)
+
+Skip this step unless the custom instructions say `Challenge: Run: yes`. When they do:
+
+1. Never delay the first render. Start the challenge after the plan is open in the user's browser, and let it run while the user reviews.
+2. Build the inputs the [`challenge-plan`](../challenge-plan/SKILL.md) skill asks for, and invoke a different model with the exact commands in the `Challenger:` file. That file owns the model choice, the retry rule, and the timeout.
+3. On `REVISE`: apply the accepted cuts to the HTML and the compact plan, re-open the file, and tell the user what changed. Repeat at most `Rounds:` times. Send the exact final plan for one last confirmation.
+4. A disagreement still alive at the cap is a stalemate. Show it the way `Stalemate:` says; the default is a decision card with the simpler option pre-selected.
+5. An explicit user decision ends the debate on that element. Never re-open it in a later round.
+6. If no challenger can be reached after the retry rule in the `Challenger:` file, proceed and record `Simplification challenge: skipped — <reason>` in the plan. Say so in chat. Never skip silently.
+7. Keep an append-only **Challenge Log** in the HTML and in the compact plan: one line per round with the outcome and who decided it (challenger, human, or the author on a code fact).
 
 ### 6. Get approval, then record the plan
 
@@ -199,7 +224,7 @@ The user reviews the HTML and responds in chat:
 
 Where the approved plan goes is set by the active custom instructions (or the user); this skill does not assume any one tracker. Pick the destination the project actually uses:
 
-- **A tracker ticket (Linear, Jira, GitHub Issues, etc.)** — put the compact plan in the ticket description/body via whatever the project uses to write tickets (a CLI, an API, or by handing the text to the user to paste). Move the ticket to the project's "ready to start" state if it has one. For a free-form task with no ticket yet, create the ticket now, after approval.
+- **A tracker ticket (Linear, Jira, GitHub Issues, etc.)** — put the compact plan in the ticket description/body with the read and write commands the custom instructions give under `## Record the approved plan in`, or, when there are none, with whatever the project uses (a CLI, an API, or by handing the text to the user to paste). Move the ticket to the state the custom instructions name, or to the project's "ready to start" state if it has one. Follow the ticket conventions file when one is listed. For a free-form task with no ticket yet, create the ticket now, after approval.
 - **A file in the repo** — write the compact plan to a markdown file next to the HTML (e.g. `<out>/<YYYY-MM-DD>_<slug>.md`) and reference the HTML from it.
 - **Nothing** — if the user only wanted the artifact, the HTML is the deliverable; stop after presenting it.
 
@@ -210,7 +235,8 @@ The **compact plan** (markdown) contains:
 - Decision values (every answer, noting which changed from the default).
 - `Assumptions` — the simple-reading gap fills the user's approval confirmed.
 - `Deliberately not built` — one line per entry: the deferred thing → the seam that keeps it pluggable → the signal that would activate it.
-- `Visual plan:` — the path to the HTML file.
+- `Visual plan:` — the path to the HTML file, and the published URL when there is one.
+- The Challenge Log, when step 5b ran.
 
 Give the tracker **structure**, not a thesis. The HTML file is the human-readable reference.
 
@@ -223,7 +249,7 @@ Tell the user:
 
 ## Optional: adversarial simplification review
 
-After the plan is presented or approved, the user may run the separate [`challenge-plan`](../challenge-plan/SKILL.md) skill: a *different* model attacks the plan for invented requirements, invented trust boundaries, and speculative structure, and either confirms it or proposes cuts. This skill does **not** run it for you — it is a deliberate, user-triggered step, so you never pay for a challenge round the user didn't want. Offer it; don't force it.
+After the plan is presented or approved, the user may run the separate [`challenge-plan`](../challenge-plan/SKILL.md) skill: a *different* model attacks the plan for invented requirements, invented trust boundaries, and speculative structure, and either confirms it or proposes cuts. By default this skill does **not** run it for you — it is a deliberate, user-triggered step, so you never pay for a challenge round the user didn't want. Offer it; don't force it. A team that wants every plan challenged turns it on under `## Challenge` in its custom instructions, and step 5b runs it.
 
 ## Language rules (apply to every human-readable string in the plan)
 
@@ -245,6 +271,8 @@ The `asd-ste100` skill governs how to build the sentence. These points govern wh
 - [ ] Any flowchart is fully visible in normal flow with unbounded content-driven height, no overlap/clipping, no internal scroll.
 - [ ] `layout_audit.js` is inlined; `render_check.sh` ran on the final file with zero unexplained warnings; every scene screenshot was opened and shows no spilled text and no hidden element.
 - [ ] Every section and decision the active custom instructions require is present (generic default if none).
+- [ ] Every file under `## Style` was read before writing; the HTML is at the `Output: Path` when one is set; `Output: Publish` ran, or each missing prerequisite was reported.
+- [ ] If `Challenge: Run: yes`, the challenge ran after the first render within the round cap, stalemates were shown as instructed, and the Challenge Log is in the HTML and the compact plan; otherwise `/challenge-plan` was offered.
 - [ ] Material intent gaps surfaced as behavioral intent cards with the simplest reading pre-selected.
 - [ ] Compact plan drafted at generation time with `Assumptions` and `Deliberately not built`.
 - [ ] "Copy decisions" + "Accept all defaults" at both top and bottom, wired by class; "Copy decisions" has the Clipboard-API → `execCommand` → manual-`<textarea>` fallback chain.
@@ -267,7 +295,8 @@ The `asd-ste100` skill governs how to build the sentence. These points govern wh
 - **Standalone static flowchart as the default.** Use it as an overview slide within an animated deck, or when the user explicitly asks — not because it is easier than animation.
 - **Constrained flowchart canvas.** No fixed-height, viewport-height, aspect-ratio, clipped, scaled, or internally scrolling container. The document grows to show the whole chart.
 - **Skipping the code read.** If the visual doesn't name real functions and file paths, you skipped step 2.
-- **Baking team process into the skill.** Mandatory environments, monitoring windows, and sign-offs belong in custom instructions, not in this skill.
+- **Baking team process into the skill.** Mandatory environments, monitoring windows, sign-offs, publish steps, and tracker commands belong in custom instructions, not in this skill.
+- **Restating skill steps inside custom instructions.** That file holds settings under the seven headings. A step written there is a second copy of this skill that will drift.
 - **A "Copy decisions" button that only calls `navigator.clipboard.writeText`.** It fails silently in a sandboxed iframe. Always include the `execCommand` → manual-`<textarea>` fallback.
 - **Serving the preview IPv4-only.** Leaves the panel stuck on "Awaiting server…". Serve dual-stack.
 - **Silently filling an intent gap with the rich reading.** Under-specified intent is a question for the human, not a license to build defensively.
@@ -277,6 +306,6 @@ The `asd-ste100` skill governs how to build the sentence. These points govern wh
 ## What this skill does NOT do
 
 - No sequential question loop — the visual plan and decision cards replace the back-and-forth.
-- No automatic challenge round — `challenge-plan` is a separate, user-triggered skill.
+- No automatic challenge round unless the custom instructions turn it on — `challenge-plan` is a separate skill.
 - No code changes, branches, PRs, or deploys.
 - No assumption about which tracker (if any) the team uses — that is set by the custom instructions or the user.

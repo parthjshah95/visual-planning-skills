@@ -21,6 +21,24 @@ method; reuse the patterns verbatim.
 Do **not** use for: static reports (use a doc/pdf/pptx tool), real product UI work (use a
 frontend-design skill), or plain prose answers.
 
+## Inputs and custom instructions
+
+```text
+/visual-explainer <subject> [instructions=<path>] [out=<dir>]
+```
+
+A team's own rules live in a **custom-instructions file**, the same file format the `visual-plan`
+skill reads. Pass it with `instructions=<path>`; otherwise a `custom-instructions.md` at the
+workspace root is used; otherwise the defaults apply. This skill reads two of its headings:
+
+| Heading | What it holds | Default |
+| --- | --- | --- |
+| `## Style` | Paths of writing-rule files to read before any human-readable text is written, on top of the always-mandatory `asd-ste100` skill. | None. |
+| `## Output` | `Path:` a file path pattern with `<slug>` and `<YYYY-MM-DD>` placeholders. `Publish:` a command or skill to run after the render check passes, with `<file>` as the placeholder. `Report:` what to tell the user after publish. | `<out>/<slug>.html` (default `out` is the current directory); no publish. |
+
+An explicit `out=` argument wins over `Output: Path`. Custom instructions add settings only; they
+never change the method below.
+
 ## Method (do these in order)
 
 ### 1. Research first — never illustrate from memory
@@ -43,7 +61,8 @@ glossary entries. It does not cover code, identifiers, or quoted strings. That s
 sentence form: at most 20 words for an instruction and 25 for a description, active voice, simple
 tenses, no `-ing` verbs, noun clusters of at most 3 words, one term per concept, and no ellipsis.
 
-The `asd-ste100` skill governs how to build the sentence. These points govern what to say:
+Read every file listed under `## Style` in the custom instructions first; it applies on top of
+`asd-ste100`. The `asd-ste100` skill governs how to build the sentence. These points govern what to say:
 
 - **Behavior before mechanism.** Say what the thing does, and what the reader sees, before you name
   the machinery.
@@ -96,6 +115,16 @@ cohesive palette reads better than default centered Inter on white cards.
   before use.
 - Check every human-readable string against the [`asd-ste100`](../asd-ste100/SKILL.md) skill: 20-word
   instructions, 25-word descriptions, active voice, simple tenses, and no `-ing` verbs.
+
+### 7. Deliver
+
+1. Write the file to the `Output: Path` pattern when the custom instructions set one, else to
+   `<out>/<slug>.html`.
+2. If the custom instructions set `Output: Publish`, run it with the file path substituted for
+   `<file>`. If a credential or tool is missing, keep the local file and report each missing
+   prerequisite by name.
+3. Open the file for the user and print the absolute path. Add the published URL when
+   `Output: Report` asks for it.
 
 ## Non-negotiable technical patterns
 

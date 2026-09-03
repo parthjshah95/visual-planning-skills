@@ -92,22 +92,41 @@ Each `SKILL.md` is self-contained.
 ## Custom instructions
 
 <details>
-<summary>Optional: set what a finished plan must contain for your team.</summary>
+<summary>Optional: tell the skills about your team's process.</summary>
 
 <br>
 
-A finished plan means different things to different teams. One team merges straight to trunk. Another team needs a dev environment, a monitoring window, and a sign-off. So `visual-plan` keeps that contract in an optional file, not in the skill.
+A finished plan means different things to different teams. One team merges straight to trunk. Another team needs a dev environment, a monitoring window, a sign-off, a house style, a place to publish, and a tracker. So the skills keep all of that in one optional file, not in the skills.
 
 - Pass a file with `instructions=<path>`, or drop a `custom-instructions.md` file at your workspace root.
-- With no file, the skill uses a default: a goal, a picture of the change, the steps, a check that it worked, and the open decisions.
-- A `custom-instructions.md` file adds three things only: extra required sections, extra required decisions (each one becomes a card), and where the agent records the approved plan.
+- With no file, the skills use their defaults: a goal, a picture of the change, the steps, a check that it worked, and the open decisions.
+- The file has seven optional headings. `visual-plan` reads all of them. `visual-explainer` reads `## Style` and `## Output`. A heading you leave out keeps its default.
+
+| Heading | Sets |
+| --- | --- |
+| `## Style` | Writing-rule files to read before any text is written. |
+| `## Output` | Where the HTML goes, what to run to publish it, and what to report. |
+| `## Required sections` | Extra sections a finished plan must contain. |
+| `## Required decisions` | Extra decisions shown as cards. |
+| `## Challenge` | Whether a different model attacks the plan automatically, how many rounds, and how it is invoked. |
+| `## Record the approved plan in` | The tracker, the exact read and write commands, and the state to move the ticket to. |
+
+The file holds settings only. It never restates a step of a skill, so a skill update reaches every team without edits to their files.
 
 ### Example: a staged delivery pipeline
 
-Save this as `custom-instructions.md`. It adds a dev test plan, a prod monitoring plan, and four fixed decisions. Change it or delete it as you need.
+Save this as `custom-instructions.md`. Change or delete any heading as you need.
 
 ```markdown
 # Custom instructions: staged dev/prod delivery
+
+## Style
+- docs/writing-rules.md
+
+## Output
+- Path: docs/plans/<YYYY-MM-DD>_<slug>.html
+- Publish: ./scripts/publish-internal.sh <file>
+- Report: the URL that the publish step prints
 
 ## Required sections
 - **Dev test plan**: the environment, the steps, the expected results, and the logs to check.
@@ -120,8 +139,16 @@ Save this as `custom-instructions.md`. It adds a dev test plan, a prod monitorin
 - Confirm the prod validation steps and the rollback choice.
 - Is extended monitoring needed? If yes, give the window and thresholds.
 
+## Challenge
+- Run: yes
+- Rounds: 3
+- Challenger: docs/challenger-commands.md
+- Stalemate: a decision card with the simpler option pre-selected
+
 ## Record the approved plan in
-- The tracker ticket. Move the ticket to "ready to start" on approval.
+- The tracker ticket. Read it with `tracker show <id>`; write the plan with `tracker update <id> --body-file <plan.md>`.
+- Move the ticket to "ready to start" on approval.
+- Conventions: docs/ticket-conventions.md
 ```
 
 </details>
