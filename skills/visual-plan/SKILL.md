@@ -296,7 +296,7 @@ The `asd-ste100` skill governs how to build the sentence. These points govern wh
 - **Constrained flowchart canvas.** No fixed-height, viewport-height, aspect-ratio, clipped, scaled, or internally scrolling container. The document grows to show the whole chart.
 - **Skipping the code read.** If the visual doesn't name real functions and file paths, you skipped step 2.
 - **Baking team process into the skill.** Mandatory environments, monitoring windows, sign-offs, publish steps, and tracker commands belong in custom instructions, not in this skill.
-- **Restating skill steps inside custom instructions.** That file holds settings under the seven headings. A step written there is a second copy of this skill that will drift.
+- **Restating skill steps inside custom instructions.** That file holds settings under the six headings. A step written there is a second copy of this skill that will drift.
 - **A "Copy decisions" button that only calls `navigator.clipboard.writeText`.** It fails silently in a sandboxed iframe. Always include the `execCommand` → manual-`<textarea>` fallback.
 - **Serving the preview IPv4-only.** Leaves the panel stuck on "Awaiting server…". Serve dual-stack.
 - **Silently filling an intent gap with the rich reading.** Under-specified intent is a question for the human, not a license to build defensively.

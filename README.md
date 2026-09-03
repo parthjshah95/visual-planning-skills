@@ -100,7 +100,7 @@ A finished plan means different things to different teams. One team merges strai
 
 - Pass a file with `instructions=<path>`, or drop a `custom-instructions.md` file at your workspace root.
 - With no file, the skills use their defaults: a goal, a picture of the change, the steps, a check that it worked, and the open decisions.
-- The file has seven optional headings. `visual-plan` reads all of them. `visual-explainer` reads `## Style` and `## Output`. A heading you leave out keeps its default.
+- The file has six optional headings. `visual-plan` reads all of them. `visual-explainer` reads `## Style` and `## Output`. A heading you leave out keeps its default.
 
 | Heading | Sets |
 | --- | --- |
