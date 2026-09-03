@@ -73,6 +73,20 @@ cohesive palette reads better than default centered Inter on white cards.
 5. **Glossary** + an "extras / worth knowing" grid.
 
 ### 6. Verify before finishing
+- **Render it and look at it (required).** Text that spills out of its box and elements that hide
+  behind each other are the two defects readers report most. Catch both before the user does:
+  1. Paste the whole of [`layout_audit.js`](layout_audit.js) (next to this file) inside a
+     `<script>` at the end of `<body>`, and put `data-scenes="N"` on the `[data-scene]` stage.
+     The audit runs once at load, steps through every scene, and reports each box whose text
+     spills out and each pair of visible boxes that overlap without one containing the other.
+  2. Run [`render_check.sh`](render_check.sh)` <file.html>`. It prints the audit lines and
+     writes one screenshot per scene (`--size 1400x6000` captures a long page in one image).
+     An agent with a browser tool can instead open the file, step with Next, and screenshot.
+  3. Open **every** screenshot and read it as the user will: each label fits inside its box,
+     nothing hides behind anything, arrows land on their targets, no text runs off the canvas.
+  4. Fix each warning and each defect you saw, then rerun. Dismiss a warning only for an
+     intended overlap (a badge on a card, a bubble over its speaker) and say so in one line.
+  Zero unexplained warnings and a clean look on every screenshot are part of "done".
 - Open it mentally: every scene/stage reachable, no actor stuck visible/invisible.
 - Grep your own file for broken hex colors and stray placeholder tokens.
 - Confirm zero external requests (no `<script src>`, no `<link href>` to CDNs, no web fonts that
@@ -167,6 +181,14 @@ Prev / Replay / Auto-play / Next, clickable progress dots, and keyboard nav
   language instead of putting the shorthand in a glossary and making the reader decode it.
 - Keep it one file; resist pulling in chart/diagram libraries.
 - Test the very first and very last scene — off-by-one in the `data-scene` map is common.
+- Long labels in a fixed-width box are the top overflow cause. Wrap with `<tspan>` lines or a
+  `<foreignObject>`, or widen the box; never shrink the font below 11 px to make it fit.
+
+## Files in this skill
+
+- [`layout_audit.js`](layout_audit.js) — inline load-time audit: text overflow and box overlap, per scene. Findings go to the console and a hidden `<pre id="layout-audit">`; `?audit=show` displays it; `#scene=N` opens scene N.
+- [`render_check.sh`](render_check.sh) — headless Chrome runner: prints the audit lines, writes one PNG per scene, exits 2 when any warning remains.
+- [`test_layout_audit.sh`](test_layout_audit.sh) — fixture self-check. Run `bash skills/visual-explainer/test_layout_audit.sh`.
 
 ## Reference example
 
