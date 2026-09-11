@@ -144,7 +144,11 @@ What to visualize, by change type:
 | **Refactor** | Current structure, target structure, migration path. Morph toggle between before/after. |
 | **Integration** | System-boundary diagram plus an animated happy-path data flow; a static full-path flowchart may serve as an overview slide. |
 
+When a change of any type also alters the database schema, add the schema-change diagram in section 2a.
+
 **Less text, more visual.** If you can draw it, don't write it. Annotations on diagrams replace paragraphs. The behavior and architecture content lives primarily here, not in prose blocks.
+
+**2a. Schema-change diagram — only when the change creates, alters, or drops a database table or field.** Embed a scoped schema diagram. Build it with the [`visual-schema`](../visual-schema/SKILL.md) skill in **change mode**. Show only the changed tables, plus one hop of related tables as dimmed context. Never redraw the whole database. Mark each table `new`, `changed`, or `removed`. Mark the added, changed, and removed fields. This picture replaces a prose list of schema edits. Skip this section when the change touches no table or field.
 
 **3. Implementation pipeline.** A compact visual of the ordered steps. For cross-repo work, show the dependency chain with an arrow between step cards. Each step card lists the module/repo name and bullet-point scope.
 
@@ -186,6 +190,7 @@ Verify **all** of these before opening the HTML:
 - Every decision card ends with an "Other" option whose free-text field is captured by "Copy decisions".
 - **You rendered the final file and looked at it.** Run [`render_check.sh`](../visual-explainer/render_check.sh)` <out>/<file>.html --size 1400x6000` (an agent with a browser tool may use that instead). It prints the layout-audit lines and writes one screenshot per scene. Open every screenshot and check as the user will: every label fits inside its box, no element hides behind another, arrows land on their targets. Fix every warning and every defect you see, then rerun; dismiss a warning only for an intended overlap, in one line. Zero unexplained warnings is part of the stop condition. See [`visual-explainer`](../visual-explainer/SKILL.md) — Verify before finishing.
 - The implementation pipeline covers every step with module names and scope.
+- If the change alters the database schema, the schema-change diagram is present. It shows every created, altered, and dropped table. It marks the changed fields. Its layout audit is clean.
 
 Fix the HTML before presenting it. Do not show an incomplete plan.
 
@@ -267,6 +272,7 @@ The `asd-ste100` skill governs how to build the sentence. These points govern wh
 - [ ] Baseline pinned: target branch and commit recorded; code claims checked against it, not a stale checkout.
 - [ ] HTML plan written to `<out>/<YYYY-MM-DD>_<slug>.html`. Date is today; slug is lowercase-hyphenated.
 - [ ] Visual explanation grounded in actual code — real functions, files, endpoints.
+- [ ] If the change alters the schema, a scoped schema-change diagram is present, in `visual-schema` change mode, limited to changed tables plus one hop of context.
 - [ ] Animation treated as encouraged, not compulsory; any motion improves comprehension.
 - [ ] Any flowchart is fully visible in normal flow with unbounded content-driven height, no overlap/clipping, no internal scroll.
 - [ ] `layout_audit.js` is inlined; `render_check.sh` ran on the final file with zero unexplained warnings; every scene screenshot was opened and shows no spilled text and no hidden element.
@@ -291,6 +297,8 @@ The `asd-ste100` skill governs how to build the sentence. These points govern wh
 - **Wall-of-text verification cards.** 3–5 lines each in compact form; expand only when recording.
 - **Prose where a diagram works.** Three paragraphs explaining an architecture should have been a drawing.
 - **Missing visual explanation.** The visual section is the centerpiece, not optional. Every plan has at least one diagram.
+- **Redrawing the whole database for a small schema change.** Show only the changed tables plus one hop of context.
+- **A schema change with no schema diagram.** A created, altered, or dropped table needs the scoped diagram in section 2a.
 - **Compulsory animation.** Encourage it; don't add motion that contributes nothing or fights an explicit request.
 - **Standalone static flowchart as the default.** Use it as an overview slide within an animated deck, or when the user explicitly asks — not because it is easier than animation.
 - **Constrained flowchart canvas.** No fixed-height, viewport-height, aspect-ratio, clipped, scaled, or internally scrolling container. The document grows to show the whole chart.

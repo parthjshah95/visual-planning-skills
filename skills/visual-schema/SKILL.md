@@ -15,7 +15,7 @@ The output is a **living document**. Teams edit it every time the schema changes
 - "Document the data model with an entity diagram."
 - "Add the new tables to the schema diagram."
 
-Do **not** use for: one-off architecture sketches (use `visual-explainer`), plans for a schema change (use `visual-plan`), or prose data dictionaries.
+Do **not** use for: one-off architecture sketches (use `visual-explainer`) or prose data dictionaries. To author a schema-change plan, use `visual-plan`. That skill embeds this skill's **change mode** (below) for the plan's schema section.
 
 ## Method (do these in order)
 
@@ -98,6 +98,50 @@ A group's colored rectangle is **computed** from the bounding box of its member 
 
 When you maintain an older diagram that hand-codes group `x/y/width/height` or a `CANVAS_HEIGHT`: resize those numbers **in the same edit** that grows a table — or better, convert them to derived values while you are there.
 
+## Change mode (optional)
+
+Use change mode for a schema-change view, not the whole database. The `visual-plan` skill embeds this mode for a schema-change plan. Change mode adds a table change state, a field change state, and a context table.
+
+A **context table** is a table the change does not touch. The diagram shows it only so an edge has a visible endpoint.
+
+### Scope: changed tables plus one hop
+
+Include every table the change creates, alters, or drops. Include each table that a shown edge also touches, as a context table. Drop every other table. Every edge then attaches to a visible box. The diagram stays small.
+
+### Table change state
+
+Add an optional `change` value to a `TABLES` entry.
+
+| `change` | Meaning | Style |
+| --- | --- | --- |
+| `"new"` | The change creates this table. | Green border and a `new` tag. |
+| `"changed"` | The change alters fields on this table. | Amber border and a `changed` tag. |
+| `"removed"` | The change drops this table. | Red border, a `removed` tag, and a struck-through title. |
+| (omitted) | A context table. | Normal border, dimmed. |
+
+Mark a context table with `context: true`. The render dims it. The reader then sees the changed tables first.
+
+### Field change state
+
+Add an optional `change` value to a field. A changed table then shows which fields move.
+
+| Field `change` | Meaning | Marker |
+| --- | --- | --- |
+| `"added"` | The change adds this field. | A green `+` before the name. |
+| `"changed"` | The change alters this field's type, nullable state, or constraint. | An amber `~` before the name. |
+| `"removed"` | The change drops this field. | A red `−` before the name, struck through. |
+| (omitted) | An unchanged field. | No marker. |
+
+Keep a removed field in place and strike it through. The reader needs the old state and the new state in one view.
+
+### Legend and palette
+
+Show every present change state in the legend. Show these legend entries in change mode only. Reuse the palette: `--ok` for new and added, `--amber` for changed, and a red variable for removed. Add the red variable when the file lacks one.
+
+### The audit still runs
+
+Change mode relaxes no layout rule. Run `auditLayout()`. A context table counts as a table for the overlap and gap checks.
+
 ## The built-in layout audit (required)
 
 Every diagram ships a small `auditLayout()` that runs once at load and `console.warn`s on:
@@ -151,6 +195,7 @@ Every human-readable string — group labels, captions, tags, notes, edge labels
 - Click-to-focus works on the first and the last table; clearing works.
 - Zero external requests. No `innerHTML`.
 - Every note is 30 words or fewer.
+- In change mode: the legend shows every change state present, and every shown edge attaches to a visible table.
 
 ## Reference example
 
