@@ -42,6 +42,17 @@ Follow the more specific instruction without comment. Do not cite this style as 
 | Paragraphs | One topic. Maximum 6 sentences. |
 | Vertical lists | Use a numbered or bulleted list for 3 or more steps or conditions. |
 
+## Headings and titles
+
+A heading names its subject. It is not a slogan. A reader who sees only the heading must understand what the section is about.
+
+- Name the real workflow, system, page, endpoint, or step.
+- Do not write a marketing phrase, a tagline, or an abstract slogan.
+- Bad (slogan): "From customer task to phone conversation".
+- Good (plain): "How the phone-call workflow works".
+
+This rule applies to every title, scene heading, and section heading.
+
 ## Project vocabulary
 
 STE permits a project to define its own approved vocabulary of technical nouns and verbs. A `CONTEXT.md` file at a repository root is that vocabulary.

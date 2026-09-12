@@ -25,6 +25,7 @@ No one understands AI these days.
 | **`visual-explainer`** | "Visually explain how the code works." Creates an HTML file with animations and diagrams. |
 | **`visual-plan`** | "Visually plan this task." Replaces the plan mode with an HTML version of it. Less text, more interactivity. |
 | **`visual-schema`** | "Visualize my database schema." Visually see the models, relationships, and fields on a draggable canvas. |
+| **`visual-api`** | "Document my API contract." A Swagger-style page of endpoints, parameters, and responses. Static HTML, no canvas. |
 | **`challenge-plan`** | "Challenge this plan for over-engineering." A different model reviews the plan. It may only cut, never add. |
 
 The skills work together, but none needs the others.
@@ -66,6 +67,7 @@ Every example is one self-contained HTML file. Open the live link, or download t
 | The visual-plan explainer (the deck above) | `visual-explainer` | [live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-plan/examples/visual-plan-explainer.html) · [source](skills/visual-plan/examples/visual-plan-explainer.html) |
 | CSV-export plan | `visual-plan` | [live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-plan/examples/csv-export/plan.html) · [source](skills/visual-plan/examples/csv-export/plan.html) |
 | Bookstore schema | `visual-schema` | [live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-schema/examples/bookstore-schema.html) · [source](skills/visual-schema/examples/bookstore-schema.html) |
+| Bookstore API contract | `visual-api` | [live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-api/examples/bookstore-api.html) · [source](skills/visual-api/examples/bookstore-api.html) |
 
 ## Install
 

@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bookstore API — Contract</title>
+<style>
+  :root{
+    --bg-0:#0b1322; --bg-1:#101b2f; --bg-2:#16233a;
+    --line:#26406a; --line-2:#37568a; --line-faint:#1d2f4f;
+    --ink:#e9eefb; --ink-dim:#95a7c9; --ink-faint:#69799d;
+    --get:#61affe; --post:#49cc90; --put:#fca130; --patch:#50e3c2; --delete:#f93e3e;
+    --ok:#54cf8d; --amber:#ffca6b; --danger:#ff6b6b;
+    --mono:"SFMono-Regular","Consolas","Menlo",monospace;
+    --body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--bg-0);color:var(--ink);font-family:var(--body);padding:0 20px 80px;}
+  .wrap{max-width:1000px;margin:0 auto;}
+  header{padding:30px 0 4px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+  h1{font-family:Georgia,serif;font-size:27px;margin:0;}
+  .src{font-family:var(--mono);font-size:12px;color:var(--ink-faint);}
+  .toolbar{display:flex;gap:8px;margin:14px 0 8px;}
+  .toolbar button{font-family:var(--mono);font-size:12px;cursor:pointer;background:var(--bg-2);color:var(--ink);
+    border:1px solid var(--line-2);border-radius:7px;padding:5px 12px;}
+  .toolbar button:hover{border-color:var(--get);}
+  summary{list-style:none;}
+  summary::-webkit-details-marker{display:none;}
+
+  details.tag{margin-top:26px;}
+  summary.tag-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:6px;cursor:pointer;}
+  .tag-name{font-size:19px;font-weight:700;font-family:Georgia,serif;}
+  .tag-desc{color:var(--ink-faint);font-size:13px;}
+  .tag-chev{margin-left:auto;color:var(--ink-faint);transition:transform .15s ease;}
+  details.tag:not([open]) .tag-chev{transform:rotate(-90deg);}
+
+  details.op{border:1px solid;border-radius:8px;margin:8px 0;overflow:hidden;}
+  summary.op-sum{display:flex;align-items:center;gap:12px;padding:7px 12px;cursor:pointer;}
+  .op-method{font-family:var(--mono);font-weight:700;color:#08131f;width:78px;flex:0 0 78px;text-align:center;
+    padding:6px 0;border-radius:5px;font-size:12px;letter-spacing:.5px;}
+  .op-path{font-family:var(--mono);font-weight:700;font-size:14px;word-break:break-all;}
+  .op-desc{color:var(--ink-dim);font-size:13px;margin-left:8px;}
+  .op-lock{margin-left:auto;color:var(--amber);font-size:12px;font-family:var(--mono);}
+  .op-chev{color:var(--ink-faint);transition:transform .15s ease;flex:0 0 auto;}
+  details.op[open] .op-chev{transform:rotate(90deg);}
+  .op-lock + .op-chev{margin-left:10px;}
+  .op-desc + .op-chev{margin-left:auto;}
+  .op-body{border-top:1px solid var(--line-faint);padding:14px 16px;background:var(--bg-0);}
+
+  .m-get{border-color:#61affe55;background:#61affe0d;} .m-get .op-method{background:var(--get);}
+  .m-post{border-color:#49cc9055;background:#49cc900d;} .m-post .op-method{background:var(--post);}
+  .m-put{border-color:#fca13055;background:#fca1300d;} .m-put .op-method{background:var(--put);}
+  .m-patch{border-color:#50e3c255;background:#50e3c20d;} .m-patch .op-method{background:var(--patch);}
+  .m-delete{border-color:#f93e3e55;background:#f93e3e0d;} .m-delete .op-method{background:var(--delete);}
+
+  h4.sec{margin:14px 0 6px;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-faint);font-family:var(--mono);}
+  h4.sec:first-child{margin-top:0;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  th{text-align:left;color:var(--ink-faint);border-bottom:1px solid var(--line);padding:5px 8px;font-family:var(--mono);font-weight:600;}
+  td{padding:5px 8px;border-bottom:1px solid var(--line-faint);font-family:var(--mono);vertical-align:top;}
+  td.name{color:var(--ink);white-space:nowrap;}
+  td.type{color:var(--patch);white-space:nowrap;}
+  td.desc{color:var(--ink-dim);font-family:var(--body);}
+  .req{color:var(--danger);font-size:11px;}
+  .inpill{font-size:10px;color:var(--ink-faint);border:1px solid var(--line-2);border-radius:4px;padding:0 5px;font-family:var(--mono);}
+  .status{font-weight:700;font-family:var(--mono);}
+  .s2{color:var(--ok);} .s4{color:var(--amber);} .s5{color:var(--danger);}
+  .media{color:var(--ink-faint);font-size:11px;font-family:var(--mono);margin-bottom:4px;}
+  .bodyschema{font-family:var(--mono);font-size:13px;}
+  .none{color:var(--ink-faint);}
+  .schref{color:var(--get);}
+
+  details.sch{border:1px solid var(--line-2);border-radius:8px;margin:8px 0;overflow:hidden;background:var(--bg-2);}
+  summary.sch-sum{display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;}
+  .sch-name{font-family:var(--mono);font-weight:700;font-size:13px;}
+  .sch-tag{color:var(--ink-faint);font-size:11px;font-family:var(--mono);}
+  .sch-chev{margin-left:auto;color:var(--ink-faint);transition:transform .15s ease;}
+  details.sch[open] .sch-chev{transform:rotate(90deg);}
+  .sch-body{border-top:1px solid var(--line-faint);padding:10px 14px;}
+  h2.schemas-h{font-family:Georgia,serif;margin-top:34px;border-bottom:1px solid var(--line);padding-bottom:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Bookstore API</h1>
+    <span class="src">v1 · REST contract · shapes come from the OpenAPI source</span>
+  </header>
+  <div class="toolbar">
+    <button id="expand">Expand all</button>
+    <button id="collapse">Collapse all</button>
+  </div>
+
+  <!-- ============ AUTH ============ -->
+  <details class="tag" open>
+    <summary class="tag-head"><span class="tag-name">Auth</span><span class="tag-desc">Sign in and identity</span><span class="tag-chev">▾</span></summary>
+
+    <details class="op m-post">
+      <summary class="op-sum"><span class="op-method">POST</span><span class="op-path">/auth/register</span><span class="op-desc">Create an account</span><span class="op-chev">▸</span></summary>
+      <div class="op-body">
+        <h4 class="sec">Request body</h4>
+        <div class="media">application/json</div>
+        <div class="bodyschema">schema: <span class="schref">Credentials</span></div>
+        <h4 class="sec">Responses</h4>
+        <table><thead><tr><th>Code</th><th>Description</th><th>Schema</th></tr></thead><tbody>
+          <tr><td><span class="status s2">201</span></td><td class="desc">Account created</td><td class="type"><span class="schref">Session</span></td></tr>
+          <tr><td><span class="status s4">409</span></td><td class="desc">Email already registered</td><td class="type"><span class="schref">Error</span></td></tr>
+        </tbody></table>
+      </div>
+    </details>
+
+    <details class="op m-post">
+      <summary class="op-sum"><span class="op-method">POST</span><span class="op-path">/auth/login</span><span class="op-desc">Exchange credentials for a session</span><span class="op-chev">▸</span></summary>
+      <div class="op-body">
+        <h4 class="sec">Request body</h4>
+        <div class="media">application/json</div>
+        <div class="bodyschema">schema: <span class="schref">Credentials</span></div>
+        <h4 class="sec">Responses</h4>
+        <table><thead><tr><th>Code</th><th>Description</th><th>Schema</th></tr></thead><tbody>
+          <tr><td><span class="status s2">200</span></td><td class="desc">Signed in</td><td class="type"><span class="schref">Session</span></td></tr>
+          <tr><td><span class="status s4">401</span></td><td class="desc">Bad credentials</td><td class="type"><span class="schref">Error</span></td></tr>
+        </tbody></table>
+      </div>
+    </details>
+  </details>
+
+  <!-- ============ CATALOG ============ -->
+  <details class="tag" open>
+    <summary class="tag-head"><span class="tag-name">Catalog</span><span class="tag-desc">Books and authors</span><span class="tag-chev">▾</span></summary>
+
+    <details class="op m-get">
+      <summary class="op-sum"><span class="op-method">GET</span><span class="op-path">/books</span><span class="op-desc">List and search books</span><span class="op-chev">▸</span></summary>
+      <div class="op-body">
+        <h4 class="sec">Parameters</h4>
+        <table><thead><tr><th>Name</th><th>In</th><th>Type</th><th>Description</th></tr></thead><tbody>
+          <tr><td class="name">q</td><td><span class="inpill">query</span></td><td class="type">string</td><td class="desc">Full-text query</td></tr>
+          <tr><td class="name">limit</td><td><span class="inpill">query</span></td><td class="type">integer</td><td class="desc">Page size, max 100</td></tr>
+        </tbody></table>
+        <h4 class="sec">Responses</h4>
+        <table><thead><tr><th>Code</th><th>Description</th><th>Schema</th></tr></thead><tbody>
+          <tr><td><span class="status s2">200</span></td><td class="desc">A page of books</td><td class="type"><span class="schref">Book</span>[]</td></tr>
+        </tbody></table>
+      </div>
+    </details>
+
+    <details class="op m-get">
+      <summary class="op-sum"><span class="op-method">GET</span><span class="op-path">/books/{id}</span><span class="op-desc">Get one book</span><span class="op-chev">▸</span></summary>
+      <div class="op-body">
+        <h4 class="sec">Parameters</h4>
+        <table><thead><tr><th>Name</th><th>In</th><th>Type</th><th>Description</th></tr></thead><tbody>
+          <tr><td class="name">id<span class="req"> *</span></td><td><span class="inpill">path</span></td><td class="type">ULID</td><td class="desc">Book id</td></tr>
+        </tbody></table>
+        <h4 class="sec">Responses</h4>
+        <table><thead><tr><th>Code</th><th>Description</th><th>Schema</th></tr></thead><tbody>
+          <tr><td><span class="status s2">200</span></td><td class="desc">The book</td><td class="type"><span class="schref">Book</span></td></tr>
+          <tr><td><span class="status s4">404</span></td><td class="desc">No such book</td><td class="type"><span class="schref">Error</span></td></tr>
+        </tbody></table>
+      </div>
+    </details>
+
+    <details class="op m-post">
+      <summary class="op-sum"><span class="op-method">POST</span><span class="op-path">/books</span><span class="op-desc">Add a book</span><span class="op-lock">🔒 auth</span><span class="op-chev">▸</span></summary>
+      <div class="op-body">
+        <h4 class="sec">Request body</h4>
+        <div class="media">application/json</div>
+        <div class="bodyschema">schema: <span class="schref">BookInput</span></div>
+        <h4 class="sec">Responses</h4>
+        <table><thead><tr><th>Code</th><th>Description</th><th>Schema</th></tr></thead><tbody>
+          <tr><td><span class="status s2">201</span></td><td class="desc">Book created</td><td class="type"><span class="schref">Book</span></td></tr>
+          <tr><td><span class="status s4">401</span></td><td class="desc">Not signed in</td><td class="type"><span class="schref">Error</span></td></tr>
+        </tbody></table>
+      </div>
+    </details>
+
+    <details class="op m-patch">
+      <summary class="op-sum"><span class="op-method">PATCH</span><span class="op-path">/books/{id}</span><span class="op-desc">Edit a book</span><span class="op-lock">🔒 auth</span><span class="op-chev">▸</span></summary>
+      <div class="op-body">
+        <h4 class="sec">Parameters</h4>
+        <table><thead><tr><th>Name</th><th>In</th><th>Type</th><th>Description</th></tr></thead><tbody>
+          <tr><td class="name">id<span class="req"> *</span></td><td><span class="inpill">path</span></td><td class="type">ULID</td><td class="desc">Book id</td></tr>
+        </tbody></table>
+        <h4 class="sec">Request body</h4>
+        <div class="media">application/json</div>
+        <div class="bodyschema">schema: <span class="schref">BookInput</span> (partial)</div>
+        <h4 class="sec">Responses</h4>
+        <table><thead><tr><th>Code</th><th>Description</th><th>Schema</th></tr></thead><tbody>
+          <tr><td><span class="status s2">200</span></td><td class="desc">Updated book</td><td class="type"><span class="schref">Book</span></td></tr>
+          <tr><td><span class="status s4">404</span></td><td class="desc">No such book</td><td class="type"><span class="schref">Error</span></td></tr>
+        </tbody></table>
+      </div>
+    </details>
+
+    <details class="op m-delete">
+      <summary class="op-sum"><span class="op-method">DELETE</span><span class="op-path">/books/{id}</span><span class="op-desc">Remove a book</span><span class="op-lock">🔒 auth</span><span class="op-chev">▸</span></summary>
+      <div class="op-body">
+        <h4 class="sec">Parameters</h4>
+        <table><thead><tr><th>Name</th><th>In</th><th>Type</th><th>Description</th></tr></thead><tbody>
+          <tr><td class="name">id<span class="req"> *</span></td><td><span class="inpill">path</span></td><td class="type">ULID</td><td class="desc">Book id</td></tr>
+        </tbody></table>
+        <h4 class="sec">Responses</h4>
+        <table><thead><tr><th>Code</th><th>Description</th><th>Schema</th></tr></thead><tbody>
+          <tr><td><span class="status s2">204</span></td><td class="desc">Deleted, no body</td><td class="type"><span class="none">—</span></td></tr>
+          <tr><td><span class="status s4">404</span></td><td class="desc">No such book</td><td class="type"><span class="schref">Error</span></td></tr>
+        </tbody></table>
+      </div>
+    </details>
+  </details>
+
+  <!-- ============ ORDERS ============ -->
+  <details class="tag" open>
+    <summary class="tag-head"><span class="tag-name">Orders</span><span class="tag-desc">Carts and purchases</span><span class="tag-chev">▾</span></summary>
+
+    <details class="op m-get">
+      <summary class="op-sum"><span class="op-method">GET</span><span class="op-path">/orders</span><span class="op-desc">List the caller's orders</span><span class="op-lock">🔒 auth</span><span class="op-chev">▸</span></summary>
+      <div class="op-body">
+        <h4 class="sec">Responses</h4>
+        <table><thead><tr><th>Code</th><th>Description</th><th>Schema</th></tr></thead><tbody>
+          <tr><td><span class="status s2">200</span></td><td class="desc">A page of orders</td><td class="type"><span class="schref">Order</span>[]</td></tr>
+          <tr><td><span class="status s4">401</span></td><td class="desc">Not signed in</td><td class="type"><span class="schref">Error</span></td></tr>
+        </tbody></table>
+      </div>
+    </details>
+
+    <details class="op m-post">
+      <summary class="op-sum"><span class="op-method">POST</span><span class="op-path">/orders</span><span class="op-desc">Place an order</span><span class="op-lock">🔒 auth</span><span class="op-chev">▸</span></summary>
+      <div class="op-body">
+        <h4 class="sec">Request body</h4>
+        <div class="media">application/json</div>
+        <div class="bodyschema">schema: <span class="schref">OrderInput</span></div>
+        <h4 class="sec">Responses</h4>
+        <table><thead><tr><th>Code</th><th>Description</th><th>Schema</th></tr></thead><tbody>
+          <tr><td><span class="status s2">201</span></td><td class="desc">Order placed</td><td class="type"><span class="schref">Order</span></td></tr>
+          <tr><td><span class="status s4">422</span></td><td class="desc">Empty or invalid cart</td><td class="type"><span class="schref">Error</span></td></tr>
+        </tbody></table>
+      </div>
+    </details>
+  </details>
+
+  <!-- ============ SCHEMAS ============ -->
+  <h2 class="schemas-h">Schemas</h2>
+
+  <details class="sch">
+    <summary class="sch-sum"><span class="sch-name">Credentials</span><span class="sch-tag">object · 2 properties</span><span class="sch-chev">▸</span></summary>
+    <div class="sch-body"><table><thead><tr><th>Property</th><th>Type</th><th>Required</th></tr></thead><tbody>
+      <tr><td class="name">email</td><td class="type">string</td><td class="desc">required</td></tr>
+      <tr><td class="name">password</td><td class="type">string</td><td class="desc">required</td></tr>
+    </tbody></table></div>
+  </details>
+
+  <details class="sch">
+    <summary class="sch-sum"><span class="sch-name">Session</span><span class="sch-tag">object · 3 properties</span><span class="sch-chev">▸</span></summary>
+    <div class="sch-body"><table><thead><tr><th>Property</th><th>Type</th><th>Required</th></tr></thead><tbody>
+      <tr><td class="name">token</td><td class="type">string</td><td class="desc">required</td></tr>
+      <tr><td class="name">user_id</td><td class="type">ULID</td><td class="desc">required</td></tr>
+      <tr><td class="name">expires_at</td><td class="type">datetime</td><td class="desc">required</td></tr>
+    </tbody></table></div>
+  </details>
+
+  <details class="sch">
+    <summary class="sch-sum"><span class="sch-name">Book</span><span class="sch-tag">object · 5 properties</span><span class="sch-chev">▸</span></summary>
+    <div class="sch-body"><table><thead><tr><th>Property</th><th>Type</th><th>Required</th></tr></thead><tbody>
+      <tr><td class="name">id</td><td class="type">ULID</td><td class="desc">required</td></tr>
+      <tr><td class="name">title</td><td class="type">string</td><td class="desc">required</td></tr>
+      <tr><td class="name">author_id</td><td class="type">ULID</td><td class="desc">required</td></tr>
+      <tr><td class="name">price_cents</td><td class="type">integer</td><td class="desc">required</td></tr>
+      <tr><td class="name">isbn</td><td class="type">string</td><td class="desc">optional</td></tr>
+    </tbody></table></div>
+  </details>
+
+  <details class="sch">
+    <summary class="sch-sum"><span class="sch-name">BookInput</span><span class="sch-tag">object · 4 properties</span><span class="sch-chev">▸</span></summary>
+    <div class="sch-body"><table><thead><tr><th>Property</th><th>Type</th><th>Required</th></tr></thead><tbody>
+      <tr><td class="name">title</td><td class="type">string</td><td class="desc">required</td></tr>
+      <tr><td class="name">author_id</td><td class="type">ULID</td><td class="desc">required</td></tr>
+      <tr><td class="name">price_cents</td><td class="type">integer</td><td class="desc">required</td></tr>
+      <tr><td class="name">isbn</td><td class="type">string</td><td class="desc">optional</td></tr>
+    </tbody></table></div>
+  </details>
+
+  <details class="sch">
+    <summary class="sch-sum"><span class="sch-name">OrderInput</span><span class="sch-tag">object · 1 property</span><span class="sch-chev">▸</span></summary>
+    <div class="sch-body"><table><thead><tr><th>Property</th><th>Type</th><th>Required</th></tr></thead><tbody>
+      <tr><td class="name">items</td><td class="type">LineItem[]</td><td class="desc">required</td></tr>
+    </tbody></table></div>
+  </details>
+
+  <details class="sch">
+    <summary class="sch-sum"><span class="sch-name">LineItem</span><span class="sch-tag">object · 2 properties</span><span class="sch-chev">▸</span></summary>
+    <div class="sch-body"><table><thead><tr><th>Property</th><th>Type</th><th>Required</th></tr></thead><tbody>
+      <tr><td class="name">book_id</td><td class="type">ULID</td><td class="desc">required</td></tr>
+      <tr><td class="name">quantity</td><td class="type">integer</td><td class="desc">required</td></tr>
+    </tbody></table></div>
+  </details>
+
+  <details class="sch">
+    <summary class="sch-sum"><span class="sch-name">Order</span><span class="sch-tag">object · 4 properties</span><span class="sch-chev">▸</span></summary>
+    <div class="sch-body"><table><thead><tr><th>Property</th><th>Type</th><th>Required</th></tr></thead><tbody>
+      <tr><td class="name">id</td><td class="type">ULID</td><td class="desc">required</td></tr>
+      <tr><td class="name">status</td><td class="type">enum(cart,paid,shipped)</td><td class="desc">required</td></tr>
+      <tr><td class="name">total_cents</td><td class="type">integer</td><td class="desc">required</td></tr>
+      <tr><td class="name">items</td><td class="type">LineItem[]</td><td class="desc">required</td></tr>
+    </tbody></table></div>
+  </details>
+
+  <details class="sch">
+    <summary class="sch-sum"><span class="sch-name">Error</span><span class="sch-tag">object · 2 properties</span><span class="sch-chev">▸</span></summary>
+    <div class="sch-body"><table><thead><tr><th>Property</th><th>Type</th><th>Required</th></tr></thead><tbody>
+      <tr><td class="name">code</td><td class="type">string</td><td class="desc">required</td></tr>
+      <tr><td class="name">message</td><td class="type">string</td><td class="desc">required</td></tr>
+    </tbody></table></div>
+  </details>
+</div>
+
+<script>
+/* Progressive enhancement only. The whole contract renders without JavaScript;
+   these buttons just toggle every <details> at once. */
+"use strict";
+document.getElementById("expand").addEventListener("click", function(){
+  document.querySelectorAll("details").forEach(function(d){ d.open = true; });
+});
+document.getElementById("collapse").addEventListener("click", function(){
+  document.querySelectorAll("details.op, details.sch").forEach(function(d){ d.open = false; });
+});
+</script>
+</body>
+</html>
