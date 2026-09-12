@@ -60,6 +60,44 @@ Copy [`examples/bookstore-api.html`](examples/bookstore-api.html) as a skeleton 
 
 Keep the page one column that scrolls. Do not add a canvas, pan, zoom, or drag.
 
+## Change mode (optional)
+
+Use change mode for an API-change view, not the whole API. The `visual-plan` skill embeds this mode for a plan that changes an API. Change mode adds an endpoint change state and a row change state, and it scopes the page to the change.
+
+### Scope: only the changed parts
+
+Show only the endpoints and schemas the change adds, alters, or removes. Drop every unchanged endpoint and schema. The page then shows the difference, not the whole contract.
+
+### Endpoint change state
+
+Mark each shown endpoint with a change state:
+
+| State | Meaning | Style |
+| --- | --- | --- |
+| `new` | The change adds this endpoint. | Green border and a `NEW` badge. |
+| `changed` | The change alters this endpoint's parameters, body, or responses. | Amber border and a `CHANGED` badge. |
+| `removed` | The change removes this endpoint. | Red border, a `REMOVED` badge, and a struck-through path. |
+
+Open a `new` or `changed` endpoint by default, so the reader sees the change without a click. A `removed` endpoint needs no body.
+
+### Row change state
+
+Inside a `changed` endpoint or schema, mark each changed row:
+
+| Marker | Meaning |
+| --- | --- |
+| `+` (green) | The change adds this parameter, response, or field. |
+| `~` (amber) | The change alters this row's type, status, or required state. |
+| `−` (red, struck through) | The change removes this parameter, response, or field. |
+
+Keep an unchanged row in place with no marker, so the reader sees the changed row in context. Mark a changed schema with the same `new`, `changed`, or `removed` state.
+
+### Legend
+
+Show the change states in the legend, and only in change mode: `NEW`, `CHANGED`, `REMOVED`, and the `+`, `~`, and `−` markers.
+
+The page stays static HTML. It relaxes no other rule. Copy [`examples/bookstore-api-changes.html`](examples/bookstore-api-changes.html) as a change-mode skeleton.
+
 ## Language rules
 
 Every human-readable string — the title, tag names, tag descriptions, summaries, and response descriptions — MUST follow the [`asd-ste100`](../asd-ste100/SKILL.md) skill, strictly. Follow its heading rule: a heading names the real subject and is not a slogan. The title names the API plainly, for example "Bookstore API", not a marketing phrase.

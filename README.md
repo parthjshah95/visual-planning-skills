@@ -68,6 +68,7 @@ Every example is one self-contained HTML file. Open the live link, or download t
 | CSV-export plan | `visual-plan` | [live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-plan/examples/csv-export/plan.html) · [source](skills/visual-plan/examples/csv-export/plan.html) |
 | Bookstore schema | `visual-schema` | [live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-schema/examples/bookstore-schema.html) · [source](skills/visual-schema/examples/bookstore-schema.html) |
 | Bookstore API contract | `visual-api` | [live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-api/examples/bookstore-api.html) · [source](skills/visual-api/examples/bookstore-api.html) |
+| Bookstore API — changes only | `visual-api` (change mode) | [live](https://parthjshah95.github.io/visual-planning-skills/skills/visual-api/examples/bookstore-api-changes.html) · [source](skills/visual-api/examples/bookstore-api-changes.html) |
 
 ## Install
 
