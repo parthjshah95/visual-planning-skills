@@ -146,9 +146,13 @@ What to visualize, by change type:
 
 When a change of any type also alters the database schema, add the schema-change diagram in section 2a.
 
+When a change of any type also alters an API contract, add the API-change view in section 2b.
+
 **Less text, more visual.** If you can draw it, don't write it. Annotations on diagrams replace paragraphs. The behavior and architecture content lives primarily here, not in prose blocks.
 
 **2a. Schema-change diagram — only when the change creates, alters, or drops a database table or field.** Embed a scoped schema diagram. Build it with the [`visual-schema`](../visual-schema/SKILL.md) skill in **change mode**. Show only the changed tables, plus one hop of related tables as dimmed context. Never redraw the whole database. Mark each table `new`, `changed`, or `removed`. Mark the added, changed, and removed fields. This picture replaces a prose list of schema edits. Skip this section when the change touches no table or field.
+
+**2b. API-change view — only when the change adds, alters, or removes an API endpoint, parameter, request body, response, or response schema.** Embed a scoped API-change view. Build it with the [`visual-api`](../visual-api/SKILL.md) skill in **change mode**. Show only the changed endpoints and schemas, never the whole API. Mark each endpoint `new`, `changed`, or `removed`. Mark the added, changed, and removed parameters, responses, and fields. This view replaces a prose list of API edits. Skip this section when the change touches no API contract.
 
 **3. Implementation pipeline.** A compact visual of the ordered steps. For cross-repo work, show the dependency chain with an arrow between step cards. Each step card lists the module/repo name and bullet-point scope.
 
@@ -190,6 +194,7 @@ Verify **all** of these before opening the HTML:
 - Check the final HTML with the verification steps in [`visual-explainer`](../visual-explainer/SKILL.md). Report any unavailable visual inspection.
 - The implementation pipeline covers every step with module names and scope.
 - If the change alters the database schema, the schema-change diagram is present. It shows every created, altered, and dropped table. It marks the changed fields. Check that its labels fit and its elements remain visible.
+- If the change alters an API contract, the API-change view is present. It shows every added, altered, and removed endpoint. It marks the changed parameters, responses, and fields.
 
 Fix the HTML before presenting it. Do not show an incomplete plan.
 
@@ -272,6 +277,7 @@ The `asd-ste100` skill governs how to build the sentence. These points govern wh
 - [ ] HTML plan written to `<out>/<YYYY-MM-DD>_<slug>.html`. Date is today; slug is lowercase-hyphenated.
 - [ ] Visual explanation grounded in actual code — real functions, files, endpoints.
 - [ ] If the change alters the schema, a scoped schema-change diagram is present, in `visual-schema` change mode, limited to changed tables plus one hop of context.
+- [ ] If the change alters an API contract, a scoped API-change view is present, in `visual-api` change mode, limited to the changed endpoints and schemas.
 - [ ] Animation treated as encouraged, not compulsory; any motion improves comprehension.
 - [ ] Any flowchart is fully visible in normal flow with unbounded content-driven height, no overlap/clipping, no internal scroll.
 - [ ] Final HTML checks follow `visual-explainer`; any unavailable visual inspection is reported.
@@ -298,6 +304,8 @@ The `asd-ste100` skill governs how to build the sentence. These points govern wh
 - **Missing visual explanation.** The visual section is the centerpiece, not optional. Every plan has at least one diagram.
 - **Redrawing the whole database for a small schema change.** Show only the changed tables plus one hop of context.
 - **A schema change with no schema diagram.** A created, altered, or dropped table needs the scoped diagram in section 2a.
+- **Redrawing the whole API for a few endpoint changes.** Show only the changed endpoints and schemas.
+- **An API change with no change view.** An added, altered, or removed endpoint needs the scoped view in section 2b.
 - **Compulsory animation.** Encourage it; don't add motion that contributes nothing or fights an explicit request.
 - **Standalone static flowchart as the default.** Use it as an overview slide within an animated deck, or when the user explicitly asks — not because it is easier than animation.
 - **Constrained flowchart canvas.** No fixed-height, viewport-height, aspect-ratio, clipped, scaled, or internally scrolling container. The document grows to show the whole chart.

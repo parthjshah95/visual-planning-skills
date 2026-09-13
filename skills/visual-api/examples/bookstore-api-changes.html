@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bookstore API — changes in this plan</title>
+<style>
+  :root{
+    --bg-0:#0b1322; --bg-1:#101b2f; --bg-2:#16233a;
+    --line:#26406a; --line-2:#37568a; --line-faint:#1d2f4f;
+    --ink:#e9eefb; --ink-dim:#95a7c9; --ink-faint:#69799d;
+    --get:#61affe; --post:#49cc90; --put:#fca130; --patch:#50e3c2; --delete:#f93e3e;
+    --ok:#54cf8d; --amber:#ffca6b; --danger:#ff6b6b;
+    --mono:"SFMono-Regular","Consolas","Menlo",monospace;
+    --body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--bg-0);color:var(--ink);font-family:var(--body);padding:0 20px 60px;}
+  .wrap{max-width:1000px;margin:0 auto;}
+  header{padding:26px 0 2px;}
+  h2.title{font-family:Georgia,serif;font-size:22px;margin:0;}
+  .sub{color:var(--ink-faint);font-size:13px;margin-top:3px;}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--ink-dim);align-items:center;margin:12px 0 4px;}
+  .legend .chip{display:inline-block;padding:1px 7px;border-radius:5px;font-weight:700;font-size:10px;color:#08131f;}
+  summary{list-style:none;}
+  summary::-webkit-details-marker{display:none;}
+
+  .sec-h{font-family:Georgia,serif;font-size:16px;margin:22px 0 4px;border-bottom:1px solid var(--line);padding-bottom:5px;}
+
+  details.op{border:1px solid;border-radius:8px;margin:8px 0;overflow:hidden;}
+  summary.op-sum{display:flex;align-items:center;gap:12px;padding:7px 12px;cursor:pointer;}
+  .op-method{font-family:var(--mono);font-weight:700;color:#08131f;width:78px;flex:0 0 78px;text-align:center;
+    padding:6px 0;border-radius:5px;font-size:12px;letter-spacing:.5px;}
+  .op-path{font-family:var(--mono);font-weight:700;font-size:14px;word-break:break-all;}
+  .op-desc{color:var(--ink-dim);font-size:13px;margin-left:8px;}
+  .cbadge{font-family:var(--mono);font-weight:700;font-size:10px;letter-spacing:.4px;padding:2px 7px;border-radius:5px;color:#08131f;margin-left:auto;}
+  .cbadge.c-new{background:var(--ok);} .cbadge.c-changed{background:var(--amber);} .cbadge.c-removed{background:var(--danger);}
+  .op-chev{color:var(--ink-faint);transition:transform .15s ease;flex:0 0 auto;margin-left:10px;}
+  details.op[open] .op-chev{transform:rotate(90deg);}
+  .op-body{border-top:1px solid var(--line-faint);padding:12px 16px;background:var(--bg-0);}
+
+  .m-get{border-color:#61affe55;background:#61affe0d;} .m-get .op-method{background:var(--get);}
+  .m-post{border-color:#49cc9055;background:#49cc900d;} .m-post .op-method{background:var(--post);}
+  .m-patch{border-color:#50e3c255;background:#50e3c20d;} .m-patch .op-method{background:var(--patch);}
+  .m-delete{border-color:#f93e3e55;background:#f93e3e0d;} .m-delete .op-method{background:var(--delete);}
+
+  /* change accents override the method tint on the border */
+  details.op.c-new{border-color:var(--ok);}
+  details.op.c-changed{border-color:var(--amber);}
+  details.op.c-removed{border-color:var(--danger);}
+  details.op.c-removed .op-path{text-decoration:line-through;color:var(--ink-dim);}
+
+  h4.sec{margin:12px 0 5px;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink-faint);font-family:var(--mono);}
+  h4.sec:first-child{margin-top:0;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  th{text-align:left;color:var(--ink-faint);border-bottom:1px solid var(--line);padding:5px 8px;font-family:var(--mono);font-weight:600;}
+  td{padding:5px 8px;border-bottom:1px solid var(--line-faint);font-family:var(--mono);vertical-align:top;}
+  td.name{color:var(--ink);white-space:nowrap;}
+  td.type{color:var(--patch);white-space:nowrap;}
+  td.desc{color:var(--ink-dim);font-family:var(--body);}
+  .media{color:var(--ink-faint);font-size:11px;font-family:var(--mono);}
+  .bodyschema{font-family:var(--mono);font-size:13px;margin-top:2px;}
+  .schref{color:var(--get);}
+  .status{font-weight:700;font-family:var(--mono);}
+  .s2{color:var(--ok);} .s4{color:var(--amber);}
+  .inpill{font-size:10px;color:var(--ink-faint);border:1px solid var(--line-2);border-radius:4px;padding:0 5px;font-family:var(--mono);}
+
+  /* row-level change markers */
+  .mk{display:inline-block;width:12px;font-weight:700;}
+  tr.r-added .mk{color:var(--ok);} tr.r-added td{background:#54cf8d12;}
+  tr.r-changed .mk{color:var(--amber);} tr.r-changed td{background:#ffca6b12;}
+  tr.r-removed .mk{color:var(--danger);} tr.r-removed td, tr.r-removed td.name, tr.r-removed td.type{text-decoration:line-through;color:var(--ink-faint);}
+
+  details.sch{border:1px solid var(--line-2);border-radius:8px;margin:8px 0;overflow:hidden;background:var(--bg-2);}
+  details.sch.c-new{border-color:var(--ok);} details.sch.c-changed{border-color:var(--amber);}
+  summary.sch-sum{display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;}
+  .sch-name{font-family:var(--mono);font-weight:700;font-size:13px;}
+  .sch-tag{color:var(--ink-faint);font-size:11px;font-family:var(--mono);}
+  .sch-body{border-top:1px solid var(--line-faint);padding:10px 14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h2 class="title">API changes in this plan</h2>
+    <div class="sub">Only the endpoints and schemas this plan adds, changes, or removes. The rest of the Bookstore API is unchanged.</div>
+  </header>
+  <div class="legend">
+    <span><span class="chip c-new">NEW</span></span>
+    <span><span class="chip c-changed">CHANGED</span></span>
+    <span><span class="chip c-removed">REMOVED</span></span>
+    <span style="color:var(--ok)">+ added field</span>
+    <span style="color:var(--amber)">~ changed field</span>
+    <span style="color:var(--danger)">− removed field</span>
+  </div>
+
+  <div class="sec-h">Endpoints</div>
+
+  <details class="op m-post c-new" open>
+    <summary class="op-sum"><span class="op-method">POST</span><span class="op-path">/wishlist</span><span class="op-desc">Add a book to the wishlist</span><span class="cbadge c-new">NEW</span><span class="op-chev">▸</span></summary>
+    <div class="op-body">
+      <h4 class="sec">Request body</h4>
+      <div class="media">application/json</div>
+      <div class="bodyschema">schema: <span class="schref">WishlistInput</span></div>
+      <h4 class="sec">Responses</h4>
+      <table><thead><tr><th>Code</th><th>Description</th><th>Schema</th></tr></thead><tbody>
+        <tr><td><span class="status s2">201</span></td><td class="desc">Saved to wishlist</td><td class="type"><span class="schref">WishlistItem</span></td></tr>
+        <tr><td><span class="status s4">401</span></td><td class="desc">Not signed in</td><td class="type"><span class="schref">Error</span></td></tr>
+      </tbody></table>
+    </div>
+  </details>
+
+  <details class="op m-post c-changed" open>
+    <summary class="op-sum"><span class="op-method">POST</span><span class="op-path">/orders</span><span class="op-desc">Place an order</span><span class="cbadge c-changed">CHANGED</span><span class="op-chev">▸</span></summary>
+    <div class="op-body">
+      <h4 class="sec">Request body</h4>
+      <div class="media">application/json</div>
+      <div class="bodyschema">schema: <span class="schref">OrderInput</span> <span style="color:var(--ok)">(+ coupon)</span></div>
+      <h4 class="sec">Responses</h4>
+      <table><thead><tr><th></th><th>Code</th><th>Description</th><th>Schema</th></tr></thead><tbody>
+        <tr><td class="mk"></td><td><span class="status s2">201</span></td><td class="desc">Order placed</td><td class="type"><span class="schref">Order</span></td></tr>
+        <tr class="r-added"><td class="mk">+</td><td><span class="status s4">409</span></td><td class="desc">Coupon already used</td><td class="type"><span class="schref">Error</span></td></tr>
+        <tr><td class="mk"></td><td><span class="status s4">422</span></td><td class="desc">Empty or invalid cart</td><td class="type"><span class="schref">Error</span></td></tr>
+      </tbody></table>
+    </div>
+  </details>
+
+  <details class="op m-delete c-removed">
+    <summary class="op-sum"><span class="op-method">DELETE</span><span class="op-path">/books/{id}</span><span class="op-desc">Remove a book</span><span class="cbadge c-removed">REMOVED</span><span class="op-chev">▸</span></summary>
+    <div class="op-body">
+      <div class="sub">Dropped in this plan. Books are archived, not deleted.</div>
+    </div>
+  </details>
+
+  <div class="sec-h">Schemas</div>
+
+  <details class="sch c-new" open>
+    <summary class="sch-sum"><span class="sch-name">WishlistItem</span><span class="sch-tag">object · 3 properties</span><span class="cbadge c-new">NEW</span></summary>
+    <div class="sch-body"><table><thead><tr><th></th><th>Property</th><th>Type</th><th>Required</th></tr></thead><tbody>
+      <tr><td class="mk"></td><td class="name">id</td><td class="type">ULID</td><td class="desc">required</td></tr>
+      <tr><td class="mk"></td><td class="name">book_id</td><td class="type">ULID</td><td class="desc">required</td></tr>
+      <tr><td class="mk"></td><td class="name">added_at</td><td class="type">datetime</td><td class="desc">required</td></tr>
+    </tbody></table></div>
+  </details>
+
+  <details class="sch c-changed" open>
+    <summary class="sch-sum"><span class="sch-name">OrderInput</span><span class="sch-tag">object · 2 properties</span><span class="cbadge c-changed">CHANGED</span></summary>
+    <div class="sch-body"><table><thead><tr><th></th><th>Property</th><th>Type</th><th>Required</th></tr></thead><tbody>
+      <tr><td class="mk"></td><td class="name">items</td><td class="type">LineItem[]</td><td class="desc">required</td></tr>
+      <tr class="r-added"><td class="mk">+</td><td class="name">coupon</td><td class="type">string</td><td class="desc">optional</td></tr>
+    </tbody></table></div>
+  </details>
+
+  <details class="sch c-changed" open>
+    <summary class="sch-sum"><span class="sch-name">Book</span><span class="sch-tag">object · 5 properties</span><span class="cbadge c-changed">CHANGED</span></summary>
+    <div class="sch-body"><table><thead><tr><th></th><th>Property</th><th>Type</th><th>Required</th></tr></thead><tbody>
+      <tr><td class="mk"></td><td class="name">id</td><td class="type">ULID</td><td class="desc">required</td></tr>
+      <tr><td class="mk"></td><td class="name">title</td><td class="type">string</td><td class="desc">required</td></tr>
+      <tr><td class="mk"></td><td class="name">author_id</td><td class="type">ULID</td><td class="desc">required</td></tr>
+      <tr><td class="mk"></td><td class="name">price_cents</td><td class="type">integer</td><td class="desc">required</td></tr>
+      <tr class="r-changed"><td class="mk">~</td><td class="name">isbn</td><td class="type">string</td><td class="desc">now required (was optional)</td></tr>
+    </tbody></table></div>
+  </details>
+</div>
+</body>
+</html>
