@@ -179,7 +179,6 @@ When a change of any type also alters an API contract, add the API-change view i
 - If the visual uses a flowchart, verify `height: auto`, `max-height: none`, `overflow: visible` on the section/container. No internal scroll area, fixed aspect ratio, viewport-height cap, clipped SVG, or transform scaling to constrain its vertical size.
 - Use a clean, professional palette — an engineering plan should feel like a well-designed dashboard, not an art-deco explainer.
 - File goes to `<out>/<YYYY-MM-DD>_<slug>.html` (default `out` is `./plans/`), or to the `Output: Path` pattern from the custom instructions when one is set and no `out=` argument was given. `<YYYY-MM-DD>` is today's date; `<slug>` is a short lowercase-hyphenated descriptor.
-- **Inline the layout audit (required).** Paste [`layout_audit.js`](../visual-explainer/layout_audit.js) from the `visual-explainer` skill inside a `<script>` at the end of `<body>`, and put `data-scenes="N"` on any `[data-scene]` stage. It reports text that spills out of a box and boxes that overlap, for every scene, in the console and in a hidden `<pre id="layout-audit">`.
 
 ### 4. Stop condition (before showing the plan)
 
@@ -192,9 +191,9 @@ Verify **all** of these before opening the HTML:
 - If a flowchart is used, every node is visible without overlap or clipping, the section has no height cap or internal scrollbar, and the document expands to the chart's full height at desktop and narrow widths.
 - The "Copy decisions" + "Accept all defaults" controls appear at both the top and bottom, both work (bound by class), and "Copy decisions" has the non-Clipboard-API fallback chain.
 - Every decision card ends with an "Other" option whose free-text field is captured by "Copy decisions".
-- **You rendered the final file and looked at it.** Run [`render_check.sh`](../visual-explainer/render_check.sh)` <out>/<file>.html --size 1400x6000` (an agent with a browser tool may use that instead). It prints the layout-audit lines and writes one screenshot per scene. Open every screenshot and check as the user will: every label fits inside its box, no element hides behind another, arrows land on their targets. Fix every warning and every defect you see, then rerun; dismiss a warning only for an intended overlap, in one line. Zero unexplained warnings is part of the stop condition. See [`visual-explainer`](../visual-explainer/SKILL.md) — Verify before finishing.
+- Check the final HTML with the verification steps in [`visual-explainer`](../visual-explainer/SKILL.md). Report any unavailable visual inspection.
 - The implementation pipeline covers every step with module names and scope.
-- If the change alters the database schema, the schema-change diagram is present. It shows every created, altered, and dropped table. It marks the changed fields. Its layout audit is clean.
+- If the change alters the database schema, the schema-change diagram is present. It shows every created, altered, and dropped table. It marks the changed fields. Check that its labels fit and its elements remain visible.
 - If the change alters an API contract, the API-change view is present. It shows every added, altered, and removed endpoint. It marks the changed parameters, responses, and fields.
 
 Fix the HTML before presenting it. Do not show an incomplete plan.
@@ -281,7 +280,7 @@ The `asd-ste100` skill governs how to build the sentence. These points govern wh
 - [ ] If the change alters an API contract, a scoped API-change view is present, in `visual-api` change mode, limited to the changed endpoints and schemas.
 - [ ] Animation treated as encouraged, not compulsory; any motion improves comprehension.
 - [ ] Any flowchart is fully visible in normal flow with unbounded content-driven height, no overlap/clipping, no internal scroll.
-- [ ] `layout_audit.js` is inlined; `render_check.sh` ran on the final file with zero unexplained warnings; every scene screenshot was opened and shows no spilled text and no hidden element.
+- [ ] Final HTML checks follow `visual-explainer`; any unavailable visual inspection is reported.
 - [ ] Every section and decision the active custom instructions require is present (generic default if none).
 - [ ] Every file under `## Style` was read before writing; the HTML is at the `Output: Path` when one is set; `Output: Publish` ran, or each missing prerequisite was reported.
 - [ ] If `Challenge: Run: yes`, the challenge ran after the first render within the round cap, stalemates were shown as instructed, and the Challenge Log is in the HTML and the compact plan; otherwise `/challenge-plan` was offered.

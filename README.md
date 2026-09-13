@@ -90,6 +90,15 @@ cd visual-planning-skills
 | Windsurf (per project) | `cp -R skills/* <project>/.windsurf/skills/` |
 | Antigravity (per workspace) | `cp -R skills/* <workspace>/.agents/skills/` |
 
+For an existing installation, remove these retired files from its `visual-explainer` folder before you copy the updated skills:
+
+- `render_check.sh`
+- `layout_audit.js`
+- `test_layout_audit.sh`
+
+The skills no longer require a Chrome script or an automatic layout audit.
+MedFinder users receive this removal through the shared repository's `setup.sh`.
+
 Each `SKILL.md` is self-contained.
 
 ## Custom instructions
